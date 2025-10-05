@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using HarmonyLib;
+using System.Runtime.CompilerServices;
 using UnityEngine;
+#if DEBUG
+using HarmonyLib;
+#endif
 
 namespace BetterDrag
 {
@@ -79,6 +82,12 @@ namespace BetterDrag
         [NonSerialized]
         public DragForceFunction? CalculateWaveMakingDragForce = null;
 
+        /// <inheritdoc/>
+        public override string ToString()
+        {
+            return $"ShipDragPerformanceData(LWL={this.LengthAtWaterline}, FormFactor={this.FormFactor}, ViscousDragMultiplier={this.ViscousDragMultiplier}, WaveMakingDragMultiplier={this.WaveMakingDragMultiplier})";
+        }
+
         internal static ShipDragPerformanceData Merge(
             ShipDragPerformanceData highPriority,
             ShipDragPerformanceData lowPriority
@@ -106,7 +115,10 @@ namespace BetterDrag
     /// </summary>
     public static class ShipDragDataStore
     {
-        private static readonly Dictionary<String, FinalShipDragPerformanceData> dataCache = [];
+        private static readonly ConditionalWeakTable<
+            GameObject,
+            FinalShipDragPerformanceData
+        > dataCache = new();
         private static Dictionary<String, ShipDragPerformanceData> userPerformance = [];
         private static readonly Dictionary<String, ShipDragPerformanceData> customPerformance = [];
 
@@ -131,14 +143,22 @@ namespace BetterDrag
         /// </summary>
         internal static FinalShipDragPerformanceData GetPerformanceData(GameObject ship)
         {
-            var shipName = GetNormalizedShipName(ship);
+            dataCache.TryGetValue(ship, out var data);
+            if (data is not null)
+                return data;
 
-            if (dataCache.ContainsKey(shipName))
-                return dataCache[shipName];
+            var finalData = MergeConfigs(ship);
+            dataCache.Add(ship, finalData);
+            return finalData;
+        }
 
+        private static FinalShipDragPerformanceData MergeConfigs(GameObject ship)
+        {
             ShipDragPerformanceData? userData = GetPerformance(ship, userPerformance);
             ShipDragPerformanceData? customData = GetCustomPerformance(ship);
-            ShipDragPerformanceData defaultData = GetDefaultPerformance(ship);
+            ShipDragPerformanceData defaultData = (ShipDragPerformanceData)GetDefaultPerformance(
+                ship
+            );
 
             ShipDragPerformanceData?[] dataList = [userData, customData, defaultData];
             var mergedData = dataList
@@ -147,7 +167,7 @@ namespace BetterDrag
             var finalData = FinalShipDragPerformanceData.FillWithDefaults(mergedData);
 
 #if DEBUG
-            FileLog.Log($"Ship data not in cache: {shipName}");
+            FileLog.Log($"Ship data not in cache: {ship.name}");
             FileLog.Log(
                 $"Default data: length {defaultData.LengthAtWaterline}, form factor {defaultData.FormFactor}"
             );
@@ -155,8 +175,6 @@ namespace BetterDrag
                 $"Selected data: length {finalData.LengthAtWaterline}, form factor {finalData.FormFactor}\n"
             );
 #endif
-
-            dataCache[shipName] = finalData;
             return finalData;
         }
 
@@ -240,6 +258,12 @@ namespace BetterDrag
         public ShipDragPerformanceData.DragForceFunction CalculateViscousDragForce;
         public ShipDragPerformanceData.DragForceFunction CalculateWaveMakingDragForce;
 
+        /// <inheritdoc/>
+        public override string ToString()
+        {
+            return $"FinalShipDragPerformanceData(LWL={this.LengthAtWaterline}, FormFactor={this.FormFactor}, ViscousDragMultiplier={this.ViscousDragMultiplier}, WaveMakingDragMultiplier={this.WaveMakingDragMultiplier})";
+        }
+
         public FinalShipDragPerformanceData()
         {
             LengthAtWaterline = 20;
@@ -268,7 +292,7 @@ namespace BetterDrag
             };
         }
 
-        public static implicit operator ShipDragPerformanceData(FinalShipDragPerformanceData data)
+        public static explicit operator ShipDragPerformanceData(FinalShipDragPerformanceData data)
         {
             return new()
             {

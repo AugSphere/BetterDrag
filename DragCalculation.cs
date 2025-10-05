@@ -37,7 +37,7 @@ namespace BetterDrag
                     * (
                         2.0f
                         - Mathf.Sqrt(froudeNumber)
-                            * Mathf.Cos(1 / Mathf.Pow(froudeNumber, 2) - 1.9f)
+                            * Mathf.Cos(1.0f / Mathf.Pow(froudeNumber, 2) - 1.9f)
                     );
                 force = forceScaling * forceOscillation;
             }

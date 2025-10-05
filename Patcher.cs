@@ -1,10 +1,10 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using Crest;
 using HarmonyLib;
 using UnityEngine;
+using UnityEngine.Scripting;
 
 namespace BetterDrag
 {
@@ -55,33 +55,41 @@ namespace BetterDrag
         [MethodImpl(MethodImplOptions.NoInlining)]
         static Transform ComponentBaseTransform(BoatProbes _) => null!;
 
-        static readonly SampleHeightHelper sampleHeightHelper = new();
-
         [HarmonyPostfix]
         [HarmonyPatch(typeof(BoatProbes), "FixedUpdateDrag")]
         static void AddCustomLongitudinalDrag(
             Vector3 waterSurfaceVel,
-            ref BoatProbes __instance,
-            ref Rigidbody ____rb,
+            BoatProbes __instance,
+            Rigidbody ____rb,
             float ____forceHeightOffset
         )
         {
+            Profiler.RestartClock();
+
+            GarbageCollector.SetMode(GarbageCollector.Mode.Disabled);
+            Profiler.Profile("GarbageCollector.SetMode(Disabled)");
+
             var transform = ComponentBaseTransform(__instance);
+            Profiler.Profile("transform");
+
             var shipPerformanceData = ShipDragDataStore.GetPerformanceData(__instance.gameObject);
+            Profiler.Profile("shipPerformanceData");
 
             Vector3 velocityVector = ____rb.velocity - waterSurfaceVel;
             Vector3 dragPositionVector = ____rb.position + ____forceHeightOffset * Vector3.up;
             var forwardVector = transform.forward;
             var forwardVelocity = Vector3.Dot(forwardVector, velocityVector);
+            Profiler.Profile("forwardVelocity");
 
-            var displacement = Mathf.Clamp(
-                __instance.appliedBuoyancyForces.Sum() * 1e-4f,
-                0.1f,
-                float.MaxValue
-            );
-            var draft = GetDraft(ref __instance, ref ____rb);
+            var displacement = GetDisplacement(__instance);
+            Profiler.Profile("GetDisplacement");
+
+            var draft = GetDraft(__instance, ____rb);
+            Profiler.Profile("draft");
+
             var wettedArea =
                 1.7f * shipPerformanceData.LengthAtWaterline * draft + displacement / draft;
+            Profiler.Profile("wettedArea");
 
             var dragForceMagnitude = CalculateForwardDragForce(
                 forwardVelocity,
@@ -89,13 +97,14 @@ namespace BetterDrag
                 wettedArea,
                 shipPerformanceData
             );
+            Profiler.Profile("dragForceMagnitude");
 
-            ____rb.AddForceAtPosition(
-                -forwardVector * Mathf.Sign(forwardVelocity) * dragForceMagnitude,
-                dragPositionVector,
-                ForceMode.Force
-            );
+            var dragForceVector = -forwardVector * Mathf.Sign(forwardVelocity) * dragForceMagnitude;
+            ____rb.AddForceAtPosition(dragForceVector, dragPositionVector, ForceMode.Force);
+            Profiler.Profile("AddForceAtPosition");
 
+            GarbageCollector.SetMode(GarbageCollector.Mode.Enabled);
+            Profiler.Profile("GarbageCollector.SetMode(Enabled)");
 #if DEBUG
             if (DebugCounter.IsAtFirstFrame())
             {
@@ -114,6 +123,7 @@ namespace BetterDrag
 
             if (DebugCounter.IsAtPeriod())
             {
+                FileLog.Log($"{shipPerformanceData}");
                 FileLog.Log($"Draft: {draft}m");
                 FileLog.Log($"Displacement: {displacement}m^3");
                 FileLog.Log($"Wetted area: {wettedArea}m^2");
@@ -122,6 +132,7 @@ namespace BetterDrag
             }
             DebugCounter.Increment();
 #endif
+            Profiler.LogDurations();
         }
 
         private static float CalculateForwardDragForce(
@@ -134,8 +145,8 @@ namespace BetterDrag
             var absVelocity = Mathf.Abs(forwardVelocity);
             var lengthAtWaterline = performanceData.LengthAtWaterline;
             var formFactor = performanceData.FormFactor;
-            var totalDragForce =
-                Plugin.globalViscousDragMultiplier!.Value
+
+            return Plugin.globalViscousDragMultiplier!.Value
                     * performanceData.ViscousDragMultiplier
                     * performanceData.CalculateViscousDragForce(
                         absVelocity,
@@ -153,19 +164,41 @@ namespace BetterDrag
                         displacement,
                         wettedArea
                     );
-            return totalDragForce;
         }
 
-        private static float GetDraft(ref BoatProbes instance, ref Rigidbody rb)
+        static readonly SampleHeightHelper sampleHeightHelper = new();
+        static uint draftSampleCounter = 0;
+        static float lastDraft = 1.0f;
+
+        private static float GetDraft(BoatProbes instance, Rigidbody rb)
+        {
+            draftSampleCounter++;
+            if (draftSampleCounter % Plugin.draftSamplingPeriod!.Value != 0)
+                return lastDraft;
+
+            return SampleDraft(instance, rb);
+        }
+
+        private static float GetDisplacement(BoatProbes instance)
+        {
+            float displacement = 0.0f;
+            for (int idx = 0; idx < instance.appliedBuoyancyForces.Length; idx++)
+                displacement += instance.appliedBuoyancyForces[idx];
+
+            return Mathf.Clamp(displacement * 1e-4f, 0.1f, float.MaxValue);
+        }
+
+        private static float SampleDraft(BoatProbes instance, Rigidbody rb)
         {
             var downPoint = rb.ClosestPointOnBounds(rb.centerOfMass + 100 * Vector3.down);
             sampleHeightHelper.Init(
                 downPoint,
                 instance.ObjectWidth,
-                allowMultipleCallsPerFrame: true
+                allowMultipleCallsPerFrame: false
             );
             sampleHeightHelper.Sample(out float o_height);
-            return Mathf.Clamp(o_height - downPoint.y, 0.1f, float.MaxValue);
+            lastDraft = Mathf.Clamp(o_height - downPoint.y, 0.1f, float.MaxValue);
+            return lastDraft;
         }
     }
 }

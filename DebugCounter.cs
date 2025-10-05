@@ -7,10 +7,6 @@ namespace BetterDrag
     {
         private static int counter = 0;
         private static readonly int period = 250;
-        public static int Counter
-        {
-            get { return counter; }
-        }
 
         public static bool IsAtFirstFrame()
         {

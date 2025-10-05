@@ -23,3 +23,7 @@ Inheritance [System\.Object](https://learn.microsoft.com/en-us/dotnet/api/system
 | [LengthAtWaterline](BetterDrag.ShipDragPerformanceData.LengthAtWaterline.md 'BetterDrag\.ShipDragPerformanceData\.LengthAtWaterline') | Length of the hull at waterline in metres\. |
 | [ViscousDragMultiplier](BetterDrag.ShipDragPerformanceData.ViscousDragMultiplier.md 'BetterDrag\.ShipDragPerformanceData\.ViscousDragMultiplier') | Ship\-specific drag multiplier for viscous resistance\. |
 | [WaveMakingDragMultiplier](BetterDrag.ShipDragPerformanceData.WaveMakingDragMultiplier.md 'BetterDrag\.ShipDragPerformanceData\.WaveMakingDragMultiplier') | Ship\-specific drag multippier for wave\-making resistance\. |
+
+| Methods | |
+| :--- | :--- |
+| [ToString\(\)](BetterDrag.ShipDragPerformanceData.ToString().md 'BetterDrag\.ShipDragPerformanceData\.ToString\(\)') | Returns a string that represents the current object\. |
