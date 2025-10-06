@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.CompilerServices;
 using UnityEngine;
 #if DEBUG
@@ -155,32 +154,27 @@ namespace BetterDrag
         private static FinalShipDragPerformanceData MergeConfigs(GameObject ship)
         {
             ShipDragPerformanceData? userData = GetPerformance(ship, userPerformance);
-            ShipDragPerformanceData? customData = GetCustomPerformance(ship);
+            ShipDragPerformanceData? customData = GetPerformance(ship, customPerformance);
             ShipDragPerformanceData defaultData = (ShipDragPerformanceData)GetDefaultPerformance(
                 ship
             );
 
-            ShipDragPerformanceData?[] dataList = [userData, customData, defaultData];
-            var mergedData = dataList
-                .OfType<ShipDragPerformanceData>()
-                .Aggregate((higher, lower) => ShipDragPerformanceData.Merge(higher, lower));
+            ShipDragPerformanceData mergedData = defaultData;
+
+            if (customData is not null)
+                mergedData = ShipDragPerformanceData.Merge(customData, mergedData);
+
+            if (userData is not null)
+                mergedData = ShipDragPerformanceData.Merge(userData, mergedData);
+
             var finalData = FinalShipDragPerformanceData.FillWithDefaults(mergedData);
 
 #if DEBUG
             FileLog.Log($"Ship data not in cache: {ship.name}");
-            FileLog.Log(
-                $"Default data: length {defaultData.LengthAtWaterline}, form factor {defaultData.FormFactor}"
-            );
-            FileLog.Log(
-                $"Selected data: length {finalData.LengthAtWaterline}, form factor {finalData.FormFactor}\n"
-            );
+            FileLog.Log($"Default data: {defaultData}");
+            FileLog.Log($"Selected data: {finalData}\n");
 #endif
             return finalData;
-        }
-
-        internal static ShipDragPerformanceData? GetCustomPerformance(GameObject ship)
-        {
-            return GetPerformance(ship, customPerformance);
         }
 
         internal static void FillUserPerformance(
