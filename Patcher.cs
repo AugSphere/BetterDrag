@@ -4,7 +4,6 @@ using System.Runtime.CompilerServices;
 using Crest;
 using HarmonyLib;
 using UnityEngine;
-using UnityEngine.Scripting;
 
 namespace BetterDrag
 {
@@ -66,9 +65,6 @@ namespace BetterDrag
         {
             Profiler.RestartClock();
 
-            GarbageCollector.SetMode(GarbageCollector.Mode.Disabled);
-            Profiler.Profile("GarbageCollector.SetMode(Disabled)");
-
             var transform = ComponentBaseTransform(__instance);
             Profiler.Profile("transform");
 
@@ -103,8 +99,6 @@ namespace BetterDrag
             ____rb.AddForceAtPosition(dragForceVector, dragPositionVector, ForceMode.Force);
             Profiler.Profile("AddForceAtPosition");
 
-            GarbageCollector.SetMode(GarbageCollector.Mode.Enabled);
-            Profiler.Profile("GarbageCollector.SetMode(Enabled)");
 #if DEBUG
             if (DebugCounter.IsAtFirstFrame())
             {
