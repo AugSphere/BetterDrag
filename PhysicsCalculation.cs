@@ -1,22 +1,19 @@
 ﻿using Crest;
-using HarmonyLib;
 using UnityEngine;
+#if DEBUG
+using HarmonyLib;
+#endif
 
 namespace BetterDrag
 {
     internal static class PhysicsCalculation
     {
-        static float lastForceMangitude = 0.0f;
-
         public static float GetDragForceMagnitude(
             BoatProbes instance,
             Rigidbody rb,
             float forwardVelocity
         )
         {
-            if (!IsVelocityConsistent(forwardVelocity))
-                return lastForceMangitude;
-
             var shipPerformanceData = GetShipData(instance);
             var displacement = GetDisplacement(instance);
             var draft = GetDraft(instance, rb);
@@ -29,7 +26,8 @@ namespace BetterDrag
                 wettedArea,
                 shipPerformanceData
             );
-            lastForceMangitude = dragForceMagnitude;
+
+            var clampedForceMagnitude = ClampForce(dragForceMagnitude);
 #if DEBUG
             if (DebugCounter.IsAtFirstFrame())
             {
@@ -52,33 +50,58 @@ namespace BetterDrag
                 FileLog.Log($"Draft: {draft}m");
                 FileLog.Log($"Displacement: {displacement}m^3");
                 FileLog.Log($"Wetted area: {wettedArea}m^2");
-                FileLog.Log($"Final modified drag force: {dragForceMagnitude}N");
+                FileLog.Log($"Modified drag force: {dragForceMagnitude}N");
+                FileLog.Log($"Clamped drag force: {clampedForceMagnitude}N");
                 FileLog.Log($"Forward velocity: {forwardVelocity}m/s\n");
             }
             DebugCounter.Increment();
 #endif
-            return dragForceMagnitude;
+            return clampedForceMagnitude;
         }
 
-        static float lastForwardVelocity = 0.0f;
+        static readonly float defaultForce = 1.0f;
+        static readonly uint forceSampleCount = 10;
+        static readonly float[] forceSamples = new float[forceSampleCount];
+        static uint forceSampleIdx = 0;
 
-        static bool IsVelocityConsistent(float forwardVelocity)
+        static float ClampForce(float dragForceMagnitude)
         {
-            var relativeVelocityDiff = Mathf.Abs(
-                (forwardVelocity - lastForwardVelocity) / lastForwardVelocity
-            );
-            bool isConsistent = true;
-            if (relativeVelocityDiff > 2)
+            if (forceSampleIdx < forceSampleCount)
+            {
+                forceSamples[forceSampleIdx++] = dragForceMagnitude;
+                return defaultForce;
+            }
+
+            float average = 0,
+                min = 0,
+                max = 0;
+            for (int idx = 0; idx < forceSampleCount; idx++)
+            {
+                var sample = forceSamples[idx];
+                min = Mathf.Min(min, sample);
+                max = Mathf.Max(max, sample);
+                average += sample;
+            }
+            average /= forceSampleCount;
+            var span = max - min;
+
+            var bufferIdx = forceSampleIdx++ % forceSampleCount;
+
+            if (Mathf.Abs(dragForceMagnitude - average) < span * 2f)
+            {
+                forceSamples[bufferIdx] = dragForceMagnitude;
+                return dragForceMagnitude;
+            }
+            else
             {
 #if DEBUG
                 FileLog.Log(
-                    $"Large velocity diff! current velocity: {forwardVelocity}, last velocity: {lastForwardVelocity}"
+                    $"Force of {dragForceMagnitude} inconsistent with samples {string.Join(", ", forceSamples)}"
                 );
 #endif
-                isConsistent = false;
+                forceSamples[bufferIdx] = 0.2f * dragForceMagnitude + 0.8f * average;
+                return average;
             }
-            lastForwardVelocity = forwardVelocity;
-            return isConsistent;
         }
 
         static float CalculateForwardDragForce(
