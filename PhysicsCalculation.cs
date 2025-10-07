@@ -6,12 +6,17 @@ namespace BetterDrag
 {
     internal static class PhysicsCalculation
     {
+        static float lastForceMangitude = 0.0f;
+
         public static float GetDragForceMagnitude(
             BoatProbes instance,
             Rigidbody rb,
             float forwardVelocity
         )
         {
+            if (!IsVelocityConsistent(forwardVelocity))
+                return lastForceMangitude;
+
             var shipPerformanceData = GetShipData(instance);
             var displacement = GetDisplacement(instance);
             var draft = GetDraft(instance, rb);
@@ -24,7 +29,7 @@ namespace BetterDrag
                 wettedArea,
                 shipPerformanceData
             );
-
+            lastForceMangitude = dragForceMagnitude;
 #if DEBUG
             if (DebugCounter.IsAtFirstFrame())
             {
@@ -53,6 +58,27 @@ namespace BetterDrag
             DebugCounter.Increment();
 #endif
             return dragForceMagnitude;
+        }
+
+        static float lastForwardVelocity = 0.0f;
+
+        static bool IsVelocityConsistent(float forwardVelocity)
+        {
+            var relativeVelocityDiff = Mathf.Abs(
+                (forwardVelocity - lastForwardVelocity) / lastForwardVelocity
+            );
+            bool isConsistent = true;
+            if (relativeVelocityDiff > 2)
+            {
+#if DEBUG
+                FileLog.Log(
+                    $"Large velocity diff! current velocity: {forwardVelocity}, last velocity: {lastForwardVelocity}"
+                );
+#endif
+                isConsistent = false;
+            }
+            lastForwardVelocity = forwardVelocity;
+            return isConsistent;
         }
 
         static float CalculateForwardDragForce(
