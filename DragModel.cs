@@ -5,7 +5,7 @@ using HarmonyLib;
 
 namespace BetterDrag
 {
-    internal static class DragCalculation
+    internal static class DragModel
     {
         private static readonly float tuningTotalDragMult = 300.0f;
         private static readonly float tuningRelativeWaveMakingDragMult = 0.65f;

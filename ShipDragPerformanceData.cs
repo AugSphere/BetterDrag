@@ -282,8 +282,8 @@ namespace BetterDrag
             FormFactor = 0.15f;
             ViscousDragMultiplier = 1.0f;
             WaveMakingDragMultiplier = 1.0f;
-            CalculateViscousDragForce = DragCalculation.CalculateViscousDragForce;
-            CalculateWaveMakingDragForce = DragCalculation.CalculateWaveMakingDragForce;
+            CalculateViscousDragForce = DragModel.CalculateViscousDragForce;
+            CalculateWaveMakingDragForce = DragModel.CalculateWaveMakingDragForce;
         }
 
         /// <inheritdoc/>
