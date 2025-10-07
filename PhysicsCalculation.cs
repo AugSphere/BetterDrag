@@ -120,15 +120,6 @@ namespace BetterDrag
             return SampleDraft(instance, rb);
         }
 
-        static float GetDisplacement(BoatProbes instance)
-        {
-            float displacement = 0.0f;
-            for (int idx = 0; idx < instance.appliedBuoyancyForces.Length; idx++)
-                displacement += instance.appliedBuoyancyForces[idx];
-
-            return Mathf.Clamp(displacement * 1e-4f, 0.1f, float.MaxValue);
-        }
-
         static float SampleDraft(BoatProbes instance, Rigidbody rb)
         {
             var downPoint = rb.ClosestPointOnBounds(rb.centerOfMass + 100 * Vector3.down);
@@ -140,6 +131,15 @@ namespace BetterDrag
             sampleHeightHelper.Sample(out float o_height);
             lastDraft = Mathf.Clamp(o_height - downPoint.y, 0.1f, float.MaxValue);
             return lastDraft;
+        }
+
+        static float GetDisplacement(BoatProbes instance)
+        {
+            float displacement = 0.0f;
+            for (int idx = 0; idx < instance.appliedBuoyancyForces.Length; idx++)
+                displacement += instance.appliedBuoyancyForces[idx];
+
+            return Mathf.Clamp(displacement * 1e-4f, 0.1f, float.MaxValue);
         }
     }
 }
