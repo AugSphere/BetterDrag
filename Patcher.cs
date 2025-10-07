@@ -68,7 +68,7 @@ namespace BetterDrag
             var transform = ComponentBaseTransform(__instance);
             Profiler.Profile("transform");
 
-            var shipPerformanceData = ShipDragDataStore.GetPerformanceData(__instance.gameObject);
+            var shipPerformanceData = GetShipData(__instance);
             Profiler.Profile("shipPerformanceData");
 
             Vector3 velocityVector = ____rb.velocity - waterSurfaceVel;
@@ -158,6 +158,27 @@ namespace BetterDrag
                         displacement,
                         wettedArea
                     );
+        }
+
+        static (GameObject ship, FinalShipDragPerformanceData data)? cachedShipData;
+
+        private static FinalShipDragPerformanceData GetShipData(BoatProbes instance)
+        {
+            FinalShipDragPerformanceData shipPerformanceData;
+            GameObject ship = instance.gameObject;
+            if (Object.ReferenceEquals(cachedShipData?.ship, ship))
+            {
+                shipPerformanceData = cachedShipData.Value.data;
+            }
+            else
+            {
+                shipPerformanceData = ShipDragDataStore.GetPerformanceData(ship);
+                cachedShipData = (ship, shipPerformanceData);
+#if DEBUG
+                FileLog.Log($"Cache miss for {ship.name}");
+#endif
+            }
+            return shipPerformanceData;
         }
 
         static readonly SampleHeightHelper sampleHeightHelper = new();
