@@ -59,19 +59,12 @@ namespace BetterDrag
             return clampedForceMagnitude;
         }
 
-        static readonly float defaultForce = 1.0f;
         static readonly uint forceSampleCount = 10;
         static readonly float[] forceSamples = new float[forceSampleCount];
         static uint forceSampleIdx = 0;
 
         static float ClampForce(float dragForceMagnitude)
         {
-            if (forceSampleIdx < forceSampleCount)
-            {
-                forceSamples[forceSampleIdx++] = dragForceMagnitude;
-                return defaultForce;
-            }
-
             float average = 0,
                 min = 0,
                 max = 0;
@@ -87,7 +80,7 @@ namespace BetterDrag
 
             var bufferIdx = forceSampleIdx++ % forceSampleCount;
 
-            if (Mathf.Abs(dragForceMagnitude - average) < span * 2f)
+            if (Mathf.Abs(dragForceMagnitude - average) < span * 1.5f)
             {
                 forceSamples[bufferIdx] = dragForceMagnitude;
                 return dragForceMagnitude;
@@ -99,7 +92,7 @@ namespace BetterDrag
                     $"Force of {dragForceMagnitude} inconsistent with samples {string.Join(", ", forceSamples)}"
                 );
 #endif
-                forceSamples[bufferIdx] = 0.2f * dragForceMagnitude + 0.8f * average;
+                forceSamples[bufferIdx] = 0.125f * dragForceMagnitude + 0.875f * average;
                 return average;
             }
         }
