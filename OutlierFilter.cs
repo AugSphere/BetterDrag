@@ -13,10 +13,10 @@ namespace BetterDrag
         public static float ClampValue(float value, Rigidbody rb)
         {
             var buffer = cache.Get(rb.gameObject, () => new());
-            return ClampVelocityForBuffer(value, buffer);
+            return ClampValueWithBuffer(value, buffer);
         }
 
-        static float ClampVelocityForBuffer(float value, MemoryBuffer buffer)
+        static float ClampValueWithBuffer(float value, MemoryBuffer buffer)
         {
             float average = 0,
                 min = float.MaxValue,
