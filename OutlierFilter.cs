@@ -8,9 +8,9 @@ namespace BetterDrag
 {
     internal static class OutlierFilter
     {
-        static readonly uint sampleCount = 10;
         static readonly ConditionalWeakTable<Rigidbody, MemoryBuffer> rbBuffers = new();
         static (Rigidbody rb, MemoryBuffer buffer)? lastBuffer;
+        static readonly uint sampleCount = 16;
 
         public static float ClampValue(float value, Rigidbody rb)
         {
@@ -78,7 +78,7 @@ namespace BetterDrag
 #if DEBUG
                 FileLog.Log($"Value {value} inconsistent with samples {buffer}");
 #endif
-                buffer.Insert(0.125f * value + 0.875f * average);
+                buffer.Insert(0.25f * value + 0.75f * average);
                 return average;
             }
         }
