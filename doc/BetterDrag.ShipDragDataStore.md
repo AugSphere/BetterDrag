@@ -2,7 +2,7 @@
 
 ## ShipDragDataStore Class
 
-Storage class for mod's ship configurations\.
+Storage class for this mod's ship configurations\.
 
 ```csharp
 public static class ShipDragDataStore

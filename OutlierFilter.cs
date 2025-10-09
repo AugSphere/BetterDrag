@@ -1,5 +1,4 @@
-﻿using System.Runtime.CompilerServices;
-using UnityEngine;
+﻿using UnityEngine;
 #if DEBUG
 using HarmonyLib;
 #endif
@@ -8,37 +7,12 @@ namespace BetterDrag
 {
     internal static class OutlierFilter
     {
-        static readonly ConditionalWeakTable<Rigidbody, MemoryBuffer> rbBuffers = new();
-        static (Rigidbody rb, MemoryBuffer buffer)? lastBuffer;
         static readonly uint sampleCount = 16;
+        static readonly Cache<MemoryBuffer> cache = new("Velocity buffer");
 
         public static float ClampValue(float value, Rigidbody rb)
         {
-            MemoryBuffer buffer;
-            if (Object.ReferenceEquals(lastBuffer?.rb, rb))
-            {
-                buffer = lastBuffer.Value.buffer;
-            }
-            else
-            {
-#if DEBUG
-                FileLog.Log($"Outlier buffer cache miss for rigid body {rb.name}");
-#endif
-                rbBuffers.TryGetValue(rb, out var rbBuffer);
-                if (rbBuffer is null)
-                {
-#if DEBUG
-                    FileLog.Log($"New outlier buffer for rigid body {rb.name}");
-#endif
-                    buffer = new();
-                    rbBuffers.Add(rb, buffer);
-                }
-                else
-                {
-                    buffer = rbBuffer;
-                }
-                lastBuffer = (rb, buffer);
-            }
+            var buffer = cache.Get(rb.gameObject, () => new());
             return ClampVelocityForBuffer(value, buffer);
         }
 

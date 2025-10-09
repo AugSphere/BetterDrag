@@ -92,25 +92,12 @@ namespace BetterDrag
                     );
         }
 
-        static (GameObject ship, FinalShipDragPerformanceData data)? cachedShipData;
+        static readonly Cache<FinalShipDragPerformanceData> cache = new("Ship performance");
 
         static FinalShipDragPerformanceData GetShipData(BoatProbes instance)
         {
-            FinalShipDragPerformanceData shipPerformanceData;
             GameObject ship = instance.gameObject;
-            if (Object.ReferenceEquals(cachedShipData?.ship, ship))
-            {
-                shipPerformanceData = cachedShipData.Value.data;
-            }
-            else
-            {
-                shipPerformanceData = ShipDragDataStore.GetPerformanceData(ship);
-                cachedShipData = (ship, shipPerformanceData);
-#if DEBUG
-                FileLog.Log($"Ship data cache miss for {ship.name}");
-#endif
-            }
-            return shipPerformanceData;
+            return cache.Get(ship, () => ShipDragDataStore.GetPerformanceData(ship));
         }
 
         static readonly SampleHeightHelper sampleHeightHelper = new();

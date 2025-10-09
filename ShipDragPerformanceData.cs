@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Reflection;
-using System.Runtime.CompilerServices;
 using UnityEngine;
 #if DEBUG
+using System.Reflection;
 using HarmonyLib;
 #endif
 
@@ -90,6 +89,9 @@ namespace BetterDrag
 
         internal string FieldRepr()
         {
+#if !DEBUG
+            return "";
+#else
             static string FuncRepr(DragForceFunction? func)
             {
                 if (func is null)
@@ -107,6 +109,7 @@ namespace BetterDrag
                 $"CalculateViscousDragForce={FuncRepr(this.CalculateViscousDragForce)}",
                 $"CalculateWaveMakingDragForce={FuncRepr(this.CalculateWaveMakingDragForce)}"
             );
+#endif
         }
 
         internal static ShipDragPerformanceData Merge(
@@ -132,14 +135,10 @@ namespace BetterDrag
     };
 
     /// <summary>
-    /// Storage class for mod's ship configurations.
+    /// Storage class for this mod's ship configurations.
     /// </summary>
     public static class ShipDragDataStore
     {
-        private static readonly ConditionalWeakTable<
-            GameObject,
-            FinalShipDragPerformanceData
-        > finalPerformance = new();
         private static Dictionary<String, ShipDragPerformanceData> userPerformance = [];
         private static readonly Dictionary<String, ShipDragPerformanceData> customPerformance = [];
 
@@ -163,17 +162,6 @@ namespace BetterDrag
         /// <para>Priority: user config > custom performance > default performance.</para>
         /// </summary>
         internal static FinalShipDragPerformanceData GetPerformanceData(GameObject ship)
-        {
-            finalPerformance.TryGetValue(ship, out var data);
-            if (data is not null)
-                return data;
-
-            var finalData = MergeConfigs(ship);
-            finalPerformance.Add(ship, finalData);
-            return finalData;
-        }
-
-        private static FinalShipDragPerformanceData MergeConfigs(GameObject ship)
         {
             ShipDragPerformanceData? userData = GetPerformance(ship, userPerformance);
             ShipDragPerformanceData? customData = GetPerformance(ship, customPerformance);
