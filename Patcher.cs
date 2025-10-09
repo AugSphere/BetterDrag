@@ -74,14 +74,14 @@ namespace BetterDrag
             var forwardVelocity = Vector3.Dot(forwardVector, velocityVector);
             Profiler.Profile("velocity");
 
-            var dragForceMagnitude = PhysicsCalculation.GetDragForceMagnitude(
+            var signedDragForceMagnitude = PhysicsCalculation.GetDragForceMagnitude(
                 __instance,
                 ____rb,
                 forwardVelocity
             );
             Profiler.Profile("GetDragForceMagnitude");
 
-            var dragForceVector = -forwardVector * Mathf.Sign(forwardVelocity) * dragForceMagnitude;
+            var dragForceVector = forwardVector * signedDragForceMagnitude;
             ____rb.AddForceAtPosition(dragForceVector, dragPositionVector, ForceMode.Force);
             Profiler.Profile("AddForceAtPosition");
 

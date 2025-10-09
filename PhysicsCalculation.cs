@@ -20,14 +20,16 @@ namespace BetterDrag
             var wettedArea =
                 1.7f * shipPerformanceData.LengthAtWaterline * draft + displacement / draft;
 
-            var dragForceMagnitude = CalculateForwardDragForce(
-                forwardVelocity,
-                displacement,
-                wettedArea,
-                shipPerformanceData
-            );
+            var dragForceMagnitude =
+                -Mathf.Sign(forwardVelocity)
+                * CalculateForwardDragForce(
+                    forwardVelocity,
+                    displacement,
+                    wettedArea,
+                    shipPerformanceData
+                );
 
-            var clampedForceMagnitude = ClampForce(dragForceMagnitude);
+            var clampedForceMagnitude = OutlierFilter.ClampValue(dragForceMagnitude, rb);
 #if DEBUG
             if (DebugCounter.IsAtFirstFrame())
             {
@@ -57,44 +59,6 @@ namespace BetterDrag
             DebugCounter.Increment();
 #endif
             return clampedForceMagnitude;
-        }
-
-        static readonly uint forceSampleCount = 10;
-        static readonly float[] forceSamples = new float[forceSampleCount];
-        static uint forceSampleIdx = 0;
-
-        static float ClampForce(float dragForceMagnitude)
-        {
-            float average = 0,
-                min = 0,
-                max = 0;
-            for (int idx = 0; idx < forceSampleCount; idx++)
-            {
-                var sample = forceSamples[idx];
-                min = Mathf.Min(min, sample);
-                max = Mathf.Max(max, sample);
-                average += sample;
-            }
-            average /= forceSampleCount;
-            var span = max - min;
-
-            var bufferIdx = forceSampleIdx++ % forceSampleCount;
-
-            if (Mathf.Abs(dragForceMagnitude - average) < span * 1.5f)
-            {
-                forceSamples[bufferIdx] = dragForceMagnitude;
-                return dragForceMagnitude;
-            }
-            else
-            {
-#if DEBUG
-                FileLog.Log(
-                    $"Force of {dragForceMagnitude} inconsistent with samples {string.Join(", ", forceSamples)}"
-                );
-#endif
-                forceSamples[bufferIdx] = 0.125f * dragForceMagnitude + 0.875f * average;
-                return average;
-            }
         }
 
         static float CalculateForwardDragForce(
@@ -143,7 +107,7 @@ namespace BetterDrag
                 shipPerformanceData = ShipDragDataStore.GetPerformanceData(ship);
                 cachedShipData = (ship, shipPerformanceData);
 #if DEBUG
-                FileLog.Log($"Cache miss for {ship.name}");
+                FileLog.Log($"Ship data cache miss for {ship.name}");
 #endif
             }
             return shipPerformanceData;
