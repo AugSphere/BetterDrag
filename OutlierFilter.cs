@@ -5,55 +5,55 @@ using HarmonyLib;
 
 namespace BetterDrag
 {
-    internal static class OutlierFilter
+    internal class OutlierFilter(string name)
     {
         static readonly uint sampleCount = 16;
-        static readonly Cache<MemoryBuffer> cache = new("Velocity buffer");
+        static readonly float rateLimit = 1.3f;
+        readonly string name = name;
+        readonly Cache<MemoryBuffer> cache = new(name);
 
-        public static float ClampValue(float value, Rigidbody rb)
+        public float ClampValue(float value, Rigidbody rb)
         {
-            var buffer = cache.Get(rb.gameObject, () => new());
+            var buffer = this.cache.Get(rb.gameObject, () => new());
             return ClampValueWithBuffer(value, buffer);
         }
 
-        static float ClampValueWithBuffer(float value, MemoryBuffer buffer)
+        float ClampValueWithBuffer(float value, MemoryBuffer buffer)
         {
-            float average = 0,
-                min = float.MaxValue,
+            float min = float.MaxValue,
                 max = float.MinValue;
             for (int idx = 0; idx < sampleCount; idx++)
             {
                 var sample = buffer[idx];
                 min = Mathf.Min(min, sample);
                 max = Mathf.Max(max, sample);
-                average += sample;
             }
-            average /= sampleCount;
-            var span = max - min;
+            var extreme = Mathf.Sign(value) > 0 ? max : min;
+            var isSameSign = Mathf.Sign(value) == Mathf.Sign(extreme);
+            var absExtreme = Mathf.Abs(extreme);
+            var absValue = Mathf.Abs(value);
 
-            if (Mathf.Abs(value - average) < 3f * span)
+            var isNearExtreme = Mathf.Abs(value - extreme) <= (rateLimit - 1f) * absExtreme;
+            var isShrinkingToZero = isSameSign && absValue <= absExtreme;
+
+            var clampedValue = isSameSign
+                ? extreme * rateLimit
+                : Mathf.Sign(value) * Mathf.Min(0.5f * rateLimit * absExtreme, absValue);
+
+            if (isShrinkingToZero || isNearExtreme || extreme == 0f || Mathf.Abs(clampedValue) < 1)
             {
-                buffer.Insert(value);
-                return value;
-            }
-            else if (
-                Mathf.Sign(value) == Mathf.Sign(average)
-                && Mathf.Abs(value) < Mathf.Abs(average)
-            )
-            {
-#if DEBUG
-                FileLog.Log($"Value {value} magnitude rapidly dropping relative to {buffer}");
-#endif
                 buffer.Insert(value);
                 return value;
             }
             else
             {
 #if DEBUG
-                FileLog.Log($"Value {value} inconsistent with samples {buffer}");
+                FileLog.Log(
+                    $"{this.name}: clipped {value, 10:F02} to {clampedValue, 10:F02}; samples: {buffer}"
+                );
 #endif
-                buffer.Insert(0.25f * value + 0.75f * average);
-                return average;
+                buffer.Insert(clampedValue);
+                return clampedValue;
             }
         }
 

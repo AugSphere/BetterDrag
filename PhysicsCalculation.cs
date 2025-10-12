@@ -8,6 +8,8 @@ namespace BetterDrag
 {
     internal static class PhysicsCalculation
     {
+        static readonly OutlierFilter forceFilter = new("Force filter");
+
         public static float GetDragForceMagnitude(
             BoatProbes instance,
             Rigidbody rb,
@@ -29,7 +31,7 @@ namespace BetterDrag
                     shipPerformanceData
                 );
 
-            var clampedForceMagnitude = OutlierFilter.ClampValue(dragForceMagnitude, rb);
+            var clampedForceMagnitude = forceFilter.ClampValue(dragForceMagnitude, rb);
 #if DEBUG
             if (DebugCounter.IsAtFirstFrame())
             {
