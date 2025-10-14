@@ -12,11 +12,11 @@ namespace BetterDrag
         static readonly float rateLimit = 1.3f;
         readonly string name = name;
         readonly float noFilterCutoff = noFilterCutoff;
-        readonly Cache<MemoryBuffer> cache = new(name);
+        readonly Cache<MemoryBuffer> cache = new(name, (_) => new());
 
         public float ClampValue(float value, Rigidbody rb)
         {
-            var buffer = this.cache.Get(rb.gameObject, () => new());
+            var buffer = this.cache.GetValue(rb.gameObject);
             return ClampValueWithBuffer(value, buffer);
         }
 

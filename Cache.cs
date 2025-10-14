@@ -7,14 +7,18 @@ using HarmonyLib;
 
 namespace BetterDrag
 {
-    internal class Cache<TValue>(string name)
+    internal class Cache<TValue>(string name, Func<GameObject, TValue> createValueCallback)
         where TValue : class
     {
         private readonly ConditionalWeakTable<GameObject, TValue> cache = new();
+        private readonly ConditionalWeakTable<
+            GameObject,
+            TValue
+        >.CreateValueCallback createValueCallback = new(createValueCallback);
         private (GameObject key, TValue value)? lastAccessed;
         private readonly string name = name;
 
-        public TValue Get(GameObject key, Func<TValue> constructor)
+        public TValue GetValue(GameObject key)
         {
             TValue value;
             if (object.ReferenceEquals(lastAccessed?.key, key))
@@ -25,21 +29,8 @@ namespace BetterDrag
 #if DEBUG && VERBOSE
             FileLog.Log($"{name}: L1 cache miss for {key.name}");
 #endif
-            cache.TryGetValue(key, out var cacheValue);
-            if (cacheValue is null)
-            {
-#if DEBUG
-                FileLog.Log($"{name}: L2 cache miss entry for {key.name}");
-#endif
-                value = constructor();
-                cache.Add(key, value);
-            }
-            else
-            {
-                value = cacheValue;
-            }
+            value = cache.GetValue(key, createValueCallback);
             lastAccessed = (key, value);
-
             return value;
         }
     }
