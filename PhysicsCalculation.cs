@@ -8,7 +8,7 @@ namespace BetterDrag
 {
     internal static class PhysicsCalculation
     {
-        static readonly OutlierFilter forceFilter = new("Force filter");
+        static readonly OutlierFilter forceFilter = new("Force filter", 1f);
 
         public static float GetDragForceMagnitude(
             BoatProbes instance,
@@ -48,7 +48,7 @@ namespace BetterDrag
                 FileLog.Log("\n");
             }
 
-            if (DebugCounter.IsAtPeriod())
+            if (DebugCounter.IsAtPeriod() || Mathf.Abs(dragForceMagnitude) > 100000f)
             {
                 FileLog.Log($"{shipPerformanceData}");
                 FileLog.Log($"Draft: {draft}m");

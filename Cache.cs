@@ -22,7 +22,7 @@ namespace BetterDrag
                 return lastAccessed.Value.value;
             }
 
-#if DEBUG
+#if DEBUG && VERBOSE
             FileLog.Log($"{name}: L1 cache miss for {key.name}");
 #endif
             cache.TryGetValue(key, out var cacheValue);

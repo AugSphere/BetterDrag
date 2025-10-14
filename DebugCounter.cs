@@ -6,7 +6,7 @@ namespace BetterDrag
     internal static class DebugCounter
     {
         private static int counter = 0;
-        private static readonly int period = 250;
+        private static readonly int period = 500;
 
         public static bool IsAtFirstFrame()
         {

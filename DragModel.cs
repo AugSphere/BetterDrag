@@ -43,7 +43,7 @@ namespace BetterDrag
             }
             force *= displacement * tuningWaveMakingDragMult;
 
-#if DEBUG
+#if DEBUG && VERBOSE
             if (DebugCounter.IsAtPeriod())
             {
                 FileLog.Log($"Froude number: {froudeNumber}");
@@ -76,10 +76,10 @@ namespace BetterDrag
                 force *= tuningViscousDragMult;
             }
 
-#if DEBUG
+#if DEBUG && VERBOSE
             if (DebugCounter.IsAtPeriod())
             {
-                FileLog.Log($"Reynolds number: {reynoldsNumber:E2}");
+                FileLog.Log($"\nReynolds number: {reynoldsNumber:E2}");
                 FileLog.Log($"Unmodified viscous resistance: {force}");
             }
 #endif

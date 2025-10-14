@@ -1,15 +1,17 @@
-﻿using UnityEngine;
+﻿using System.Text;
+using UnityEngine;
 #if DEBUG
 using HarmonyLib;
 #endif
 
 namespace BetterDrag
 {
-    internal class OutlierFilter(string name)
+    internal class OutlierFilter(string name, float noFilterCutoff)
     {
         static readonly uint sampleCount = 16;
         static readonly float rateLimit = 1.3f;
         readonly string name = name;
+        readonly float noFilterCutoff = noFilterCutoff;
         readonly Cache<MemoryBuffer> cache = new(name);
 
         public float ClampValue(float value, Rigidbody rb)
@@ -40,7 +42,12 @@ namespace BetterDrag
                 ? extreme * rateLimit
                 : Mathf.Sign(value) * Mathf.Min(0.5f * rateLimit * absExtreme, absValue);
 
-            if (isShrinkingToZero || isNearExtreme || extreme == 0f || Mathf.Abs(clampedValue) < 1)
+            if (
+                isShrinkingToZero
+                || isNearExtreme
+                || extreme == 0f
+                || Mathf.Abs(value) < noFilterCutoff
+            )
             {
                 buffer.Insert(value);
                 return value;
@@ -74,7 +81,16 @@ namespace BetterDrag
 
             public override string ToString()
             {
-                return "[" + string.Join(", ", this.buffer) + "]";
+                var stringBuilder = new StringBuilder();
+                stringBuilder.Append("[");
+                for (int i = 0; i < sampleCount; i++)
+                {
+                    stringBuilder.AppendFormat("{0:F2}", this.buffer[i]);
+                    if (i != sampleCount - 1)
+                        stringBuilder.Append(", ");
+                }
+                stringBuilder.Append("]");
+                return stringBuilder.ToString();
             }
         }
     }

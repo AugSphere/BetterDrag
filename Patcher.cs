@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using Crest;
@@ -61,7 +60,8 @@ namespace BetterDrag
             Vector3 waterSurfaceVel,
             BoatProbes __instance,
             Rigidbody ____rb,
-            float ____forceHeightOffset
+            float ____forceHeightOffset,
+            Vector3 ___lastVel
         )
         {
             Profiler.RestartClock();
@@ -69,7 +69,8 @@ namespace BetterDrag
             var transform = ComponentBaseTransform(__instance);
             Profiler.Profile("transform");
 
-            Vector3 velocityVector = ____rb.velocity - waterSurfaceVel;
+            Vector3 bodyVelocity = __instance.dontUpdateVelocity ? ___lastVel : ____rb.velocity;
+            Vector3 velocityVector = bodyVelocity - waterSurfaceVel;
             Vector3 dragPositionVector = ____rb.position + ____forceHeightOffset * Vector3.up;
             var forwardVector = transform.forward;
             var forwardVelocity = Vector3.Dot(forwardVector, velocityVector);
@@ -87,32 +88,6 @@ namespace BetterDrag
             Profiler.Profile("AddForceAtPosition");
 
             Profiler.LogDurations();
-        }
-
-        [HarmonyPostfix]
-        [HarmonyPatch(typeof(BoatProbes), "Start")]
-        static void AddVelocityGuard(BoatProbes __instance, Rigidbody ____rb)
-        {
-            __instance.StartCoroutine(VelocityGuard(____rb));
-        }
-
-        static readonly OutlierFilter boatVelocityFilterX = new("Velocity x filter");
-        static readonly OutlierFilter boatVelocityFilterY = new("Velocity y filter");
-        static readonly OutlierFilter boatVelocityFilterZ = new("Velocity z filter");
-
-        static IEnumerator VelocityGuard(Rigidbody body)
-        {
-            while (true)
-            {
-                yield return new WaitForFixedUpdate();
-                if (body.IsSleeping() || body.isKinematic)
-                    continue;
-                var velocity = body.velocity;
-                var x = boatVelocityFilterX.ClampValue(velocity.x, body);
-                var y = boatVelocityFilterY.ClampValue(velocity.y, body);
-                var z = boatVelocityFilterZ.ClampValue(velocity.z, body);
-                body.velocity = new(x, y, z);
-            }
         }
     }
 }
