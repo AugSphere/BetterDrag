@@ -38,8 +38,8 @@ internal class Plugin : BaseUnityPlugin
             "draftSamplingPeriod",
             10,
             new ConfigDescription(
-                "How often ship draft is sampled, in frames: a value of 10 would mean once every 10 frames",
-                new AcceptableValueRange<int>(1, 2000)
+                "How often ship draft is sampled, in unity fixed updates: 10 means approximately every 5 frames at 40 FPS",
+                new AcceptableValueRange<int>(1, 200)
             )
         );
 
@@ -49,7 +49,7 @@ internal class Plugin : BaseUnityPlugin
             1.0f,
             new ConfigDescription(
                 "Viscous drag multiplier for all ships",
-                new AcceptableValueRange<float>(0.0f, 100.0f)
+                new AcceptableValueRange<float>(0.0f, 20.0f)
             )
         );
 
@@ -59,7 +59,7 @@ internal class Plugin : BaseUnityPlugin
             1.0f,
             new ConfigDescription(
                 "Wave-making drag multiplier for all ships",
-                new AcceptableValueRange<float>(0.0f, 100.0f)
+                new AcceptableValueRange<float>(0.0f, 20.0f)
             )
         );
 
