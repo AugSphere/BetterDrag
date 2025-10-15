@@ -18,12 +18,17 @@
     <Authors>AugSphere</Authors>
     <Company>$(Authors)</Company>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
+    <Configurations>Debug;Release;Profile</Configurations>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <WarningLevel>9999</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <WarningLevel>9999</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Profile|AnyCPU'">
+    <WarningLevel>9999</WarningLevel>
+    <Optimize>True</Optimize>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="BepInEx.Analyzers" Version="1.*" PrivateAssets="all" />

@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using HarmonyLib;
 using UnityEngine;
+#if DEBUG
+using System.Reflection;
+#endif
 
 namespace BetterDrag
 {
@@ -79,6 +80,37 @@ namespace BetterDrag
         [NonSerialized]
         public DragForceFunction? CalculateWaveMakingDragForce = null;
 
+        /// <inheritdoc/>
+        public override string ToString()
+        {
+            return nameof(ShipDragPerformanceData) + "(" + this.FieldRepr() + ")";
+        }
+
+        internal string FieldRepr()
+        {
+#if !DEBUG
+            return "";
+#else
+            static string FuncRepr(DragForceFunction? func)
+            {
+                if (func is null)
+                    return "";
+
+                var info = func.GetMethodInfo();
+                return info.DeclaringType.Name + "." + info.Name;
+            }
+            return String.Join(
+                ", ",
+                $"LWL={this.LengthAtWaterline}",
+                $"FormFactor={this.FormFactor}",
+                $"ViscousDragMultiplier={this.ViscousDragMultiplier}",
+                $"WaveMakingDragMultiplier={this.WaveMakingDragMultiplier}",
+                $"CalculateViscousDragForce={FuncRepr(this.CalculateViscousDragForce)}",
+                $"CalculateWaveMakingDragForce={FuncRepr(this.CalculateWaveMakingDragForce)}"
+            );
+#endif
+        }
+
         internal static ShipDragPerformanceData Merge(
             ShipDragPerformanceData highPriority,
             ShipDragPerformanceData lowPriority
@@ -102,11 +134,10 @@ namespace BetterDrag
     };
 
     /// <summary>
-    /// Storage class for mod's ship configurations.
+    /// Storage class for this mod's ship configurations.
     /// </summary>
     public static class ShipDragDataStore
     {
-        private static readonly Dictionary<String, FinalShipDragPerformanceData> dataCache = [];
         private static Dictionary<String, ShipDragPerformanceData> userPerformance = [];
         private static readonly Dictionary<String, ShipDragPerformanceData> customPerformance = [];
 
@@ -131,38 +162,34 @@ namespace BetterDrag
         /// </summary>
         internal static FinalShipDragPerformanceData GetPerformanceData(GameObject ship)
         {
-            var shipName = GetNormalizedShipName(ship);
-
-            if (dataCache.ContainsKey(shipName))
-                return dataCache[shipName];
-
             ShipDragPerformanceData? userData = GetPerformance(ship, userPerformance);
-            ShipDragPerformanceData? customData = GetCustomPerformance(ship);
-            ShipDragPerformanceData defaultData = GetDefaultPerformance(ship);
+            ShipDragPerformanceData? customData = GetPerformance(ship, customPerformance);
+            ShipDragPerformanceData defaultData = (ShipDragPerformanceData)GetDefaultPerformance(
+                ship
+            );
 
-            ShipDragPerformanceData?[] dataList = [userData, customData, defaultData];
-            var mergedData = dataList
-                .OfType<ShipDragPerformanceData>()
-                .Aggregate((higher, lower) => ShipDragPerformanceData.Merge(higher, lower));
+            ShipDragPerformanceData mergedData = defaultData;
+
+            if (customData is not null)
+                mergedData = ShipDragPerformanceData.Merge(customData, mergedData);
+
+            if (userData is not null)
+                mergedData = ShipDragPerformanceData.Merge(userData, mergedData);
+
             var finalData = FinalShipDragPerformanceData.FillWithDefaults(mergedData);
 
 #if DEBUG
-            FileLog.Log($"Ship data not in cache: {shipName}");
-            FileLog.Log(
-                $"Default data: length {defaultData.LengthAtWaterline}, form factor {defaultData.FormFactor}"
-            );
-            FileLog.Log(
-                $"Selected data: length {finalData.LengthAtWaterline}, form factor {finalData.FormFactor}\n"
+            Debug.LogBuffered(
+                [
+                    $"\nMarging data for: {ship.name}",
+                    $"User data: {userData}",
+                    $"Custom data: {customData}",
+                    $"Default data: {defaultData}",
+                    $"Merged data: {finalData}\n",
+                ]
             );
 #endif
-
-            dataCache[shipName] = finalData;
             return finalData;
-        }
-
-        internal static ShipDragPerformanceData? GetCustomPerformance(GameObject ship)
-        {
-            return GetPerformance(ship, customPerformance);
         }
 
         internal static void FillUserPerformance(
@@ -246,8 +273,17 @@ namespace BetterDrag
             FormFactor = 0.15f;
             ViscousDragMultiplier = 1.0f;
             WaveMakingDragMultiplier = 1.0f;
-            CalculateViscousDragForce = DragCalculation.CalculateViscousDragForce;
-            CalculateWaveMakingDragForce = DragCalculation.CalculateWaveMakingDragForce;
+            CalculateViscousDragForce = DragModel.CalculateViscousDragForce;
+            CalculateWaveMakingDragForce = DragModel.CalculateWaveMakingDragForce;
+        }
+
+        /// <inheritdoc/>
+        public override string ToString()
+        {
+            return nameof(FinalShipDragPerformanceData)
+                + "("
+                + ((ShipDragPerformanceData)this).FieldRepr()
+                + ")";
         }
 
         public static FinalShipDragPerformanceData FillWithDefaults(ShipDragPerformanceData data)
@@ -268,7 +304,7 @@ namespace BetterDrag
             };
         }
 
-        public static implicit operator ShipDragPerformanceData(FinalShipDragPerformanceData data)
+        public static explicit operator ShipDragPerformanceData(FinalShipDragPerformanceData data)
         {
             return new()
             {

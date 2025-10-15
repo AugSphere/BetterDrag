@@ -1,11 +1,8 @@
 ﻿using UnityEngine;
-#if DEBUG
-using HarmonyLib;
-#endif
 
 namespace BetterDrag
 {
-    internal static class DragCalculation
+    internal static class DragModel
     {
         private static readonly float tuningTotalDragMult = 300.0f;
         private static readonly float tuningRelativeWaveMakingDragMult = 0.65f;
@@ -37,18 +34,16 @@ namespace BetterDrag
                     * (
                         2.0f
                         - Mathf.Sqrt(froudeNumber)
-                            * Mathf.Cos(1 / Mathf.Pow(froudeNumber, 2) - 1.9f)
+                            * Mathf.Cos(1.0f / Mathf.Pow(froudeNumber, 2) - 1.9f)
                     );
                 force = forceScaling * forceOscillation;
             }
             force *= displacement * tuningWaveMakingDragMult;
 
 #if DEBUG
-            if (DebugCounter.IsAtPeriod())
-            {
-                FileLog.Log($"Froude number: {froudeNumber}");
-                FileLog.Log($"Unmodified WM resistance: {force}");
-            }
+            Debug.LogDragModelBuffered(
+                [$"Froude number: {froudeNumber}", $"Unmodified WM resistance: {force}"]
+            );
 #endif
 
             return force;
@@ -77,11 +72,9 @@ namespace BetterDrag
             }
 
 #if DEBUG
-            if (DebugCounter.IsAtPeriod())
-            {
-                FileLog.Log($"Reynolds number: {reynoldsNumber:E2}");
-                FileLog.Log($"Unmodified viscous resistance: {force}");
-            }
+            Debug.LogDragModelBuffered(
+                [$"Reynolds number: {reynoldsNumber:E2}", $"Unmodified viscous resistance: {force}"]
+            );
 #endif
 
             return force;

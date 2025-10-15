@@ -18,10 +18,11 @@ internal class Plugin : BaseUnityPlugin
 {
     private const string PLUGIN_GUID = "com.AugSphere.BetterDrag";
     private const string PLUGIN_NAME = "BetterDrag";
-    private const string PLUGIN_VERSION = "1.0.0";
+    private const string PLUGIN_VERSION = "1.0.1";
 
     internal static new ManualLogSource? Logger;
 
+    internal static ConfigEntry<int>? draftSamplingPeriod;
     internal static ConfigEntry<float>? globalViscousDragMultiplier;
     internal static ConfigEntry<float>? globalWaveMakingDragMultiplier;
     internal static Dictionary<string, ShipDragPerformanceData> shipOverrides = [];
@@ -32,9 +33,19 @@ internal class Plugin : BaseUnityPlugin
 
         Harmony.CreateAndPatchAll(Assembly.GetExecutingAssembly(), PLUGIN_GUID);
 
+        draftSamplingPeriod = Config.Bind(
+            "--------- Physics configuration ---------",
+            "draftSamplingPeriod",
+            10,
+            new ConfigDescription(
+                "How often ship draft is sampled, in frames: a value of 10 would mean once every 10 frames",
+                new AcceptableValueRange<int>(1, 2000)
+            )
+        );
+
         globalViscousDragMultiplier = Config.Bind(
             "--------- Global Drag Multipliers ---------",
-            "Global Viscous Drag Multiplier",
+            "globalViscousDragMultiplier",
             1.0f,
             new ConfigDescription(
                 "Viscous drag multiplier for all ships",
@@ -44,7 +55,7 @@ internal class Plugin : BaseUnityPlugin
 
         globalWaveMakingDragMultiplier = Config.Bind(
             "--------- Global Drag Multipliers ---------",
-            "Global Wave-Making Drag Multiplier",
+            "globalWaveMakingDragMultiplier",
             1.0f,
             new ConfigDescription(
                 "Wave-making drag multiplier for all ships",
