@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using UnityEngine;
 #if DEBUG
 using System.Reflection;
-using HarmonyLib;
 #endif
 
 namespace BetterDrag
@@ -180,11 +179,15 @@ namespace BetterDrag
             var finalData = FinalShipDragPerformanceData.FillWithDefaults(mergedData);
 
 #if DEBUG
-            FileLog.Log($"Marging data for: {ship.name}");
-            FileLog.Log($"User data: {userData}");
-            FileLog.Log($"Custom data: {customData}");
-            FileLog.Log($"Default data: {defaultData}");
-            FileLog.Log($"Merged data: {finalData}\n");
+            Debug.LogBuffered(
+                [
+                    $"\nMarging data for: {ship.name}",
+                    $"User data: {userData}",
+                    $"Custom data: {customData}",
+                    $"Default data: {defaultData}",
+                    $"Merged data: {finalData}\n",
+                ]
+            );
 #endif
             return finalData;
         }

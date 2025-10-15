@@ -1,8 +1,5 @@
 ﻿using Crest;
 using UnityEngine;
-#if DEBUG
-using HarmonyLib;
-#endif
 
 namespace BetterDrag
 {
@@ -33,11 +30,12 @@ namespace BetterDrag
 
             var clampedForceMagnitude = forceFilter.ClampValue(dragForceMagnitude, rb);
 #if DEBUG
-            if (DebugCounter.IsAtFirstFrame())
+            if (!Debug.executedOnce)
             {
+                Debug.ClearDragModelBuffer();
                 var (testVelocity, testDisplacement, testWettedArea) = (8.5f, 38, 190);
-                FileLog.Log(
-                    $"\nCalling drag function with forwardVelocity:{10}, displacement: {testDisplacement}m^3, wetted area: {testWettedArea}m^2"
+                Debug.LogBuffered(
+                    $"Calling drag function with forwardVelocity:{10}, displacement: {testDisplacement}m^3, wetted area: {testWettedArea}m^2"
                 );
                 CalculateForwardDragForce(
                     testVelocity,
@@ -45,20 +43,26 @@ namespace BetterDrag
                     testWettedArea,
                     shipPerformanceData
                 );
-                FileLog.Log("\n");
+                Debug.FLushBuffer(withDragModel: true);
+                Debug.executedOnce = true;
             }
 
-            if (DebugCounter.IsAtPeriod() || Mathf.Abs(dragForceMagnitude) > 100000f)
-            {
-                FileLog.Log($"{shipPerformanceData}");
-                FileLog.Log($"Draft: {draft}m");
-                FileLog.Log($"Displacement: {displacement}m^3");
-                FileLog.Log($"Wetted area: {wettedArea}m^2");
-                FileLog.Log($"Modified drag force: {dragForceMagnitude}N");
-                FileLog.Log($"Clamped drag force: {clampedForceMagnitude}N");
-                FileLog.Log($"Forward velocity: {forwardVelocity}m/s\n");
-            }
-            DebugCounter.Increment();
+            var logPhysics = Debug.IsAtPeriod || Mathf.Abs(dragForceMagnitude) > 100000;
+            if (logPhysics)
+                Debug.LogBuffered(
+                    [
+                        $"\n{shipPerformanceData}",
+                        $"Draft: {draft}m",
+                        $"Displacement: {displacement}m^3",
+                        $"Wetted area: {wettedArea}m^2",
+                        $"Modified drag force: {dragForceMagnitude}N",
+                        $"Clamped drag force: {clampedForceMagnitude}N",
+                        $"Forward velocity: {forwardVelocity}m/s",
+                    ]
+                );
+
+            Debug.FLushBuffer(withDragModel: logPhysics);
+            Debug.IncrementCounter();
 #endif
             return clampedForceMagnitude;
         }

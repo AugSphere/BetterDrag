@@ -1,8 +1,5 @@
 ﻿using System.Text;
 using UnityEngine;
-#if DEBUG
-using HarmonyLib;
-#endif
 
 namespace BetterDrag
 {
@@ -55,7 +52,7 @@ namespace BetterDrag
             else
             {
 #if DEBUG
-                FileLog.Log(
+                Debug.LogBuffered(
                     $"{this.name}: clipped {value, 10:F02} to {clampedValue, 10:F02}; samples: {buffer}"
                 );
 #endif

@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
 using UnityEngine;
-#if DEBUG
-using HarmonyLib;
-#endif
 
 namespace BetterDrag
 {
@@ -27,7 +24,7 @@ namespace BetterDrag
             }
 
 #if DEBUG && VERBOSE
-            FileLog.Log($"{name}: L1 cache miss for {key.name}");
+            Debug.LogBuffered($"{name}: L1 cache miss for {key.name}");
 #endif
             value = cache.GetValue(key, createValueCallback);
             lastAccessed = (key, value);

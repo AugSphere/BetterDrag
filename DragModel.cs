@@ -1,7 +1,4 @@
 ﻿using UnityEngine;
-#if DEBUG
-using HarmonyLib;
-#endif
 
 namespace BetterDrag
 {
@@ -43,12 +40,10 @@ namespace BetterDrag
             }
             force *= displacement * tuningWaveMakingDragMult;
 
-#if DEBUG && VERBOSE
-            if (DebugCounter.IsAtPeriod())
-            {
-                FileLog.Log($"Froude number: {froudeNumber}");
-                FileLog.Log($"Unmodified WM resistance: {force}");
-            }
+#if DEBUG
+            Debug.LogDragModelBuffered(
+                [$"Froude number: {froudeNumber}", $"Unmodified WM resistance: {force}"]
+            );
 #endif
 
             return force;
@@ -76,12 +71,10 @@ namespace BetterDrag
                 force *= tuningViscousDragMult;
             }
 
-#if DEBUG && VERBOSE
-            if (DebugCounter.IsAtPeriod())
-            {
-                FileLog.Log($"\nReynolds number: {reynoldsNumber:E2}");
-                FileLog.Log($"Unmodified viscous resistance: {force}");
-            }
+#if DEBUG
+            Debug.LogDragModelBuffered(
+                [$"Reynolds number: {reynoldsNumber:E2}", $"Unmodified viscous resistance: {force}"]
+            );
 #endif
 
             return force;
