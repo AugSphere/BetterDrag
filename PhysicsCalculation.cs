@@ -8,14 +8,14 @@ namespace BetterDrag
         static readonly OutlierFilter forceFilter = new("Force filter", 1f);
 
         public static float GetDragForceMagnitude(
-            BoatProbes instance,
-            Rigidbody rb,
+            BoatProbes boatProbes,
+            Rigidbody rigidbody,
             float forwardVelocity
         )
         {
-            var shipPerformanceData = GetShipData(instance);
-            var displacement = GetDisplacement(instance);
-            var draft = GetDraft(instance, rb);
+            var shipPerformanceData = GetShipData(boatProbes);
+            var displacement = GetDisplacement(boatProbes);
+            var draft = GetDraft(boatProbes, rigidbody);
             var wettedArea =
                 1.7f * shipPerformanceData.LengthAtWaterline * draft + displacement / draft;
 
@@ -28,7 +28,7 @@ namespace BetterDrag
                     shipPerformanceData
                 );
 
-            var clampedForceMagnitude = forceFilter.ClampValue(dragForceMagnitude, rb);
+            var clampedForceMagnitude = forceFilter.ClampValue(dragForceMagnitude, rigidbody);
 #if DEBUG
             if (!Debug.executedOnce)
             {
@@ -103,9 +103,9 @@ namespace BetterDrag
             (ship) => ShipDragDataStore.GetPerformanceData(ship)
         );
 
-        static FinalShipDragPerformanceData GetShipData(BoatProbes instance)
+        static FinalShipDragPerformanceData GetShipData(BoatProbes boatProbes)
         {
-            GameObject ship = instance.gameObject;
+            GameObject ship = boatProbes.gameObject;
             return cache.GetValue(ship);
         }
 
@@ -113,21 +113,23 @@ namespace BetterDrag
         static uint draftSampleCounter = 0;
         static float lastDraft = 1.0f;
 
-        static float GetDraft(BoatProbes instance, Rigidbody rb)
+        static float GetDraft(BoatProbes boatProbes, Rigidbody rigidbody)
         {
             draftSampleCounter++;
             if (draftSampleCounter % Plugin.draftSamplingPeriod!.Value != 0)
                 return lastDraft;
 
-            return SampleDraft(instance, rb);
+            return SampleDraft(boatProbes, rigidbody);
         }
 
-        static float SampleDraft(BoatProbes instance, Rigidbody rb)
+        static float SampleDraft(BoatProbes boatProbes, Rigidbody rigidbody)
         {
-            var downPoint = rb.ClosestPointOnBounds(rb.centerOfMass + 100 * Vector3.down);
+            var downPoint = rigidbody.ClosestPointOnBounds(
+                rigidbody.centerOfMass + 100 * Vector3.down
+            );
             sampleHeightHelper.Init(
                 downPoint,
-                instance.ObjectWidth,
+                boatProbes.ObjectWidth,
                 allowMultipleCallsPerFrame: false
             );
             sampleHeightHelper.Sample(out float o_height);
@@ -135,11 +137,11 @@ namespace BetterDrag
             return lastDraft;
         }
 
-        static float GetDisplacement(BoatProbes instance)
+        static float GetDisplacement(BoatProbes boatProbes)
         {
             float displacement = 0.0f;
-            for (int idx = 0; idx < instance.appliedBuoyancyForces.Length; idx++)
-                displacement += instance.appliedBuoyancyForces[idx];
+            for (int idx = 0; idx < boatProbes.appliedBuoyancyForces.Length; idx++)
+                displacement += boatProbes.appliedBuoyancyForces[idx];
 
             return Mathf.Clamp(displacement * 1e-4f, 0.1f, float.MaxValue);
         }

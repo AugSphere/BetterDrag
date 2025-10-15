@@ -11,9 +11,9 @@ namespace BetterDrag
         readonly float noFilterCutoff = noFilterCutoff;
         readonly Cache<MemoryBuffer> cache = new(name, (_) => new());
 
-        public float ClampValue(float value, Rigidbody rb)
+        public float ClampValue(float value, Rigidbody rigidbody)
         {
-            var buffer = this.cache.GetValue(rb.gameObject);
+            var buffer = this.cache.GetValue(rigidbody.gameObject);
             return ClampValueWithBuffer(value, buffer);
         }
 
