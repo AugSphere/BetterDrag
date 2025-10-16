@@ -123,6 +123,7 @@ namespace BetterDrag
         static readonly SampleHeightHelper sampleHeightHelper = new();
         static uint draftSampleCounter = 0;
         static float lastDraft = 1.0f;
+        static readonly float draftSmoothing = 1f / 16f;
 
         static float GetDraft(BoatProbes boatProbes, Rigidbody rigidbody)
         {
@@ -144,7 +145,8 @@ namespace BetterDrag
                 allowMultipleCallsPerFrame: false
             );
             sampleHeightHelper.Sample(out float o_height);
-            lastDraft = Mathf.Clamp(o_height - downPoint.y, 0.1f, float.MaxValue);
+            var clampedDraft = Mathf.Clamp(o_height - downPoint.y, 0.1f, 20f);
+            lastDraft = (1 - draftSmoothing) * lastDraft + draftSmoothing * clampedDraft;
             return lastDraft;
         }
 
