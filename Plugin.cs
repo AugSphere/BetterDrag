@@ -36,10 +36,10 @@ internal class Plugin : BaseUnityPlugin
         draftSamplingPeriod = Config.Bind(
             "--------- Physics configuration ---------",
             "draftSamplingPeriod",
-            10,
+            5,
             new ConfigDescription(
                 "How often ship draft is sampled, in unity fixed updates: 10 means approximately every 5 frames at 40 FPS",
-                new AcceptableValueRange<int>(1, 200)
+                new AcceptableValueRange<int>(1, 50)
             )
         );
 
@@ -49,7 +49,7 @@ internal class Plugin : BaseUnityPlugin
             1.0f,
             new ConfigDescription(
                 "Viscous drag multiplier for all ships",
-                new AcceptableValueRange<float>(0.0f, 20.0f)
+                new AcceptableValueRange<float>(0.0f, 5.0f)
             )
         );
 
@@ -59,7 +59,7 @@ internal class Plugin : BaseUnityPlugin
             1.0f,
             new ConfigDescription(
                 "Wave-making drag multiplier for all ships",
-                new AcceptableValueRange<float>(0.0f, 20.0f)
+                new AcceptableValueRange<float>(0.0f, 5.0f)
             )
         );
 
