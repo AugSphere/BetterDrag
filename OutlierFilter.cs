@@ -3,10 +3,10 @@ using UnityEngine;
 
 namespace BetterDrag
 {
-    internal class OutlierFilter(string name, float noFilterCutoff)
+    internal class OutlierFilter(string name, float rateLimit, float noFilterCutoff)
     {
         static readonly uint sampleCount = 16;
-        static readonly float rateLimit = 1.3f;
+        readonly float rateLimit = rateLimit;
         readonly string name = name;
         readonly float noFilterCutoff = noFilterCutoff;
         readonly Cache<MemoryBuffer> cache = new(name, (_) => new());

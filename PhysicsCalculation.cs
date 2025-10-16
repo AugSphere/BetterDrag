@@ -5,7 +5,17 @@ namespace BetterDrag
 {
     internal static class PhysicsCalculation
     {
-        static readonly OutlierFilter forceFilter = new("Force filter", 1f);
+        static readonly OutlierFilter forceFilter = new(
+            "Force filter",
+            rateLimit: 1.2f,
+            noFilterCutoff: 5f
+        );
+
+        static readonly OutlierFilter velocityFilter = new(
+            "Velocity filter",
+            rateLimit: 1.1f,
+            noFilterCutoff: 0.1f
+        );
 
         public static float GetDragForceMagnitude(
             BoatProbes boatProbes,
@@ -18,6 +28,7 @@ namespace BetterDrag
             var draft = GetDraft(boatProbes, rigidbody);
             var wettedArea =
                 1.7f * shipPerformanceData.LengthAtWaterline * draft + displacement / draft;
+            forwardVelocity = velocityFilter.ClampValue(forwardVelocity, rigidbody);
 
             var dragForceMagnitude =
                 -Mathf.Sign(forwardVelocity)
