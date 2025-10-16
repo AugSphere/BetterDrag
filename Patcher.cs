@@ -61,7 +61,8 @@ namespace BetterDrag
             BoatProbes __instance,
             Rigidbody ____rb,
             float ____forceHeightOffset,
-            Vector3 ___lastVel
+            Vector3 ___lastVel,
+            float ____dragInWaterForward
         )
         {
             Profiler.RestartClock();
@@ -76,10 +77,15 @@ namespace BetterDrag
             var forwardVelocity = Vector3.Dot(forwardVector, velocityVector);
             Profiler.Profile("velocity");
 
+            var baseBuoyancy = baseBuoyancyCache.GetValue(__instance.gameObject).Item1;
+            Profiler.Profile("baseBuoyancy");
+
             var signedDragForceMagnitude = PhysicsCalculation.GetDragForceMagnitude(
                 __instance,
                 ____rb,
-                forwardVelocity
+                forwardVelocity,
+                baseBuoyancy,
+                ____dragInWaterForward
             );
             Profiler.Profile("GetDragForceMagnitude");
 
@@ -88,6 +94,19 @@ namespace BetterDrag
             Profiler.Profile("AddForceAtPosition");
 
             Profiler.LogDurations();
+        }
+
+        static readonly Cache<System.Tuple<float>> baseBuoyancyCache = new(
+            "Base buoyancy",
+            (_) => new(25f)
+        );
+
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(BoatDamage), "Start")]
+        static void BoatDamageStart(BoatDamage __instance, float ___baseBuoyancy)
+        {
+            __instance.waterDrag = 0f;
+            baseBuoyancyCache.SetValue(__instance.gameObject, new(___baseBuoyancy));
         }
     }
 }

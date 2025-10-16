@@ -20,11 +20,13 @@ namespace BetterDrag
         public static float GetDragForceMagnitude(
             BoatProbes boatProbes,
             Rigidbody rigidbody,
-            float forwardVelocity
+            float forwardVelocity,
+            float baseBuoyancy,
+            float dragInWaterForward
         )
         {
-            var shipPerformanceData = GetShipData(boatProbes);
-            var displacement = GetDisplacement(boatProbes);
+            var shipPerformanceData = GetShipDragPerformanceData(boatProbes);
+            var displacement = GetDisplacement(boatProbes, baseBuoyancy);
             var draft = GetDraft(boatProbes, rigidbody);
             var wettedArea =
                 1.7f * shipPerformanceData.LengthAtWaterline * draft + displacement / draft;
@@ -36,7 +38,8 @@ namespace BetterDrag
                     forwardVelocity,
                     displacement,
                     wettedArea,
-                    shipPerformanceData
+                    shipPerformanceData,
+                    dragInWaterForward
                 );
 
             var clampedForceMagnitude = forceFilter.ClampValue(dragForceMagnitude, rigidbody);
@@ -44,7 +47,7 @@ namespace BetterDrag
             if (!Debug.executedOnce)
             {
                 Debug.ClearDragModelBuffer();
-                var (testVelocity, testDisplacement, testWettedArea) = (8.5f, 38, 190);
+                var (testVelocity, testDisplacement, testWettedArea) = (9f, 38, 240);
                 Debug.LogBuffered(
                     $"Calling drag function with forwardVelocity:{10}, displacement: {testDisplacement}m^3, wetted area: {testWettedArea}m^2"
                 );
@@ -52,13 +55,14 @@ namespace BetterDrag
                     testVelocity,
                     testDisplacement,
                     testWettedArea,
-                    shipPerformanceData
+                    shipPerformanceData,
+                    dragInWaterForward
                 );
                 Debug.FLushBuffer(withDragModel: true);
                 Debug.executedOnce = true;
             }
 
-            var logPhysics = Debug.IsAtPeriod || Mathf.Abs(dragForceMagnitude) > 100000;
+            var logPhysics = Debug.IsAtPeriod; // || Mathf.Abs(dragForceMagnitude) > 100000;
             if (logPhysics)
                 Debug.LogBuffered(
                     [
@@ -66,6 +70,7 @@ namespace BetterDrag
                         $"Draft: {draft}m",
                         $"Displacement: {displacement}m^3",
                         $"Wetted area: {wettedArea}m^2",
+                        $"Modified form factor  {shipPerformanceData.FormFactor + dragInWaterForward * 50f}",
                         $"Modified drag force: {dragForceMagnitude}N",
                         $"Clamped drag force: {clampedForceMagnitude}N",
                         $"Forward velocity: {forwardVelocity}m/s",
@@ -82,12 +87,13 @@ namespace BetterDrag
             float forwardVelocity,
             float displacement,
             float wettedArea,
-            FinalShipDragPerformanceData performanceData
+            FinalShipDragPerformanceData performanceData,
+            float dragInWaterForward
         )
         {
             var absVelocity = Mathf.Abs(forwardVelocity);
             var lengthAtWaterline = performanceData.LengthAtWaterline;
-            var formFactor = performanceData.FormFactor;
+            var formFactor = performanceData.FormFactor + dragInWaterForward * 50f;
 
             return Plugin.globalViscousDragMultiplier!.Value
                     * performanceData.ViscousDragMultiplier
@@ -109,15 +115,15 @@ namespace BetterDrag
                     );
         }
 
-        static readonly Cache<FinalShipDragPerformanceData> cache = new(
+        static readonly Cache<FinalShipDragPerformanceData> shipDragPerformanceCache = new(
             "Ship performance",
             (ship) => ShipDragDataStore.GetPerformanceData(ship)
         );
 
-        static FinalShipDragPerformanceData GetShipData(BoatProbes boatProbes)
+        static FinalShipDragPerformanceData GetShipDragPerformanceData(BoatProbes boatProbes)
         {
             GameObject ship = boatProbes.gameObject;
-            return cache.GetValue(ship);
+            return shipDragPerformanceCache.GetValue(ship);
         }
 
         static readonly SampleHeightHelper sampleHeightHelper = new();
@@ -150,13 +156,14 @@ namespace BetterDrag
             return lastDraft;
         }
 
-        static float GetDisplacement(BoatProbes boatProbes)
+        static float GetDisplacement(BoatProbes boatProbes, float baseBuoyancy)
         {
             float displacement = 0.0f;
             for (int idx = 0; idx < boatProbes.appliedBuoyancyForces.Length; idx++)
                 displacement += boatProbes.appliedBuoyancyForces[idx];
 
-            return Mathf.Clamp(displacement * 1e-4f, 0.1f, float.MaxValue);
+            var unmodifiedForce = displacement * 1e-4f / boatProbes._forceMultiplier * baseBuoyancy;
+            return Mathf.Clamp(unmodifiedForce, 0.1f, float.MaxValue);
         }
     }
 }

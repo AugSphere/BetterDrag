@@ -30,5 +30,14 @@ namespace BetterDrag
             lastAccessed = (key, value);
             return value;
         }
+
+        public void SetValue(GameObject key, TValue value)
+        {
+            cache.Remove(key);
+            cache.Add(key, value);
+#if DEBUG && VERBOSE
+            Debug.LogBuffered($"{name}: set {value} for {key.name}");
+#endif
+        }
     }
 }
