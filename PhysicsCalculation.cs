@@ -59,7 +59,7 @@ namespace BetterDrag
                 Debug.executedOnce = true;
             }
 
-            var logPhysics = Debug.IsAtPeriod; // || Mathf.Abs(dragForceMagnitude) > 100000;
+            var logPhysics = Debug.IsAtPeriod || Mathf.Abs(dragForceMagnitude) > 100000;
             if (logPhysics)
                 Debug.LogBuffered(
                     [

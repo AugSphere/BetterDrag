@@ -8,7 +8,7 @@ namespace BetterDrag
     {
         public static bool executedOnce = false;
         private static uint counter = 1;
-        private static readonly uint period = 250;
+        private static readonly uint period = 500;
         private static readonly List<string> dragModelLog = [];
 
         public static void IncrementCounter()
