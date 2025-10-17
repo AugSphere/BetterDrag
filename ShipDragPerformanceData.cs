@@ -181,7 +181,7 @@ namespace BetterDrag
 #if DEBUG
             Debug.LogBuffered(
                 [
-                    $"\nMarging data for: {ship.name}",
+                    $"\nMerging data for: {ship.name}",
                     $"User data: {userData}",
                     $"Custom data: {customData}",
                     $"Default data: {defaultData}",
@@ -209,23 +209,19 @@ namespace BetterDrag
         {
             return (shipName) switch
             {
-                "BOAT dhow small (10)" => new() { LengthAtWaterline = 12f, FormFactor = 0.11f },
-                "BOAT dhow medium (20)" => new() { LengthAtWaterline = 22f, FormFactor = 0.10f },
-                "BOAT medi small (40)" => new() { LengthAtWaterline = 12.39f, FormFactor = 0.10f },
-                "BOAT medi medium (50)" => new() { LengthAtWaterline = 25.31f, FormFactor = 0.11f },
-                "BOAT junk large (70)" => new() { LengthAtWaterline = 28f, FormFactor = 0.13f },
-                "BOAT junk medium (80)" => new() { LengthAtWaterline = 24f, FormFactor = 0.13f },
-                "BOAT junk small singleroof(90)" => new()
-                {
-                    LengthAtWaterline = 12f,
-                    FormFactor = 0.13f,
-                },
-                "BOAT Shroud Small" => new() { LengthAtWaterline = 14.77f, FormFactor = 0.07f },
-                "BOAT Shroud Large" => new() { LengthAtWaterline = 34.56f, FormFactor = 0.06f },
-                "BOAT GLORIANA (182)" => new() { LengthAtWaterline = 30f, FormFactor = 0.15f },
-                "BOAT CHRONIAN (187)" => new() { LengthAtWaterline = 35f, FormFactor = 0.15f },
-                "BOAT CAELANOR (192)" => new() { LengthAtWaterline = 20f, FormFactor = 0.20f },
-                "BOAT GALLUS (197)" => new() { LengthAtWaterline = 7f, FormFactor = 0.08f },
+                "BOAT dhow small (10)" => new(12f, 0.25f),
+                "BOAT dhow medium (20)" => new(22f, 0.21f, viscousDragMultiplier: 1.15f),
+                "BOAT medi small (40)" => new(12.39f, 0.24f),
+                "BOAT medi medium (50)" => new(25.31f, 0.19f, viscousDragMultiplier: 1.15f),
+                "BOAT junk large (70)" => new(28f, 0.23f, viscousDragMultiplier: 1.15f),
+                "BOAT junk medium (80)" => new(24f, 0.20f, viscousDragMultiplier: 1.15f),
+                "BOAT junk small singleroof(90)" => new(12f, 0.25f),
+                "BOAT Shroud Small" => new(14.77f, 0.09f, viscousDragMultiplier: 0.8f),
+                "BOAT Shroud Large" => new(34.56f, 0.07f, 0.75f, 0.9f),
+                "BOAT GLORIANA (182)" => new(30f, 0.18f),
+                "BOAT CHRONIAN (187)" => new(35f, 0.20f),
+                "BOAT CAELANOR (192)" => new(20f, 0.26f),
+                "BOAT GALLUS (197)" => new(7f, 0.20f),
                 _ => new(),
             };
         }
@@ -258,24 +254,21 @@ namespace BetterDrag
     /// <summary>
     /// Same as <see cref="ShipDragPerformanceData"/>, but all values are not null.
     /// </summary>
-    internal class FinalShipDragPerformanceData
+    internal class FinalShipDragPerformanceData(
+        float lengthAtWaterline = 20,
+        float formFactor = 0.20f,
+        float viscousDragMultiplier = 1.0f,
+        float waveMakingDragMultiplier = 1.0f
+    )
     {
-        public float LengthAtWaterline;
-        public float FormFactor;
-        public float ViscousDragMultiplier;
-        public float WaveMakingDragMultiplier;
-        public ShipDragPerformanceData.DragForceFunction CalculateViscousDragForce;
-        public ShipDragPerformanceData.DragForceFunction CalculateWaveMakingDragForce;
-
-        public FinalShipDragPerformanceData()
-        {
-            LengthAtWaterline = 20;
-            FormFactor = 0.15f;
-            ViscousDragMultiplier = 1.0f;
-            WaveMakingDragMultiplier = 1.0f;
-            CalculateViscousDragForce = DragModel.CalculateViscousDragForce;
-            CalculateWaveMakingDragForce = DragModel.CalculateWaveMakingDragForce;
-        }
+        public float LengthAtWaterline = lengthAtWaterline;
+        public float FormFactor = formFactor;
+        public float ViscousDragMultiplier = viscousDragMultiplier;
+        public float WaveMakingDragMultiplier = waveMakingDragMultiplier;
+        public ShipDragPerformanceData.DragForceFunction CalculateViscousDragForce =
+            DragModel.CalculateViscousDragForce;
+        public ShipDragPerformanceData.DragForceFunction CalculateWaveMakingDragForce =
+            DragModel.CalculateWaveMakingDragForce;
 
         /// <inheritdoc/>
         public override string ToString()
