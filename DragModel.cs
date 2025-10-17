@@ -14,7 +14,7 @@ namespace BetterDrag
 #if DEBUG
         private static float smoothedViscousDragForce = 0f;
         private static float smoothedWavemakingDragForce = 0f;
-        private static readonly float smoothing = 1f / 128f;
+        private static readonly float smoothing = 0.015625f;
 #endif
 
         public static float CalculateWaveMakingDragForce(

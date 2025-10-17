@@ -21,8 +21,7 @@ namespace BetterDrag
             BoatProbes boatProbes,
             Rigidbody rigidbody,
             float forwardVelocity,
-            float baseBuoyancy,
-            float dragInWaterForward
+            float baseBuoyancy
         )
         {
             var shipPerformanceData = GetShipDragPerformanceData(boatProbes);
@@ -38,8 +37,7 @@ namespace BetterDrag
                     forwardVelocity,
                     displacement,
                     wettedArea,
-                    shipPerformanceData,
-                    dragInWaterForward
+                    shipPerformanceData
                 );
 
             var clampedForceMagnitude = forceFilter.ClampValue(dragForceMagnitude, rigidbody);
@@ -47,7 +45,7 @@ namespace BetterDrag
             if (!Debug.executedOnce)
             {
                 Debug.ClearDragModelBuffer();
-                var (testVelocity, testDisplacement, testWettedArea) = (9f, 38, 240);
+                var (testVelocity, testDisplacement, testWettedArea) = (9f, 38, 250);
                 Debug.LogBuffered(
                     $"Calling drag function with forwardVelocity:{10}, displacement: {testDisplacement}m^3, wetted area: {testWettedArea}m^2"
                 );
@@ -55,8 +53,7 @@ namespace BetterDrag
                     testVelocity,
                     testDisplacement,
                     testWettedArea,
-                    shipPerformanceData,
-                    dragInWaterForward
+                    shipPerformanceData
                 );
                 Debug.FLushBuffer(withDragModel: true);
                 Debug.executedOnce = true;
@@ -70,7 +67,6 @@ namespace BetterDrag
                         $"Draft: {draft}m",
                         $"Displacement: {displacement}m^3",
                         $"Wetted area: {wettedArea}m^2",
-                        $"Modified form factor  {shipPerformanceData.FormFactor + dragInWaterForward * 50f}",
                         $"Modified drag force: {dragForceMagnitude}N",
                         $"Clamped drag force: {clampedForceMagnitude}N",
                         $"Forward velocity: {forwardVelocity}m/s",
@@ -87,13 +83,12 @@ namespace BetterDrag
             float forwardVelocity,
             float displacement,
             float wettedArea,
-            FinalShipDragPerformanceData performanceData,
-            float dragInWaterForward
+            FinalShipDragPerformanceData performanceData
         )
         {
             var absVelocity = Mathf.Abs(forwardVelocity);
             var lengthAtWaterline = performanceData.LengthAtWaterline;
-            var formFactor = performanceData.FormFactor + dragInWaterForward * 50f;
+            var formFactor = performanceData.FormFactor;
 
             return Plugin.globalViscousDragMultiplier!.Value
                     * performanceData.ViscousDragMultiplier

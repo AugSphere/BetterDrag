@@ -61,8 +61,7 @@ namespace BetterDrag
             BoatProbes __instance,
             Rigidbody ____rb,
             float ____forceHeightOffset,
-            Vector3 ___lastVel,
-            float ____dragInWaterForward
+            Vector3 ___lastVel
         )
         {
             Profiler.RestartClock();
@@ -84,8 +83,7 @@ namespace BetterDrag
                 __instance,
                 ____rb,
                 forwardVelocity,
-                baseBuoyancy,
-                ____dragInWaterForward
+                baseBuoyancy
             );
             Profiler.Profile("GetDragForceMagnitude");
 
