@@ -124,7 +124,7 @@ namespace BetterDrag
         static readonly SampleHeightHelper sampleHeightHelper = new();
         static uint draftSampleCounter = 0;
         static float lastDraft = 1.0f;
-        static readonly float draftSmoothing = 1f / 16f;
+        static readonly float draftSmoothing = 1f / 4f;
 
         static float GetDraft(BoatProbes boatProbes, Rigidbody rigidbody)
         {
