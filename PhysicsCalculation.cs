@@ -26,7 +26,7 @@ namespace BetterDrag
         {
             var shipPerformanceData = GetShipDragPerformanceData(boatProbes);
             var displacement = GetDisplacement(boatProbes, baseBuoyancy);
-            var draft = GetDraft(boatProbes, rigidbody);
+            var draft = DraftSampler.GetAverageDraft(boatProbes, rigidbody);
             var wettedArea =
                 1.7f * shipPerformanceData.LengthAtWaterline * draft + displacement / draft;
             forwardVelocity = velocityFilter.ClampValue(forwardVelocity, rigidbody);
@@ -119,36 +119,6 @@ namespace BetterDrag
         {
             GameObject ship = boatProbes.gameObject;
             return shipDragPerformanceCache.GetValue(ship);
-        }
-
-        static readonly SampleHeightHelper sampleHeightHelper = new();
-        static uint draftSampleCounter = 0;
-        static float lastDraft = 1.0f;
-        static readonly float draftSmoothing = 1f / 4f;
-
-        static float GetDraft(BoatProbes boatProbes, Rigidbody rigidbody)
-        {
-            draftSampleCounter++;
-            if (draftSampleCounter % Plugin.draftSamplingPeriod!.Value != 0)
-                return lastDraft;
-
-            return SampleDraft(boatProbes, rigidbody);
-        }
-
-        static float SampleDraft(BoatProbes boatProbes, Rigidbody rigidbody)
-        {
-            var downPoint = rigidbody.ClosestPointOnBounds(
-                rigidbody.centerOfMass + 100 * Vector3.down
-            );
-            sampleHeightHelper.Init(
-                downPoint,
-                boatProbes.ObjectWidth,
-                allowMultipleCallsPerFrame: false
-            );
-            sampleHeightHelper.Sample(out float o_height);
-            var clampedDraft = Mathf.Clamp(o_height - downPoint.y, 0.1f, 20f);
-            lastDraft = (1 - draftSmoothing) * lastDraft + draftSmoothing * clampedDraft;
-            return lastDraft;
         }
 
         static float GetDisplacement(BoatProbes boatProbes, float baseBuoyancy)
