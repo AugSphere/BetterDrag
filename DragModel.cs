@@ -4,8 +4,8 @@ namespace BetterDrag
 {
     internal static class DragModel
     {
-        private static readonly float tuningTotalDragMult = 800.0f;
-        private static readonly float tuningRelativeWaveMakingDragMult = 1f;
+        private static readonly float tuningTotalDragMult = 400.0f;
+        private static readonly float tuningRelativeWaveMakingDragMult = 1.6f;
 
         private static readonly float tuningViscousDragMult = tuningTotalDragMult;
         private static readonly float tuningWaveMakingDragMult =

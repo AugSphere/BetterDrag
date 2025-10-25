@@ -210,13 +210,13 @@ namespace BetterDrag
             return (shipName) switch
             {
                 "BOAT dhow small (10)" => new(12f, 0.25f),
-                "BOAT dhow medium (20)" => new(22f, 0.21f, viscousDragMultiplier: 1.15f),
+                "BOAT dhow medium (20)" => new(22f, 0.21f),
                 "BOAT medi small (40)" => new(12.39f, 0.24f),
-                "BOAT medi medium (50)" => new(25.31f, 0.19f, viscousDragMultiplier: 1.15f),
-                "BOAT junk large (70)" => new(28f, 0.23f, viscousDragMultiplier: 1.15f),
-                "BOAT junk medium (80)" => new(24f, 0.20f, viscousDragMultiplier: 1.15f),
+                "BOAT medi medium (50)" => new(25.31f, 0.19f),
+                "BOAT junk large (70)" => new(28f, 0.23f),
+                "BOAT junk medium (80)" => new(24f, 0.22f),
                 "BOAT junk small singleroof(90)" => new(12f, 0.25f),
-                "BOAT Shroud Small" => new(14.77f, 0.09f, viscousDragMultiplier: 0.8f),
+                "BOAT Shroud Small" => new(14.77f, 0.09f),
                 "BOAT Shroud Large" => new(34.56f, 0.07f, 0.75f, 0.9f),
                 "BOAT GLORIANA (182)" => new(30f, 0.18f),
                 "BOAT CHRONIAN (187)" => new(35f, 0.20f),
