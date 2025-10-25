@@ -26,6 +26,7 @@ internal class Plugin : BaseUnityPlugin
     internal static ConfigEntry<float>? globalViscousDragMultiplier;
     internal static ConfigEntry<float>? globalWaveMakingDragMultiplier;
     internal static Dictionary<string, ShipDragPerformanceData> shipOverrides = [];
+    internal static ConfigEntry<int>? debugPrintPeriod;
 
     private void Awake()
     {
@@ -60,6 +61,16 @@ internal class Plugin : BaseUnityPlugin
             new ConfigDescription(
                 "Wave-making drag multiplier for all ships",
                 new AcceptableValueRange<float>(0.0f, 5.0f)
+            )
+        );
+
+        debugPrintPeriod = Config.Bind(
+            "--------Ω Debug Ω--------",
+            "debugPrintPeriod",
+            500,
+            new ConfigDescription(
+                "How frequently debug data is printed to harmony.log.txt",
+                new AcceptableValueRange<int>(1, 500)
             )
         );
 

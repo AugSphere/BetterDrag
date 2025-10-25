@@ -8,7 +8,6 @@ namespace BetterDrag
     {
         public static bool executedOnce = false;
         private static uint counter = 1;
-        private static readonly uint period = 500;
         private static readonly List<string> dragModelLog = [];
 
         public static void IncrementCounter()
@@ -18,7 +17,7 @@ namespace BetterDrag
 
         public static bool IsAtPeriod
         {
-            get { return counter % period == 0; }
+            get { return counter % Plugin.debugPrintPeriod!.Value == 0; }
         }
 
         public static void LogBuffered(string line)
