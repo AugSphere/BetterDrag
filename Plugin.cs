@@ -25,8 +25,8 @@ internal class Plugin : BaseUnityPlugin
     internal static ConfigEntry<int>? draftSamplingPeriod;
     internal static ConfigEntry<float>? globalViscousDragMultiplier;
     internal static ConfigEntry<float>? globalWaveMakingDragMultiplier;
-    internal static Dictionary<string, ShipDragPerformanceData> shipOverrides = [];
     internal static ConfigEntry<int>? debugPrintPeriod;
+    internal static Dictionary<string, ShipDragPerformanceData> shipOverrides = [];
 
     private void Awake()
     {
