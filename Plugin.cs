@@ -25,8 +25,10 @@ internal class Plugin : BaseUnityPlugin
     internal static ConfigEntry<int>? draftSamplingPeriod;
     internal static ConfigEntry<float>? globalViscousDragMultiplier;
     internal static ConfigEntry<float>? globalWaveMakingDragMultiplier;
-    internal static ConfigEntry<int>? debugPrintPeriod;
     internal static Dictionary<string, ShipDragPerformanceData> shipOverrides = [];
+#if DEBUG
+    internal static ConfigEntry<int>? debugPrintPeriod;
+#endif
 
     private void Awake()
     {
@@ -64,6 +66,7 @@ internal class Plugin : BaseUnityPlugin
             )
         );
 
+#if DEBUG
         debugPrintPeriod = Config.Bind(
             "--------Ω Debug Ω--------",
             "debugPrintPeriod",
@@ -73,6 +76,7 @@ internal class Plugin : BaseUnityPlugin
                 new AcceptableValueRange<int>(1, 500)
             )
         );
+#endif
 
         ManageShipConfiguration();
 
