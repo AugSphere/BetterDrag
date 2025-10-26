@@ -35,13 +35,10 @@ namespace BetterDrag
             else
             {
                 float forceScaling = 1.0f + 1.4f / (Mathf.Exp(18.0f - 40.0f * froudeNumber) + 1.0f);
+                float froudeSquared = froudeNumber * froudeNumber;
                 float forceOscillation =
-                    Mathf.Pow(froudeNumber, 2)
-                    * (
-                        2.0f
-                        - Mathf.Sqrt(froudeNumber)
-                            * Mathf.Cos(1.0f / Mathf.Pow(froudeNumber, 2) - 1.9f)
-                    );
+                    froudeSquared
+                    * (2.0f - Mathf.Sqrt(froudeNumber) * Mathf.Cos(1.0f / froudeSquared - 1.9f));
                 force = forceScaling * forceOscillation;
             }
             force *= displacement * tuningWaveMakingDragMult;
@@ -78,8 +75,9 @@ namespace BetterDrag
             }
             else
             {
-                float coefficient = 0.075f / Mathf.Pow(Mathf.Log10(reynoldsNumber) - 2.0f, 2);
-                force = coefficient * wettedArea * (1.0f + formFactor) * Mathf.Pow(absVelocity, 2);
+                float speedOrder = Mathf.Log10(reynoldsNumber) - 2.0f;
+                float coefficient = 0.075f / (speedOrder * speedOrder);
+                force = coefficient * wettedArea * (1.0f + formFactor) * absVelocity * absVelocity;
                 force *= tuningViscousDragMult;
             }
 
