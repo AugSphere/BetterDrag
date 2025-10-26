@@ -34,9 +34,6 @@ namespace BetterDrag
                     averageDraft += queryResults[i].y - queryPositions[i].y;
                 }
                 averageDraft = averageDraft / 3f + seaLevel;
-#if DEBUG
-                Debug.LogBuffered($"Sampled average draft {averageDraft}");
-#endif
             }
             else
             {
