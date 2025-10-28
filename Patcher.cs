@@ -91,6 +91,21 @@ namespace BetterDrag
             ____rb.AddForceAtPosition(dragForceVector, dragPositionVector, ForceMode.Force);
             Profiler.Profile("AddForceAtPosition");
 
+            var sailForce = sailForceCache.GetValue(____rb.gameObject);
+            if (Debug.IsAtPeriod)
+            {
+                Debug.LogBuffered(
+                    [
+                        $"Sail force: {sailForce.force}N",
+                        $"Wind force {sailForce.totalWindForce}",
+                        $"Sail power: {sailForce.power}",
+                    ]
+                );
+            }
+            sailForce.force = 0;
+            sailForce.totalWindForce = 0;
+            sailForce.power = 0;
+
             Profiler.LogDurations();
         }
 
@@ -105,6 +120,47 @@ namespace BetterDrag
         {
             __instance.waterDrag = 0f;
             baseBuoyancyCache.SetValue(__instance.gameObject, new(___baseBuoyancy));
+        }
+
+        class SailForce
+        {
+            public float force = 0f;
+            public float totalWindForce = 0f;
+            public float power = 0f;
+        }
+
+        static readonly Cache<SailForce> sailForceCache = new("Sail cache", (_) => new());
+
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(Sail), "FixedUpdate")]
+        static void AddSailPower(
+            Sail __instance,
+            float ___unamplifiedForwardForce,
+            float ___totalWindForce
+        )
+        {
+            var sailForce = sailForceCache.GetValue(__instance.shipRigidbody.gameObject);
+            sailForce.force += GetForwardSailForce(
+                __instance,
+                ___unamplifiedForwardForce,
+                out var power
+            );
+            sailForce.totalWindForce += ___totalWindForce;
+            sailForce.power += power;
+        }
+
+        static float GetForwardSailForce(Sail sail, float unamplifiedForwardForce, out float power)
+        {
+            power = sail.GetRealSailPower();
+            if (sail.category == SailCategory.junk)
+            {
+                power *= 0.75f;
+            }
+            if (sail.category == SailCategory.gaff)
+            {
+                power *= 0.85f;
+            }
+            return unamplifiedForwardForce * power * 50f;
         }
     }
 }
