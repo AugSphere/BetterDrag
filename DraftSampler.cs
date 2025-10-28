@@ -5,16 +5,17 @@ namespace BetterDrag
 {
     internal static class DraftSampler
     {
-        private static readonly Vector3[] queryPositions = new Vector3[3];
-        private static readonly Vector3[] queryResults = new Vector3[3];
+        private static readonly int sampleNumber = 3;
+        private static readonly Vector3[] queryPositions = new Vector3[sampleNumber];
+        private static readonly Vector3[] queryResults = new Vector3[sampleNumber];
         private static readonly int hashCode = typeof(DraftSampler).GetHashCode();
         private static uint draftSampleCounter = 0;
         private static float lastDraft = 1.0f;
         private static readonly Vector3[] directions =
         [
-            100 * Vector3.down + 200 * Vector3.forward,
+            100 * Vector3.down + 300 * Vector3.forward,
             100 * Vector3.down,
-            100 * Vector3.down + 200 * Vector3.back,
+            100 * Vector3.down + 300 * Vector3.back,
         ];
 
         internal static float GetAverageDraft(BoatProbes boatProbes, Rigidbody rigidbody)
@@ -29,11 +30,11 @@ namespace BetterDrag
             var queryHash = boatProbes.GetHashCode() ^ hashCode;
             if (SampleDraft(queryHash, out float seaLevel))
             {
-                for (int i = 0; i < 3; i++)
+                for (int i = 0; i < sampleNumber; i++)
                 {
                     averageDraft += queryResults[i].y - queryPositions[i].y;
                 }
-                averageDraft = averageDraft / 3f + seaLevel;
+                averageDraft = averageDraft / sampleNumber + seaLevel;
             }
             else
             {
@@ -49,10 +50,11 @@ namespace BetterDrag
 
         private static void SetQueryPositions(Rigidbody rigidbody)
         {
-            var center = rigidbody.centerOfMass;
-            queryPositions[0] = rigidbody.ClosestPointOnBounds(center + directions[0]);
-            queryPositions[1] = rigidbody.ClosestPointOnBounds(center + directions[1]);
-            queryPositions[2] = rigidbody.ClosestPointOnBounds(center + directions[2]);
+            var center = rigidbody.position;
+            for (int i = 0; i < sampleNumber; i++)
+            {
+                queryPositions[i] = rigidbody.ClosestPointOnBounds(center + directions[i]);
+            }
         }
 
         private static bool SampleDraft(int queryHash, out float o_seaLevel)
