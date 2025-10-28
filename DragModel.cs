@@ -14,7 +14,6 @@ namespace BetterDrag
 #if DEBUG
         private static float smoothedViscousDragForce = 0f;
         private static float smoothedWavemakingDragForce = 0f;
-        private static readonly float smoothing = 0.015625f;
 #endif
 
         public static float CalculateWaveMakingDragForce(
@@ -43,6 +42,7 @@ namespace BetterDrag
             force *= displacement * tuningWaveMakingDragMult;
 
 #if DEBUG
+            float smoothing = 1f / (1 << Plugin.debugForceSmoothing!.Value);
             smoothedWavemakingDragForce =
                 (1 - smoothing) * smoothedWavemakingDragForce + smoothing * force;
             Debug.LogDragModelBuffered(
@@ -81,6 +81,7 @@ namespace BetterDrag
             }
 
 #if DEBUG
+            float smoothing = 1f / (1 << Plugin.debugForceSmoothing!.Value);
             smoothedViscousDragForce =
                 (1 - smoothing) * smoothedViscousDragForce + smoothing * force;
             Debug.LogDragModelBuffered(

@@ -28,6 +28,7 @@ internal class Plugin : BaseUnityPlugin
     internal static Dictionary<string, ShipDragPerformanceData> shipOverrides = [];
 #if DEBUG
     internal static ConfigEntry<int>? debugPrintPeriod;
+    internal static ConfigEntry<int>? debugForceSmoothing;
 #endif
 
     private void Awake()
@@ -76,6 +77,17 @@ internal class Plugin : BaseUnityPlugin
                 new AcceptableValueRange<int>(1, 500)
             )
         );
+
+        debugForceSmoothing = Config.Bind(
+            "--------Ω Debug Ω--------",
+            "debugForceSmoothing",
+            6,
+            new ConfigDescription(
+                "Power of 2 used for the force smoothing",
+                new AcceptableValueRange<int>(0, 8)
+            )
+        );
+
 #endif
 
         ManageShipConfiguration();
