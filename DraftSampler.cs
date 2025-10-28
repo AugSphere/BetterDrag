@@ -12,9 +12,9 @@ namespace BetterDrag
         private static float lastDraft = 1.0f;
         private static readonly Vector3[] directions =
         [
-            100 * (Vector3.down + Vector3.forward),
+            100 * Vector3.down + 200 * Vector3.forward,
             100 * Vector3.down,
-            100 * (Vector3.down + Vector3.back),
+            100 * Vector3.down + 200 * Vector3.back,
         ];
 
         internal static float GetAverageDraft(BoatProbes boatProbes, Rigidbody rigidbody)
@@ -31,7 +31,7 @@ namespace BetterDrag
             {
                 for (int i = 0; i < 3; i++)
                 {
-                    averageDraft += queryResults[i].y - queryPositions[i].y;
+                    averageDraft += Mathf.Clamp(queryResults[i].y - queryPositions[i].y, 0f, 20f);
                 }
                 averageDraft = averageDraft / 3f + seaLevel;
             }
