@@ -4,8 +4,8 @@ namespace BetterDrag
 {
     internal static class DragModel
     {
-        private static readonly float tuningTotalDragMult = 800.0f;
-        private static readonly float tuningRelativeWaveMakingDragMult = 1.25f;
+        private static readonly float tuningTotalDragMult = 500.0f;
+        private static readonly float tuningRelativeWaveMakingDragMult = 1f;
 
         private static readonly float tuningViscousDragMult = tuningTotalDragMult;
         private static readonly float tuningWaveMakingDragMult =
@@ -25,16 +25,17 @@ namespace BetterDrag
         )
         {
             float froudeNumber = absVelocity / Mathf.Sqrt(lengthAtWaterline * 10.0f);
-            float froudeSquared = froudeNumber * froudeNumber;
             float force;
 
             if (froudeNumber <= 0.001f)
             {
-                force = froudeSquared;
+                force = froudeNumber * froudeNumber;
             }
             else
             {
-                float forceScaling = 0.5f + 2.5f / (Mathf.Exp(6f - 20f * froudeNumber) + 1f);
+                froudeNumber += 0.04f;
+                float froudeSquared = froudeNumber * froudeNumber;
+                float forceScaling = 0.5f + 4f / (Mathf.Exp(8f - 20f * froudeNumber) + 1f);
                 float forceOscillation = 2f - Mathf.Cos(1.0f / froudeSquared);
                 force = froudeSquared * forceScaling * forceOscillation;
             }
