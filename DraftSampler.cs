@@ -31,7 +31,7 @@ namespace BetterDrag
             {
                 for (int i = 0; i < 3; i++)
                 {
-                    averageDraft += Mathf.Clamp(queryResults[i].y - queryPositions[i].y, 0f, 20f);
+                    averageDraft += queryResults[i].y - queryPositions[i].y;
                 }
                 averageDraft = averageDraft / 3f + seaLevel;
             }
