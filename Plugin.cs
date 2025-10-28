@@ -25,6 +25,7 @@ internal class Plugin : BaseUnityPlugin
     internal static ConfigEntry<int>? draftSamplingPeriod;
     internal static ConfigEntry<float>? globalViscousDragMultiplier;
     internal static ConfigEntry<float>? globalWaveMakingDragMultiplier;
+    internal static ConfigEntry<float>? globalShipLengthMultiplier;
     internal static Dictionary<string, ShipDragPerformanceData> shipOverrides = [];
 #if DEBUG
     internal static ConfigEntry<int>? debugPrintPeriod;
@@ -48,7 +49,7 @@ internal class Plugin : BaseUnityPlugin
         );
 
         globalViscousDragMultiplier = Config.Bind(
-            "--------- Global Drag Multipliers ---------",
+            "--------- Global Multipliers ---------",
             "globalViscousDragMultiplier",
             1.0f,
             new ConfigDescription(
@@ -58,12 +59,22 @@ internal class Plugin : BaseUnityPlugin
         );
 
         globalWaveMakingDragMultiplier = Config.Bind(
-            "--------- Global Drag Multipliers ---------",
+            "--------- Global Multipliers ---------",
             "globalWaveMakingDragMultiplier",
             1.0f,
             new ConfigDescription(
                 "Wave-making drag multiplier for all ships",
                 new AcceptableValueRange<float>(0.0f, 5.0f)
+            )
+        );
+
+        globalShipLengthMultiplier = Config.Bind(
+            "--------- Global Multipliers ---------",
+            "globalShipLengthMultiplier",
+            1.0f,
+            new ConfigDescription(
+                "Ship length multiplier, higher values raise the maximum speed",
+                new AcceptableValueRange<float>(0.1f, 5.0f)
             )
         );
 

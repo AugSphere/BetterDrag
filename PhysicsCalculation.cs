@@ -87,7 +87,8 @@ namespace BetterDrag
         )
         {
             var absVelocity = Mathf.Abs(forwardVelocity);
-            var lengthAtWaterline = performanceData.LengthAtWaterline;
+            var lengthAtWaterline =
+                Plugin.globalShipLengthMultiplier!.Value * performanceData.LengthAtWaterline;
             var formFactor = performanceData.FormFactor;
 
             return Plugin.globalViscousDragMultiplier!.Value
