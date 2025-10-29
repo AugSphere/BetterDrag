@@ -31,55 +31,38 @@ namespace BetterDrag
                 1.7f * shipPerformanceData.LengthAtWaterline * draft + displacement / draft;
             forwardVelocity = velocityFilter.ClampValue(forwardVelocity, rigidbody);
 
-            var dragForceMagnitude =
-                -Mathf.Sign(forwardVelocity)
-                * CalculateForwardDragForce(
-                    forwardVelocity,
-                    displacement,
-                    wettedArea,
-                    shipPerformanceData
-                );
+            var (viscousDrag, waveMakingDrag) = CalculateForwardDragForce(
+                forwardVelocity,
+                displacement,
+                wettedArea,
+                shipPerformanceData
+            );
 
+            var dragForceMagnitude = -Mathf.Sign(forwardVelocity) * (viscousDrag + waveMakingDrag);
             var clampedForceMagnitude = forceFilter.ClampValue(dragForceMagnitude, rigidbody);
+
 #if DEBUG
-            if (!Debug.executedOnce)
-            {
-                Debug.ClearDragModelBuffer();
-                var (testVelocity, testDisplacement, testWettedArea) = (9f, 38, 250);
-                Debug.LogBuffered(
-                    $"Calling drag function with forwardVelocity:{10}, displacement: {testDisplacement}m^3, wetted area: {testWettedArea}m^2"
-                );
-                CalculateForwardDragForce(
-                    testVelocity,
-                    testDisplacement,
-                    testWettedArea,
-                    shipPerformanceData
-                );
-                Debug.FLushBuffer(withDragModel: true);
-                Debug.executedOnce = true;
-            }
+            Debug.LogCSVBuffered(
+                [
+                    ("forward velocity, m/s", forwardVelocity),
+                    ("draft, m", draft),
+                    ("displacement, m^3", displacement),
+                    ("area, m^2", wettedArea),
+                    ("drag V, N", viscousDrag),
+                    ("drag WM, N", waveMakingDrag),
+                    ("drag total, N", dragForceMagnitude),
+                    ("drag clamped, N", clampedForceMagnitude),
+                ]
+            );
 
-            var logPhysics = Debug.IsAtPeriod || Mathf.Abs(dragForceMagnitude) > 100000;
-            if (logPhysics)
-                Debug.LogBuffered(
-                    [
-                        $"\n{shipPerformanceData}",
-                        $"Draft: {draft}m",
-                        $"Displacement: {displacement}m^3",
-                        $"Wetted area: {wettedArea}m^2",
-                        $"Modified drag force: {dragForceMagnitude}N",
-                        $"Clamped drag force: {clampedForceMagnitude}N",
-                        $"Forward velocity: {forwardVelocity}m/s",
-                    ]
-                );
-
-            Debug.FLushBuffer(withDragModel: logPhysics);
+            Debug.FlushBuffer(Debug.Mode.CSV);
             Debug.IncrementCounter();
 #endif
-            return clampedForceMagnitude;
+
+            return dragForceMagnitude;
         }
 
-        static float CalculateForwardDragForce(
+        static (float, float) CalculateForwardDragForce(
             float forwardVelocity,
             float displacement,
             float wettedArea,
@@ -91,24 +74,28 @@ namespace BetterDrag
                 Plugin.globalShipLengthMultiplier!.Value * performanceData.LengthAtWaterline;
             var formFactor = performanceData.FormFactor;
 
-            return Plugin.globalViscousDragMultiplier!.Value
-                    * performanceData.ViscousDragMultiplier
-                    * performanceData.CalculateViscousDragForce(
-                        absVelocity,
-                        lengthAtWaterline,
-                        formFactor,
-                        displacement,
-                        wettedArea
-                    )
-                + Plugin.globalWaveMakingDragMultiplier!.Value
-                    * performanceData.WaveMakingDragMultiplier
-                    * performanceData.CalculateWaveMakingDragForce(
-                        absVelocity,
-                        lengthAtWaterline,
-                        formFactor,
-                        displacement,
-                        wettedArea
-                    );
+            var viscousDrag =
+                Plugin.globalViscousDragMultiplier!.Value
+                * performanceData.ViscousDragMultiplier
+                * performanceData.CalculateViscousDragForce(
+                    absVelocity,
+                    lengthAtWaterline,
+                    formFactor,
+                    displacement,
+                    wettedArea
+                );
+            var waveMakingDrag =
+                Plugin.globalWaveMakingDragMultiplier!.Value
+                * performanceData.WaveMakingDragMultiplier
+                * performanceData.CalculateWaveMakingDragForce(
+                    absVelocity,
+                    lengthAtWaterline,
+                    formFactor,
+                    displacement,
+                    wettedArea
+                );
+
+            return (viscousDrag, waveMakingDrag);
         }
 
         static readonly Cache<FinalShipDragPerformanceData> shipDragPerformanceCache = new(

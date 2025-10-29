@@ -54,7 +54,7 @@ namespace BetterDrag
 #else
             Assert.IsTrue(names.Count == durations.Count);
             PrintProfilingHeaderOnce();
-            FileLog.Log(durations.ConvertAll((n) => n.ToString()).Join(delimiter: ","));
+            FileLog.Log(durations.Join((n) => n.ToString(), delimiter: ";"));
 #endif
         }
 
@@ -63,7 +63,7 @@ namespace BetterDrag
             if (!isOnFirstRun)
                 return;
             FileLog.Log($"Performance clock frequency {Stopwatch.Frequency}");
-            FileLog.Log(names.Join(delimiter: ","));
+            FileLog.Log(names.Join(delimiter: ";"));
             isOnFirstRun = false;
         }
 

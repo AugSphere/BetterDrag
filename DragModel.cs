@@ -11,11 +11,6 @@ namespace BetterDrag
         private static readonly float tuningWaveMakingDragMult =
             tuningTotalDragMult * tuningRelativeWaveMakingDragMult;
 
-#if DEBUG
-        private static float smoothedViscousDragForce = 0f;
-        private static float smoothedWavemakingDragForce = 0f;
-#endif
-
         public static float CalculateWaveMakingDragForce(
             float absVelocity,
             float lengthAtWaterline,
@@ -42,16 +37,7 @@ namespace BetterDrag
             force *= displacement * tuningWaveMakingDragMult;
 
 #if DEBUG
-            float smoothing = 1f / (1 << Plugin.debugForceSmoothing!.Value);
-            smoothedWavemakingDragForce =
-                (1 - smoothing) * smoothedWavemakingDragForce + smoothing * force;
-            Debug.LogDragModelBuffered(
-                [
-                    $"Froude number: {froudeNumber}",
-                    $"Unmodified WM resistance: {force}",
-                    $"Smoothed WM resistance: {smoothedWavemakingDragForce}",
-                ]
-            );
+            Debug.LogCSVBuffered([("Fr", froudeNumber)]);
 #endif
 
             return force;
@@ -79,19 +65,6 @@ namespace BetterDrag
                 force = coefficient * wettedArea * (1.0f + formFactor) * absVelocity * absVelocity;
                 force *= tuningViscousDragMult;
             }
-
-#if DEBUG
-            float smoothing = 1f / (1 << Plugin.debugForceSmoothing!.Value);
-            smoothedViscousDragForce =
-                (1 - smoothing) * smoothedViscousDragForce + smoothing * force;
-            Debug.LogDragModelBuffered(
-                [
-                    $"Reynolds number: {reynoldsNumber:E2}",
-                    $"Unmodified viscous resistance: {force}",
-                    $"Smoothed viscous resistance: {smoothedViscousDragForce}",
-                ]
-            );
-#endif
 
             return force;
         }
