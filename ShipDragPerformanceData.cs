@@ -231,11 +231,11 @@ namespace BetterDrag
             var shipName = ship.name;
             var suffix = "(Clone)";
 
-            if (shipName.EndsWith(suffix))
+            while (shipName.EndsWith(suffix))
             {
-                return shipName.Substring(0, shipName.Length - suffix.Length);
+                shipName = shipName.Substring(0, shipName.Length - suffix.Length);
             }
-            return ship.name;
+            return shipName;
         }
 
         private static ShipDragPerformanceData? GetPerformance(
