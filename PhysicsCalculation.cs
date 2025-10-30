@@ -55,7 +55,7 @@ namespace BetterDrag
                 ]
             );
 
-            Debug.FlushBuffer(Debug.Mode.Line);
+            Debug.FlushBuffer(Debug.Mode.CSV);
             Debug.FinishUpdate();
 #endif
 

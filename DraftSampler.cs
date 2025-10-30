@@ -19,9 +19,9 @@ namespace BetterDrag
             private static readonly int sampleNumber = 3;
             private static readonly Vector3[] directions =
             [
-                200 * Vector3.forward,
-                Vector3.zero,
-                200 * Vector3.back,
+                100 * Vector3.down + 200 * Vector3.forward,
+                100 * Vector3.down,
+                100 * Vector3.down + 200 * Vector3.back,
             ];
             private readonly Vector3[] queryPositions = new Vector3[sampleNumber];
             private readonly Vector3[] queryResults = new Vector3[sampleNumber];
@@ -60,11 +60,10 @@ namespace BetterDrag
             private void SetQueryPositions(Rigidbody rigidbody)
             {
                 var center = rigidbody.position;
-                var down = 100 * rigidbody.transform.InverseTransformDirection(Vector3.down);
                 for (int i = 0; i < sampleNumber; i++)
                 {
                     queryPositions[i] = rigidbody.ClosestPointOnBounds(
-                        center + down + directions[i]
+                        center + 100 * rigidbody.transform.TransformDirection(directions[i])
                     );
                 }
             }
