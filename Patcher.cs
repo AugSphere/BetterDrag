@@ -49,11 +49,6 @@ namespace BetterDrag
             }
         }
 
-        [HarmonyReversePatch]
-        [HarmonyPatch(typeof(Component), nameof(Component.transform), MethodType.Getter)]
-        [MethodImpl(MethodImplOptions.NoInlining)]
-        static Transform ComponentBaseTransform(BoatProbes _) => null!;
-
         [HarmonyPostfix]
         [HarmonyPatch(typeof(BoatProbes), "FixedUpdateDrag")]
         static void AddCustomLongitudinalDrag(
@@ -67,13 +62,10 @@ namespace BetterDrag
         {
             Profiler.RestartClock();
 
-            var transform = ComponentBaseTransform(__instance);
-            Profiler.Profile("transform");
-
             Vector3 bodyVelocity = __instance.dontUpdateVelocity ? ___lastVel : ____rb.velocity;
             Vector3 velocityVector = bodyVelocity - waterSurfaceVel;
             Vector3 dragPositionVector = ____rb.position + ____forceHeightOffset * Vector3.up;
-            var forwardVector = transform.forward;
+            var forwardVector = ____rb.transform.forward;
             var forwardVelocity = Vector3.Dot(forwardVector, velocityVector);
             Profiler.Profile("velocity");
 
