@@ -55,8 +55,8 @@ namespace BetterDrag
                 ]
             );
 
-            Debug.FlushBuffer(Debug.Mode.CSV);
-            Debug.IncrementCounter();
+            Debug.FlushBuffer(Debug.Mode.Line);
+            Debug.FinishUpdate();
 #endif
 
             return dragForceMagnitude;

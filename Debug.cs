@@ -18,9 +18,12 @@ namespace BetterDrag
             CSV,
         }
 
-        public static void IncrementCounter()
+        public static void FinishUpdate()
         {
             counter++;
+            FileLog.SetBuffer([]);
+            textBuffer.Clear();
+            valuesBuffer.Clear();
         }
 
         public static bool IsAtPeriod
@@ -60,9 +63,6 @@ namespace BetterDrag
                 default:
                     throw new ArgumentOutOfRangeException(nameof(mode));
             }
-            FileLog.SetBuffer([]);
-            textBuffer.Clear();
-            valuesBuffer.Clear();
         }
 
         private static void FlushCSVBuffer()
@@ -73,6 +73,8 @@ namespace BetterDrag
                 isOnFirstRun = false;
             }
             FileLog.Log(valuesBuffer.Join((n) => n.ToString(), delimiter: ";"));
+            textBuffer.Clear();
+            valuesBuffer.Clear();
         }
     }
 }

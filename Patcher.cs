@@ -61,7 +61,8 @@ namespace BetterDrag
             BoatProbes __instance,
             Rigidbody ____rb,
             float ____forceHeightOffset,
-            Vector3 ___lastVel
+            Vector3 ___lastVel,
+            Vector3[] ____queryPoints
         )
         {
             Profiler.RestartClock();
