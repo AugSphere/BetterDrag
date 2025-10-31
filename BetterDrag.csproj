@@ -35,7 +35,6 @@
     <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="BepInEx.Analyzers" Version="1.*" PrivateAssets="all" />
     <PackageReference Include="BepInEx.Core" Version="5.*" />
     <PackageReference Include="UnityEngine.Modules" Version="2019.1.10" IncludeAssets="compile" />
     <PackageReference Include="DefaultDocumentation" Version="1.2.0" PrivateAssets="all" />
