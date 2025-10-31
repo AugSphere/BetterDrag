@@ -20,12 +20,12 @@ namespace BetterDrag
         public static float GetDragForceMagnitude(
             BoatProbes boatProbes,
             Rigidbody rigidbody,
-            float forwardVelocity,
-            float baseBuoyancy
+            float forwardVelocity
         )
         {
             var shipPerformanceData = GetShipDragPerformanceData(boatProbes);
-            var displacement = GetDisplacement(boatProbes, baseBuoyancy);
+            var miscShipData = MiscShipData.GetMiscShipData(boatProbes.gameObject);
+            var (displacement, draftEst) = GetDisplacementAndDraft(boatProbes, miscShipData);
             var draft = DraftSampler.GetAverageDraft(boatProbes, rigidbody);
             var wettedArea =
                 1.7f * shipPerformanceData.LengthAtWaterline * draft + displacement / draft;
@@ -45,7 +45,8 @@ namespace BetterDrag
             Debug.LogCSVBuffered(
                 [
                     ("forward velocity, m/s", forwardVelocity),
-                    ("draft, m", draft),
+                    ("draftSample, m", draft),
+                    ("draftEst, m", draftEst),
                     ("displacement, m^3", displacement),
                     ("area, m^2", wettedArea),
                     ("drag V, N", viscousDrag),
@@ -109,14 +110,24 @@ namespace BetterDrag
             return shipDragPerformanceCache.GetValue(ship);
         }
 
-        static float GetDisplacement(BoatProbes boatProbes, float baseBuoyancy)
+        static (float, float) GetDisplacementAndDraft(
+            BoatProbes boatProbes,
+            MiscShipData miscShipData
+        )
         {
-            float displacement = 0.0f;
+            float weight = 1000f * Mathf.Abs(Physics.gravity.y);
+            float force = 0.0f;
             for (int idx = 0; idx < boatProbes.appliedBuoyancyForces.Length; idx++)
-                displacement += boatProbes.appliedBuoyancyForces[idx];
+            {
+                force += boatProbes.appliedBuoyancyForces[idx];
+            }
 
-            var unmodifiedForce = displacement * 1e-4f / boatProbes._forceMultiplier * baseBuoyancy;
-            return Mathf.Clamp(unmodifiedForce, 0.1f, float.MaxValue);
+            var draftSum = force / weight / boatProbes._forceMultiplier;
+            var dispalcement = draftSum * miscShipData.baseBuoyancy;
+            var draft = draftSum + miscShipData.draftOffset;
+            var clampedDraft = Mathf.Clamp(draft, 0.01f, 20);
+            var clampedDisplacement = Mathf.Clamp(dispalcement, 0.01f, float.MaxValue);
+            return (clampedDisplacement, clampedDraft);
         }
     }
 }
