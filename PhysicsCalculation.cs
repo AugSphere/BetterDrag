@@ -25,8 +25,7 @@ namespace BetterDrag
         {
             var shipPerformanceData = GetShipDragPerformanceData(boatProbes);
             var miscShipData = MiscShipData.GetMiscShipData(boatProbes.gameObject);
-            var (displacement, draftEst) = GetDisplacementAndDraft(boatProbes, miscShipData);
-            var draft = DraftSampler.GetAverageDraft(boatProbes, rigidbody);
+            var (displacement, draft) = GetDisplacementAndDraft(boatProbes, miscShipData);
             var wettedArea =
                 1.7f * shipPerformanceData.LengthAtWaterline * draft + displacement / draft;
             forwardVelocity = velocityFilter.ClampValue(forwardVelocity, rigidbody);
@@ -45,8 +44,7 @@ namespace BetterDrag
             Debug.LogCSVBuffered(
                 [
                     ("forward velocity, m/s", forwardVelocity),
-                    ("draftSample, m", draft),
-                    ("draftEst, m", draftEst),
+                    ("draft, m", draft),
                     ("displacement, m^3", displacement),
                     ("area, m^2", wettedArea),
                     ("drag V, N", viscousDrag),

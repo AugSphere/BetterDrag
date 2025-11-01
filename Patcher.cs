@@ -49,6 +49,13 @@ namespace BetterDrag
         }
 
         [HarmonyPostfix]
+        [HarmonyPatch(typeof(BoatProbes), "Start")]
+        static void BoatProbesStart(BoatProbes __instance, Rigidbody ____rb)
+        {
+            MiscShipData.CalculateDraftOffset(__instance, ____rb);
+        }
+
+        [HarmonyPostfix]
         [HarmonyPatch(typeof(BoatProbes), "FixedUpdateDrag")]
         static void AddCustomLongitudinalDrag(
             Vector3 waterSurfaceVel,

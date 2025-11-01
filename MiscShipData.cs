@@ -32,50 +32,17 @@ namespace BetterDrag
             return name + "(" + fields + ")";
         }
 
-        internal void CalculateDraftOffset(BoatProbes boatProbes, Rigidbody rigidbody)
+        internal static void CalculateDraftOffset(BoatProbes boatProbes, Rigidbody rigidbody)
         {
-            var downPoint = rigidbody.transform.TransformPoint(Vector3.down * 100);
+            var instance = miscDataCache.GetValue(rigidbody.gameObject);
+            var downPointWorld = rigidbody.transform.TransformPoint(Vector3.down * 100);
+            var keelPointWorld = rigidbody.ClosestPointOnBounds(downPointWorld);
+            var keelPoint = rigidbody.transform.InverseTransformPoint(keelPointWorld);
 
-            float sqrDistance = float.MaxValue;
-            Vector3 nearest = Vector3.zeroVector;
-
-            foreach (
-                var meshCollider in rigidbody.GetComponentsInChildren<MeshCollider>(
-                    includeInactive: false
-                )
-            )
-            {
-                if (!meshCollider.name.ToLower().Contains("hull"))
-                    continue;
-
-                var meshTransform = meshCollider.transform;
-                foreach (Vector3 vertex in meshCollider.sharedMesh.vertices)
-                {
-                    var worldVertex = meshTransform.TransformPoint(vertex);
-                    var testDistance = (downPoint - worldVertex).sqrMagnitude;
-                    if (testDistance < sqrDistance)
-                    {
-                        sqrDistance = testDistance;
-                        nearest = worldVertex;
-                    }
-                }
-            }
-            nearest = rigidbody.transform.InverseTransformPoint(nearest);
-            this.draftOffset = boatProbes._forcePoints[0]._offsetPosition.y - nearest.y;
+            instance.draftOffset = boatProbes._forcePoints[0]._offsetPosition.y - keelPoint.y;
 
 #if DEBUG
-            if (sqrDistance < float.MaxValue)
-            {
-                Debug.LogBuffered(
-                    $"{boatProbes.gameObject.name}: set draft offset to {this.draftOffset}"
-                );
-            }
-            else
-            {
-                Debug.LogBuffered(
-                    $"{boatProbes.gameObject.name}: failed to calculate draft offset"
-                );
-            }
+            Debug.LogBuffered($"{rigidbody.name}: set draft offset to {instance.draftOffset}");
 #endif
         }
     }
