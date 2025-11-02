@@ -11,6 +11,7 @@ namespace BetterDrag
             (gameObject) => new(gameObject.name)
         );
         private static readonly Vector3 globalKeelOffset = 0.1f * Vector3.up;
+        private static readonly float globalOverflowOffset = -0.2f;
 
         public string name = name;
         public float baseBuoyancy = 25f;
@@ -71,7 +72,10 @@ namespace BetterDrag
                 splashZone.transform.position
                 + splashZone.transform.TransformDirection(Vector3.up) * splashZone.verticalOffset;
             var bodyOffset = rigidbody.transform.InverseTransformPoint(worldOverflowPoint).y;
-            shipData.overflowOffset = Mathf.Min(shipData.overflowOffset, bodyOffset);
+            shipData.overflowOffset = Mathf.Min(
+                shipData.overflowOffset,
+                bodyOffset + globalOverflowOffset
+            );
 #if DEBUG
             BetterDragDebug.LogLineBuffered(
                 $"{rigidbody.name}: set overflow offset to {shipData.overflowOffset}"
