@@ -19,7 +19,7 @@ namespace BetterDrag
 #if DEBUG
         public Vector3 keelPointPosition = Vector3.zero;
         public DebugSphereRenderer keelRenderer = new(name, Color.red);
-        public DebugSphereRenderer overflowRenderer = new(name, Color.blue, 0.05f);
+        public DebugSphereRenderer overflowRenderer = new(name, Color.blue, 0.5f, 0.05f);
 #endif
 
         public static MiscShipData GetMiscShipData(GameObject gameObject)

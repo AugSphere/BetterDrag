@@ -84,19 +84,26 @@ namespace BetterDrag
         private static readonly Vector3[] s_UnitSphere = MakeUnitSphere(16);
         private readonly GameObject gameObject;
         private readonly float debugLineSize;
+        private readonly float radius;
         private readonly Color color;
         private readonly LineRenderer lineRenderer;
 
-        internal DebugSphereRenderer(string name, Color color, float debugLineSize = 0.1f)
+        internal DebugSphereRenderer(
+            string name,
+            Color color,
+            float radius = 1f,
+            float debugLineSize = 0.1f
+        )
         {
             this.gameObject = new GameObject(nameof(DebugSphereRenderer) + "(" + name + ")");
             this.debugLineSize = debugLineSize;
+            this.radius = radius;
             this.color = color;
             lineRenderer = gameObject.AddComponent<LineRenderer>();
             lineRenderer.material = new Material(Shader.Find("Sprites/Default"));
         }
 
-        public void DrawSphere(Vector3 position, float radius = 1f)
+        public void DrawSphere(Vector3 position)
         {
             lineRenderer.startColor = this.color;
             lineRenderer.endColor = this.color;
@@ -107,7 +114,7 @@ namespace BetterDrag
             Vector3[] vertices = new Vector3[s_UnitSphere.Length];
             for (int idx = 0; idx < s_UnitSphere.Length; idx++)
             {
-                vertices[idx] = position + radius * s_UnitSphere[idx];
+                vertices[idx] = position + this.radius * s_UnitSphere[idx];
             }
             lineRenderer.SetPositions(vertices);
         }

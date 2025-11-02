@@ -58,7 +58,7 @@ namespace BetterDrag
                 rigidbody.transform.TransformPoint(miscShipData.keelPointPosition)
             );
             miscShipData.overflowRenderer.DrawSphere(
-                rigidbody.position + miscShipData.overflowOffset * Vector3.up
+                rigidbody.transform.TransformPoint(miscShipData.overflowOffset * Vector3.up)
             );
             BetterDragDebug.FlushBuffer(BetterDragDebug.Mode.Line);
             BetterDragDebug.FinishUpdate();
