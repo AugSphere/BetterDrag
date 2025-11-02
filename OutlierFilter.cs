@@ -66,9 +66,9 @@ namespace BetterDrag
             readonly float[] buffer = new float[sampleCount];
             private uint insertionIndex = 0;
 
-            public float this[int index]
+            public float this[int idx]
             {
-                get { return this.buffer[index]; }
+                get { return this.buffer[idx]; }
             }
 
             public void Insert(float value)
@@ -80,10 +80,10 @@ namespace BetterDrag
             {
                 var stringBuilder = new StringBuilder();
                 stringBuilder.Append("[");
-                for (int i = 0; i < sampleCount; i++)
+                for (int idx = 0; idx < sampleCount; idx++)
                 {
-                    stringBuilder.AppendFormat("{0:F2}", this.buffer[i]);
-                    if (i != sampleCount - 1)
+                    stringBuilder.AppendFormat("{0:F2}", this.buffer[idx]);
+                    if (idx != sampleCount - 1)
                         stringBuilder.Append(", ");
                 }
                 stringBuilder.Append("]");
