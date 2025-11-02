@@ -51,7 +51,7 @@ namespace BetterDrag
             }
             else
             {
-#if DEBUG
+#if DEBUG && VERBOSE
                 Debug.LogBuffered(
                     $"{this.name}: clipped {value, 10:F02} to {clampedValue, 10:F02}; samples: {buffer}"
                 );

@@ -96,5 +96,12 @@ namespace BetterDrag
             var boatData = MiscShipData.GetMiscShipData(__instance.gameObject);
             boatData.baseBuoyancy = ___baseBuoyancy;
         }
+
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(WaveSplashZone), "Start")]
+        static void WaveSplashZoneStart(WaveSplashZone __instance)
+        {
+            MiscShipData.CalculateOverflowOffset(__instance);
+        }
     }
 }
