@@ -98,7 +98,7 @@ namespace BetterDrag
         {
             __instance.waterDrag = 0f;
             var boatData = MiscShipData.GetMiscShipData(__instance.gameObject);
-            boatData.baseBuoyancy = ___baseBuoyancy;
+            boatData.baseBuoyancy.Value = ___baseBuoyancy;
         }
 
         [HarmonyPostfix]

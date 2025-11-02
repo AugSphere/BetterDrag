@@ -58,7 +58,7 @@ namespace BetterDrag
                 rigidbody.transform.TransformPoint(miscShipData.keelPointPosition)
             );
             miscShipData.overflowRenderer.DrawSphere(
-                rigidbody.transform.TransformPoint(miscShipData.overflowOffset * Vector3.up)
+                rigidbody.transform.TransformPoint(miscShipData.overflowOffset.Value * Vector3.up)
             );
             BetterDragDebug.FlushBuffer(BetterDragDebug.Mode.Line);
             BetterDragDebug.FinishUpdate();
@@ -127,8 +127,8 @@ namespace BetterDrag
             }
 
             var draftSum = force / weight / boatProbes._forceMultiplier;
-            var dispalcement = draftSum * miscShipData.baseBuoyancy;
-            var draft = draftSum + miscShipData.draftOffset;
+            var dispalcement = draftSum * miscShipData.baseBuoyancy.Value;
+            var draft = draftSum + miscShipData.draftOffset.Value;
             var clampedDraft = Mathf.Clamp(draft, 0.01f, 20);
             var clampedDisplacement = Mathf.Clamp(dispalcement, 0.01f, float.MaxValue);
             return (clampedDisplacement, clampedDraft);
