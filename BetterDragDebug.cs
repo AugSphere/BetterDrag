@@ -31,12 +31,12 @@ namespace BetterDrag
             get { return counter % Plugin.debugPrintPeriod!.Value == 0; }
         }
 
-        public static void LogBuffered(string line)
+        public static void LogLineBuffered(string line)
         {
             FileLog.LogBuffered(line);
         }
 
-        public static void LogBuffered(List<string> lines)
+        public static void LogLinesBuffered(List<string> lines)
         {
             FileLog.LogBuffered(lines);
         }

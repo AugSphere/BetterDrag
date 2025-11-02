@@ -42,7 +42,7 @@ namespace BetterDrag
             shipData.draftOffset = boatProbes._forcePoints[0]._offsetPosition.y - keelPoint.y;
 
 #if DEBUG
-            BetterDragDebug.LogBuffered(
+            BetterDragDebug.LogLineBuffered(
                 $"{rigidbody.name}: set draftOffset to {shipData.draftOffset}"
             );
 #endif
@@ -58,7 +58,7 @@ namespace BetterDrag
             var bodyOffset = rigidbody.transform.InverseTransformPoint(worldOverflowPoint).y;
             shipData.overflowOffset = Mathf.Min(shipData.overflowOffset, bodyOffset);
 #if DEBUG
-            BetterDragDebug.LogBuffered(
+            BetterDragDebug.LogLineBuffered(
                 $"{rigidbody.name}: set overflowOffset to {shipData.overflowOffset}"
             );
 #endif
