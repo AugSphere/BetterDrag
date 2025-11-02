@@ -179,7 +179,7 @@ namespace BetterDrag
             var finalData = FinalShipDragPerformanceData.FillWithDefaults(mergedData);
 
 #if DEBUG
-            Debug.LogBuffered(
+            BetterDragDebug.LogBuffered(
                 [
                     $"\nMerging data for: {ship.name}",
                     $"User data: {userData}",

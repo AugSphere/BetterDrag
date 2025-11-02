@@ -41,7 +41,7 @@ namespace BetterDrag
             var clampedForceMagnitude = forceFilter.ClampValue(dragForceMagnitude, rigidbody);
 
 #if DEBUG
-            Debug.LogCSVBuffered(
+            BetterDragDebug.LogCSVBuffered(
                 [
                     ("forward velocity, m/s", forwardVelocity),
                     ("draft, m", draft),
@@ -54,8 +54,8 @@ namespace BetterDrag
                 ]
             );
 
-            Debug.FlushBuffer(Debug.Mode.Line);
-            Debug.FinishUpdate();
+            BetterDragDebug.FlushBuffer(BetterDragDebug.Mode.Line);
+            BetterDragDebug.FinishUpdate();
 #endif
 
             return dragForceMagnitude;

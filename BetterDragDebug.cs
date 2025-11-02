@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace BetterDrag
 {
-    internal static class Debug
+    internal static class BetterDragDebug
     {
         private static bool isOnFirstRun = true;
         private static uint counter = 1;

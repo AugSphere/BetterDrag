@@ -37,7 +37,7 @@ namespace BetterDrag
             force *= displacement * tuningWaveMakingDragMult;
 
 #if DEBUG
-            Debug.LogCSVBuffered([("Fr", froudeNumber)]);
+            BetterDragDebug.LogCSVBuffered([("Fr", froudeNumber)]);
 #endif
 
             return force;
