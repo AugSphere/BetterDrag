@@ -48,25 +48,21 @@ namespace BetterDrag
             }
         }
 
-        [HarmonyPostfix]
-        [HarmonyPatch(typeof(BoatProbes), "Start")]
-        static void BoatProbesStart(
-            BoatProbes __instance,
-            Rigidbody ____rb,
-            Vector3 ____centerOfMass
-        )
-        {
-            MiscShipData.CalculateDraftOffset(__instance, ____rb, ____centerOfMass);
-        }
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(BoatProbes), "FixedUpdateBuoyancy")]
+        static bool DropOriginalBuoyancy() => false;
 
         [HarmonyPostfix]
         [HarmonyPatch(typeof(BoatProbes), "FixedUpdateDrag")]
-        static void AddCustomLongitudinalDrag(
+        static void AddCustomPhysics(
             Vector3 waterSurfaceVel,
             BoatProbes __instance,
             Rigidbody ____rb,
             float ____forceHeightOffset,
-            Vector3 ___lastVel
+            Vector3 ___lastVel,
+            Vector3[] ____queryResultDisps,
+            Vector3[] ____queryPoints,
+            float ____totalWeight
         )
         {
             Profiler.RestartClock();
@@ -78,10 +74,28 @@ namespace BetterDrag
             var forwardVelocity = Vector3.Dot(forwardVector, velocityVector);
             Profiler.Profile("velocity");
 
+            var shipData = ShipData.GetShipData(__instance.gameObject);
+            Profiler.Profile("GetShipData");
+
+            PhysicsCalculation.UpdateBuoyancy(
+                __instance,
+                ____rb,
+                shipData,
+                ____queryResultDisps,
+                ____queryPoints,
+                ____totalWeight,
+                out var displacement,
+                out var draft
+            );
+            Profiler.Profile("UpdateBuoyancy");
+
             var signedDragForceMagnitude = PhysicsCalculation.GetDragForceMagnitude(
                 __instance,
                 ____rb,
-                forwardVelocity
+                shipData,
+                forwardVelocity,
+                draft,
+                displacement
             );
             Profiler.Profile("GetDragForceMagnitude");
 
@@ -93,11 +107,22 @@ namespace BetterDrag
         }
 
         [HarmonyPostfix]
+        [HarmonyPatch(typeof(BoatProbes), "Start")]
+        static void BoatProbesStart(
+            BoatProbes __instance,
+            Rigidbody ____rb,
+            Vector3 ____centerOfMass
+        )
+        {
+            ShipData.CalculateDraftOffset(__instance, ____rb, ____centerOfMass);
+        }
+
+        [HarmonyPostfix]
         [HarmonyPatch(typeof(BoatDamage), "Start")]
         static void BoatDamageStart(BoatDamage __instance, float ___baseBuoyancy)
         {
             __instance.waterDrag = 0f;
-            var boatData = MiscShipData.GetMiscShipData(__instance.gameObject);
+            var boatData = ShipData.GetShipData(__instance.gameObject);
             boatData.baseBuoyancy.Value = ___baseBuoyancy;
         }
 
@@ -105,7 +130,7 @@ namespace BetterDrag
         [HarmonyPatch(typeof(WaveSplashZone), "Start")]
         static void WaveSplashZoneStart(WaveSplashZone __instance)
         {
-            MiscShipData.CalculateOverflowOffset(__instance);
+            ShipData.CalculateOverflowOffset(__instance);
         }
     }
 }

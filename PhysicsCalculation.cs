@@ -1,4 +1,5 @@
-﻿using Crest;
+﻿using System;
+using Crest;
 using UnityEngine;
 
 namespace BetterDrag
@@ -20,21 +21,21 @@ namespace BetterDrag
         public static float GetDragForceMagnitude(
             BoatProbes boatProbes,
             Rigidbody rigidbody,
-            float forwardVelocity
+            ShipData shipData,
+            float forwardVelocity,
+            float draft,
+            float displacement
         )
         {
-            var shipPerformanceData = GetShipDragPerformanceData(boatProbes);
-            var miscShipData = MiscShipData.GetMiscShipData(boatProbes.gameObject);
-            var (displacement, draft) = GetDisplacementAndDraft(boatProbes, miscShipData);
             var wettedArea =
-                1.7f * shipPerformanceData.LengthAtWaterline * draft + displacement / draft;
+                1.7f * shipData.dragData.LengthAtWaterline * draft + displacement / draft;
             forwardVelocity = velocityFilter.ClampValue(forwardVelocity, rigidbody);
 
             var (viscousDrag, waveMakingDrag) = CalculateForwardDragForce(
                 forwardVelocity,
                 displacement,
                 wettedArea,
-                shipPerformanceData
+                shipData.dragData
             );
 
             var dragForceMagnitude = -Mathf.Sign(forwardVelocity) * (viscousDrag + waveMakingDrag);
@@ -54,13 +55,13 @@ namespace BetterDrag
                 ]
             );
 
-            miscShipData.keelRenderer.DrawSphere(
-                rigidbody.transform.TransformPoint(miscShipData.keelPointPosition)
+            shipData.keelRenderer.DrawSphere(
+                rigidbody.transform.TransformPoint(shipData.keelPointPosition)
             );
-            miscShipData.overflowRenderer.DrawSphere(
-                rigidbody.transform.TransformPoint(miscShipData.overflowOffset.Value * Vector3.up)
+            shipData.overflowRenderer.DrawSphere(
+                rigidbody.transform.TransformPoint(shipData.overflowOffset.Value * Vector3.up)
             );
-            BetterDragDebug.FlushBuffer(BetterDragDebug.Mode.Line);
+            BetterDragDebug.FlushBuffer(BetterDragDebug.Mode.CSV);
             BetterDragDebug.FinishUpdate();
 #endif
 
@@ -103,35 +104,55 @@ namespace BetterDrag
             return (viscousDrag, waveMakingDrag);
         }
 
-        static readonly Cache<FinalShipDragPerformanceData> shipDragPerformanceCache = new(
-            "Ship performance",
-            (ship) => ShipDragDataStore.GetPerformanceData(ship)
-        );
-
-        static FinalShipDragPerformanceData GetShipDragPerformanceData(BoatProbes boatProbes)
-        {
-            GameObject ship = boatProbes.gameObject;
-            return shipDragPerformanceCache.GetValue(ship);
-        }
-
-        static (float, float) GetDisplacementAndDraft(
+        public static void UpdateBuoyancy(
             BoatProbes boatProbes,
-            MiscShipData miscShipData
+            Rigidbody rigidbody,
+            ShipData shipData,
+            Vector3[] queryResultDisps,
+            Vector3[] queryPoints,
+            float totalWeight,
+            out float displacement,
+            out float averageDraft
         )
         {
             float weight = 1000f * Mathf.Abs(Physics.gravity.y);
-            float force = 0.0f;
-            for (int idx = 0; idx < boatProbes.appliedBuoyancyForces.Length; idx++)
-            {
-                force += boatProbes.appliedBuoyancyForces[idx];
-            }
+            averageDraft = 0.0f;
+            displacement = 0.0f;
 
-            var draftSum = force / weight / boatProbes._forceMultiplier;
-            var dispalcement = draftSum * miscShipData.baseBuoyancy.Value;
-            var draft = draftSum + miscShipData.draftOffset.Value;
-            var clampedDraft = Mathf.Clamp(draft, 0.01f, 20);
-            var clampedDisplacement = Mathf.Clamp(dispalcement, 0.01f, float.MaxValue);
-            return (clampedDisplacement, clampedDraft);
+            float seaLevel = OceanRenderer.Instance.SeaLevel;
+            float fullSpan = 0.9f * (shipData.overflowOffset.Value + shipData.keelDepth.Value);
+
+            for (int idx = 0; idx < boatProbes._forcePoints.Length; idx++)
+            {
+                float waterHeightSample = seaLevel + queryResultDisps[idx].y - queryPoints[idx].y;
+                float draft = Mathf.Clamp(waterHeightSample + shipData.draftOffset.Value, 0f, 50f);
+                float displacementScale = CalculateDisplacementScale(
+                    draft,
+                    fullSpan,
+                    shipData.dragData
+                );
+                averageDraft += draft;
+                float scaledDraft =
+                    draft * displacementScale * boatProbes._forcePoints[idx]._weight / totalWeight;
+                displacement += scaledDraft * shipData.baseBuoyancy.Value;
+                float force = weight * boatProbes._forceMultiplier * scaledDraft;
+                rigidbody.AddForceAtPosition(Vector3.up * force, queryPoints[idx]);
+                boatProbes.appliedBuoyancyForces[idx] = force;
+            }
+            averageDraft /= totalWeight;
+        }
+
+        private static float CalculateDisplacementScale(
+            float draft,
+            float fullSpan,
+            FinalShipDragPerformanceData shipDragPerformanceData
+        )
+        {
+            var relativeToOverflow = draft / fullSpan;
+            if (relativeToOverflow > 1)
+                return 1f;
+
+            return Mathf.Pow(relativeToOverflow, 3f - 6.66f * shipDragPerformanceData.FormFactor);
         }
     }
 }

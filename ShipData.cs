@@ -4,19 +4,27 @@ using UnityEngine;
 
 namespace BetterDrag
 {
-    internal class MiscShipData(string shipName)
+    internal class ShipData(GameObject shipGameObject)
     {
-        private static readonly Cache<MiscShipData> miscDataCache = new(
-            "MiscShipData",
-            (gameObject) => new(gameObject.name)
+        private static readonly Cache<ShipData> miscDataCache = new(
+            "ShipData",
+            (gameObject) => new(gameObject)
         );
         private static readonly Vector3 globalKeelOffset = 0.1f * Vector3.up;
-        private static readonly float globalOverflowOffset = -0.2f;
+        private static readonly float globalOverflowOffset = 0f;
 
-        public readonly string shipName = shipName;
-        public ValueWithDefault baseBuoyancy = new(shipName, nameof(baseBuoyancy), 25f);
-        public ValueWithDefault overflowOffset = new(shipName, nameof(overflowOffset), 10f);
-        public ValueWithDefault draftOffset = new(shipName, nameof(draftOffset), 0f);
+        public readonly string shipName = shipGameObject.name;
+        public FinalShipDragPerformanceData dragData = ShipDragDataStore.GetPerformanceData(
+            shipGameObject
+        );
+        public ValueWithDefault baseBuoyancy = new(shipGameObject.name, nameof(baseBuoyancy), 25f);
+        public ValueWithDefault overflowOffset = new(
+            shipGameObject.name,
+            nameof(overflowOffset),
+            5f
+        );
+        public ValueWithDefault draftOffset = new(shipGameObject.name, nameof(draftOffset), 0f);
+        public ValueWithDefault keelDepth = new(shipGameObject.name, nameof(keelDepth), 1f);
 
         internal struct ValueWithDefault(string shipName, string valueName, float defaultValue)
         {
@@ -50,18 +58,23 @@ namespace BetterDrag
 
 #if DEBUG
         public Vector3 keelPointPosition = Vector3.zero;
-        public DebugSphereRenderer keelRenderer = new(shipName, Color.red);
-        public DebugSphereRenderer overflowRenderer = new(shipName, Color.blue, 0.5f, 0.05f);
+        public DebugSphereRenderer keelRenderer = new(shipGameObject.name, Color.red);
+        public DebugSphereRenderer overflowRenderer = new(
+            shipGameObject.name,
+            Color.blue,
+            0.5f,
+            0.05f
+        );
 #endif
 
-        public static MiscShipData GetMiscShipData(GameObject gameObject)
+        public static ShipData GetShipData(GameObject shipGameObject)
         {
-            return miscDataCache.GetValue(gameObject);
+            return miscDataCache.GetValue(shipGameObject);
         }
 
         public override string ToString()
         {
-            var name = nameof(MiscShipData);
+            var name = nameof(ShipData);
             var fields = String.Join(
                 ", ",
                 $"valueName={this.shipName}",
@@ -92,11 +105,15 @@ namespace BetterDrag
 
             shipData.draftOffset.Value =
                 boatProbes._forcePoints[0]._offsetPosition.y + centerOfMass.y - keelPoint.y;
+            shipData.keelDepth.Value = -keelPoint.y;
 
 #if DEBUG
             shipData.keelPointPosition = keelPoint;
-            BetterDragDebug.LogLineBuffered(
-                $"{rigidbody.name}: set draft offset to {shipData.draftOffset.Value} from {hitInfo.collider.name}"
+            BetterDragDebug.LogLinesBuffered(
+                [
+                    $"{rigidbody.name}: set keel depth to {shipData.keelDepth.Value}",
+                    $"{rigidbody.name}: set draft offset to {shipData.draftOffset.Value} from {hitInfo.collider.name}",
+                ]
             );
 #endif
         }
@@ -104,7 +121,7 @@ namespace BetterDrag
         internal static void CalculateOverflowOffset(WaveSplashZone splashZone)
         {
             var rigidbody = splashZone.GetComponentInParent<Rigidbody>();
-            var shipData = MiscShipData.GetMiscShipData(rigidbody.gameObject);
+            var shipData = ShipData.GetShipData(rigidbody.gameObject);
             var worldOverflowPoint =
                 splashZone.transform.position
                 + splashZone.transform.TransformDirection(Vector3.up) * splashZone.verticalOffset;
