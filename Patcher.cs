@@ -50,9 +50,13 @@ namespace BetterDrag
 
         [HarmonyPostfix]
         [HarmonyPatch(typeof(BoatProbes), "Start")]
-        static void BoatProbesStart(BoatProbes __instance, Rigidbody ____rb)
+        static void BoatProbesStart(
+            BoatProbes __instance,
+            Rigidbody ____rb,
+            Vector3 ____centerOfMass
+        )
         {
-            MiscShipData.CalculateDraftOffset(__instance, ____rb);
+            MiscShipData.CalculateDraftOffset(__instance, ____rb, ____centerOfMass);
         }
 
         [HarmonyPostfix]

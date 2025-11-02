@@ -40,7 +40,11 @@ namespace BetterDrag
             return name + "(" + fields + ")";
         }
 
-        internal static void CalculateDraftOffset(BoatProbes boatProbes, Rigidbody rigidbody)
+        internal static void CalculateDraftOffset(
+            BoatProbes boatProbes,
+            Rigidbody rigidbody,
+            Vector3 centerOfMass
+        )
         {
             var shipData = miscDataCache.GetValue(rigidbody.gameObject);
             var downPointWorld = rigidbody.transform.TransformPoint(Vector3.down * 100);
@@ -54,12 +58,13 @@ namespace BetterDrag
             var keelPoint =
                 rigidbody.transform.InverseTransformPoint(hitInfo.point) + globalKeelOffset;
 
-            shipData.draftOffset = boatProbes._forcePoints[0]._offsetPosition.y - keelPoint.y;
+            shipData.draftOffset =
+                boatProbes._forcePoints[0]._offsetPosition.y + centerOfMass.y - keelPoint.y;
 
 #if DEBUG
             shipData.keelPointPosition = keelPoint;
             BetterDragDebug.LogLineBuffered(
-                $"{rigidbody.name}: set draft offset to {shipData.draftOffset}"
+                $"{rigidbody.name}: set draft offset to {shipData.draftOffset} from {hitInfo.collider.name}"
             );
 #endif
         }
