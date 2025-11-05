@@ -178,7 +178,7 @@ namespace BetterDrag
 
             var finalData = FinalShipDragPerformanceData.FillWithDefaults(mergedData);
 
-#if DEBUG
+#if DEBUG && VERBOSE
             BetterDragDebug.LogLinesBuffered(
                 [
                     $"\nMerging data for: {ship.name}",
@@ -209,19 +209,19 @@ namespace BetterDrag
         {
             return (shipName) switch
             {
-                "BOAT dhow small (10)" => new(12f, 0.25f),
-                "BOAT dhow medium (20)" => new(22f, 0.21f),
+                "BOAT dhow small (10)" => new(12.76f, 0.25f),
+                "BOAT dhow medium (20)" => new(21.03f, 0.21f),
                 "BOAT medi small (40)" => new(12.39f, 0.24f),
-                "BOAT medi medium (50)" => new(25.31f, 0.19f),
-                "BOAT junk large (70)" => new(28f, 0.23f),
-                "BOAT junk medium (80)" => new(24f, 0.22f),
-                "BOAT junk small singleroof(90)" => new(12f, 0.25f),
-                "BOAT Shroud Small" => new(14.77f, 0.10f, 0.9f, 0.95f),
-                "BOAT Shroud Large" => new(34.56f, 0.10f, 0.85f, 0.9f),
-                "BOAT GLORIANA (182)" => new(30f, 0.18f),
-                "BOAT CHRONIAN (187)" => new(35f, 0.20f),
-                "BOAT CAELANOR (192)" => new(20f, 0.26f),
-                "BOAT GALLUS (197)" => new(7f, 0.20f),
+                "BOAT medi medium (50)" => new(24.83f, 0.19f),
+                "BOAT junk large (70)" => new(29.9f, 0.23f),
+                "BOAT junk medium (80)" => new(21.8f, 0.22f),
+                "BOAT junk small singleroof(90)" => new(11.07f, 0.25f),
+                "BOAT Shroud Small" => new(14.77f, 0.12f),
+                "BOAT Shroud Large" => new(34.56f, 0.12f, 0.85f, 0.9f),
+                "BOAT GLORIANA (182)" => new(24.6f, 0.18f),
+                "BOAT CHRONIAN (187)" => new(36f, 0.20f),
+                "BOAT CAELANOR (192)" => new(18f, 0.26f),
+                "BOAT GALLUS (197)" => new(9.2f, 0.15f),
                 _ => new(),
             };
         }
@@ -255,7 +255,7 @@ namespace BetterDrag
     /// Same as <see cref="ShipDragPerformanceData"/>, but all values are not null.
     /// </summary>
     internal class FinalShipDragPerformanceData(
-        float lengthAtWaterline = 20,
+        float lengthAtWaterline = 20.0f,
         float formFactor = 0.20f,
         float viscousDragMultiplier = 1.0f,
         float waveMakingDragMultiplier = 1.0f

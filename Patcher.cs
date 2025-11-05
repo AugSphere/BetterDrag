@@ -108,13 +108,10 @@ namespace BetterDrag
 
         [HarmonyPostfix]
         [HarmonyPatch(typeof(BoatProbes), "Start")]
-        static void BoatProbesStart(
-            BoatProbes __instance,
-            Rigidbody ____rb,
-            Vector3 ____centerOfMass
-        )
+        static void BoatProbesStart(BoatProbes __instance, Vector3 ____centerOfMass)
         {
-            ShipData.CalculateDraftOffset(__instance, ____rb, ____centerOfMass);
+            var boatData = ShipData.GetShipData(__instance.gameObject);
+            boatData.SetCenterOfMassHeight(____centerOfMass.y);
         }
 
         [HarmonyPostfix]
@@ -123,7 +120,7 @@ namespace BetterDrag
         {
             __instance.waterDrag = 0f;
             var boatData = ShipData.GetShipData(__instance.gameObject);
-            boatData.baseBuoyancy.Value = ___baseBuoyancy;
+            boatData.SetBaseBuoyancy(___baseBuoyancy);
         }
 
         [HarmonyPostfix]
