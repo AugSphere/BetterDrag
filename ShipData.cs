@@ -150,7 +150,7 @@ namespace BetterDrag
             if (!isBowHit || !isSternHit)
             {
 #if DEBUG
-                BetterDragDebug.LogLineBuffered($"{rigidbody.name}: LWL raycast failed");
+                BetterDragDebug.LogLineBuffered($"{rigidbody.name}: LWL cast failed");
 #endif
                 return;
             }
