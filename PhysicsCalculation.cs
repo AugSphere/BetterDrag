@@ -29,6 +29,7 @@ namespace BetterDrag
         {
             var wettedArea =
                 1.7f * shipData.dragData.LengthAtWaterline * draft + displacement / draft;
+            var (areaHT, displacementHT) = shipData.GetHydrostaticValues(draft) ?? (0f, 0f);
             forwardVelocity = velocityFilter.ClampValue(forwardVelocity, rigidbody);
 
             var (viscousDrag, waveMakingDrag) = CalculateForwardDragForce(
@@ -48,6 +49,8 @@ namespace BetterDrag
                     ("draft, m", draft),
                     ("displacement, m^3", displacement),
                     ("area, m^2", wettedArea),
+                    ("displacementHT, m^3", displacementHT),
+                    ("areaHT, m^2", areaHT),
                     ("drag V, N", viscousDrag),
                     ("drag WM, N", waveMakingDrag),
                     ("drag total, N", dragForceMagnitude),
@@ -55,8 +58,8 @@ namespace BetterDrag
                 ]
             );
 
-            shipData.DrawAll(rigidbody.transform);
-            BetterDragDebug.FlushBuffer(BetterDragDebug.Mode.Line);
+            //shipData.DrawAll(rigidbody.transform);
+            BetterDragDebug.FlushBuffer(BetterDragDebug.Mode.CSV);
             BetterDragDebug.FinishUpdate();
 #endif
 

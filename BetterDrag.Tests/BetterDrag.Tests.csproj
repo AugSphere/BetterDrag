@@ -9,7 +9,7 @@
       https://nuget.bepinex.dev/v3/index.json;
       https://nuget.samboy.dev/v3/index.json
     </RestoreAdditionalProjectSources>
-    <RootNamespace>BetterDrag</RootNamespace>
+    <RootNamespace>BetterDragTests</RootNamespace>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
     <Configurations>Debug;Release</Configurations>
     <PackageProjectUrl>https://github.com/AugSphere/BetterDrag</PackageProjectUrl>
@@ -23,17 +23,14 @@
     <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="UnityEngine.Modules" Version="2019.1.10" IncludeAssets="compile" />
     <PackageReference Include="MSTest.TestFramework" Version="4.0.1" />
     <PackageReference Include="MSTest.TestAdapter" Version="4.0.1" />
   </ItemGroup>
-  <ItemGroup Condition="'$(TargetFramework.TrimEnd(`0123456789`))' == 'net'">
-    <PackageReference
-      Include="Microsoft.NETFramework.ReferenceAssemblies"
-      Version="1.0.2"
-      PrivateAssets="all"
-    />
-  </ItemGroup>
   <ItemGroup>
     <AssemblyAttribute Include="Microsoft.VisualStudio.TestTools.UnitTesting.DoNotParallelize" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\BetterDrag.csproj" />
   </ItemGroup>
 </Project>

@@ -15,7 +15,7 @@ namespace BetterDrag
         public readonly string shipName = shipGameObject.name;
         public readonly FinalShipDragPerformanceData dragData =
             ShipDragDataStore.GetPerformanceData(shipGameObject);
-        private readonly Hydrostatics hydro = new();
+        private readonly Hydrostatics hydrostatics = new();
         private float baseBuoyancy = 25f;
         private float overflowOffset = 5f;
         private float centerOfMassHeight = 0f;
@@ -39,7 +39,7 @@ namespace BetterDrag
             overflowRenderer.DrawSphere(transform.TransformPoint(overflowOffset * Vector3.up));
             bowRenderer.DrawSphere(transform.TransformPoint(this.bowPointPosition));
             sternRenderer.DrawSphere(transform.TransformPoint(this.sternPointPosition));
-            hydro.DrawHullPoints(transform);
+            hydrostatics.DrawHullPoints(transform);
         }
 #endif
 
@@ -60,12 +60,13 @@ namespace BetterDrag
             {
                 this.CalculateDraftOffset(boatProbes, rigidbody);
                 this.CalculateLWL(rigidbody);
-                this.hydro.CastHullRays(
+                this.hydrostatics.CastHullRays(
                     rigidbody,
                     this.bowPointPosition,
                     this.sternPointPosition,
                     this.keelPointPosition
                 );
+                this.hydrostatics.BuildTables();
                 valuesSet = true;
             }
             return (
@@ -75,6 +76,11 @@ namespace BetterDrag
                 this.keelOffset,
                 this.lengthAtWaterline
             );
+        }
+
+        public (float area, float displacement)? GetHydrostaticValues(float draft)
+        {
+            return this.hydrostatics.GetValues(draft);
         }
 
         public void SetCenterOfMassHeight(float centerOfMassHeight)

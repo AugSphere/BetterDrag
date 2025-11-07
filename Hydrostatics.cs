@@ -15,14 +15,48 @@ namespace BetterDrag
         readonly float[] wettedAreas = new float[heightSegmentCount + 1];
         float lengthSegmentSize;
         float hegithSegmentSize;
-        bool raysCast = false;
+        bool isRayCast = false;
+        bool isTableFilled = false;
 
 #if DEBUG
         readonly DebugSphereRenderer[,] renderers = new DebugSphereRenderer[
-            heightSegmentCount,
-            lengthSegmentCount
+            heightSegmentCount + 1,
+            lengthSegmentCount + 1
         ];
 #endif
+
+        internal (float area, float displacement)? GetValues(float draft)
+        {
+            if (!isTableFilled)
+            {
+#if DEBUG
+
+                BetterDragDebug.LogLineBuffered(
+                    "Trying to get a value from hydrostatic tables before they are built."
+                );
+                return null;
+#endif
+            }
+            var heightSegmentFloat =
+                Mathf.Clamp01(draft / Hydrostatics.maxHeight) * heightSegmentCount;
+            var heightSegmentFloor = (int)heightSegmentFloat;
+            var heightSegmentFraction = heightSegmentFloat % 1f;
+            if (heightSegmentFloor == heightSegmentCount)
+            {
+                return (wettedAreas[heightSegmentCount], displacements[heightSegmentCount]);
+            }
+            var area = Mathf.Lerp(
+                wettedAreas[heightSegmentFloor],
+                wettedAreas[heightSegmentFloor + 1],
+                heightSegmentFraction
+            );
+            var displacement = Mathf.Lerp(
+                displacements[heightSegmentFloor],
+                displacements[heightSegmentFloor + 1],
+                heightSegmentFraction
+            );
+            return (area * 2f, displacement * 2f);
+        }
 
         internal void CastHullRays(
             Rigidbody rigidbody,
@@ -71,12 +105,12 @@ namespace BetterDrag
             }
             hegithSegmentSize = Mathf.Abs(maxHeight - minHeight) / heightSegmentCount;
             lengthSegmentSize = Mathf.Abs(maxLength - minLength) / lengthSegmentCount;
-            this.raysCast = true;
+            this.isRayCast = true;
         }
 
-        void BuildTables()
+        internal void BuildTables()
         {
-            if (!this.raysCast)
+            if (!this.isRayCast)
             {
 #if DEBUG
                 BetterDragDebug.LogLineBuffered(
@@ -101,24 +135,25 @@ namespace BetterDrag
                     var asternPointHigh = hullPoints[heightIdx + 1, lengthIdx];
                     var aheadPointHigh = hullPoints[heightIdx + 1, lengthIdx + 1];
 
-                    Vector3[] lowTriangleVertices = [asternPointLow, aheadPointLow, aheadPointHigh];
-                    Vector3[] highTriangleVertices =
-                    [
-                        asternPointLow,
-                        aheadPointHigh,
-                        asternPointHigh,
-                    ];
-
                     var (lowArea, lowDisplacement) = Numerics.GetTriangleContribution(
-                        ((Vector3Wrapper<Vector3>)asternPointLow, aheadPointLow, aheadPointHigh)
+                        (
+                            new UnityVector3(asternPointLow),
+                            new UnityVector3(aheadPointLow),
+                            new UnityVector3(aheadPointHigh)
+                        )
                     );
                     var (highArea, highDisplacement) = Numerics.GetTriangleContribution(
-                        ((Vector3Wrapper<Vector3>)asternPointLow, aheadPointHigh, asternPointHigh)
+                        (
+                            new UnityVector3(asternPointLow),
+                            new UnityVector3(aheadPointHigh),
+                            new UnityVector3(asternPointHigh)
+                        )
                     );
                     this.wettedAreas[heightIdx + 1] += lowArea + highArea;
                     this.displacements[heightIdx + 1] += lowDisplacement + highDisplacement;
                 }
             }
+            isTableFilled = true;
         }
 
 #if DEBUG

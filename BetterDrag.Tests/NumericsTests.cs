@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Numerics;
+using BetterDrag;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace BetterDrag
+namespace BetterDragTests
 {
     /// <summary>
     /// Tests for hydrostatic table creation.
@@ -58,9 +59,9 @@ namespace BetterDrag
             rV = rV / rV.Length() * (float)Math.Sin(rotationAngle / 2d);
             Quaternion quaternion = new(rV, (float)Math.Cos(rotationAngle / 2d));
             var vertices = (
-                Vector3.Transform(Vector3.UnitX, quaternion) + tV,
-                Vector3.Transform(Vector3.UnitY, quaternion) + tV,
-                Vector3.Transform(Vector3.UnitZ, quaternion) + tV
+                new NumericsVector3(Vector3.Transform(Vector3.UnitX, quaternion) + tV),
+                new NumericsVector3(Vector3.Transform(Vector3.UnitY, quaternion) + tV),
+                new NumericsVector3(Vector3.Transform(Vector3.UnitZ, quaternion) + tV)
             );
 
             var (area, displacement) = Numerics.GetTriangleContribution<Vector3>(vertices);

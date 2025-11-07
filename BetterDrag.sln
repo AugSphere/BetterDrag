@@ -5,7 +5,7 @@ VisualStudioVersion = 17.14.36616.10
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BetterDrag", "BetterDrag.csproj", "{616DB4A3-40AC-1322-1A56-6C2C1AEFE128}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BetterDrag.Numerics", "BetterDrag.Numerics\BetterDrag.Numerics.csproj", "{539BE242-3782-80B6-80E0-860618CFA37B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BetterDrag.Tests", "BetterDrag.Tests\BetterDrag.Tests.csproj", "{51B93F83-FECA-4903-9C41-01A0CB26860E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -20,12 +20,12 @@ Global
 		{616DB4A3-40AC-1322-1A56-6C2C1AEFE128}.Profile|Any CPU.Build.0 = Profile|Any CPU
 		{616DB4A3-40AC-1322-1A56-6C2C1AEFE128}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{616DB4A3-40AC-1322-1A56-6C2C1AEFE128}.Release|Any CPU.Build.0 = Release|Any CPU
-		{539BE242-3782-80B6-80E0-860618CFA37B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{539BE242-3782-80B6-80E0-860618CFA37B}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{539BE242-3782-80B6-80E0-860618CFA37B}.Profile|Any CPU.ActiveCfg = Release|Any CPU
-		{539BE242-3782-80B6-80E0-860618CFA37B}.Profile|Any CPU.Build.0 = Release|Any CPU
-		{539BE242-3782-80B6-80E0-860618CFA37B}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{539BE242-3782-80B6-80E0-860618CFA37B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{51B93F83-FECA-4903-9C41-01A0CB26860E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{51B93F83-FECA-4903-9C41-01A0CB26860E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{51B93F83-FECA-4903-9C41-01A0CB26860E}.Profile|Any CPU.ActiveCfg = Release|Any CPU
+		{51B93F83-FECA-4903-9C41-01A0CB26860E}.Profile|Any CPU.Build.0 = Release|Any CPU
+		{51B93F83-FECA-4903-9C41-01A0CB26860E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{51B93F83-FECA-4903-9C41-01A0CB26860E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
