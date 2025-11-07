@@ -85,20 +85,20 @@ namespace BetterDrag
         private readonly GameObject gameObject;
         private readonly float debugLineSize;
         private readonly float radius;
-        private readonly Color color;
+        private readonly UnityEngine.Color color;
         private readonly LineRenderer lineRenderer;
 
         internal DebugSphereRenderer(
-            string name,
-            Color color,
-            float radius = 1f,
-            float debugLineSize = 0.1f
+            string? name = null,
+            UnityEngine.Color? color = null,
+            float? radius = null,
+            float? debugLineSize = null
         )
         {
             this.gameObject = new GameObject(nameof(DebugSphereRenderer) + "(" + name + ")");
-            this.debugLineSize = debugLineSize;
-            this.radius = radius;
-            this.color = color;
+            this.debugLineSize = debugLineSize ?? 0.1f;
+            this.radius = radius ?? 0.5f;
+            this.color = color ?? UnityEngine.Color.magenta;
             lineRenderer = gameObject.AddComponent<LineRenderer>();
             lineRenderer.material = new Material(Shader.Find("Sprites/Default"));
         }

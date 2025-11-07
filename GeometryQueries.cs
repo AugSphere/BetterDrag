@@ -18,7 +18,8 @@ namespace BetterDrag
             Rigidbody rigidbody,
             out RaycastHit hitInfo,
             float? radius = null,
-            float? maxDistance = null
+            float? maxDistance = null,
+            int? layerMask = null
         )
         {
             var targetPointWorld = rigidbody.transform.TransformPoint(targetPointBody);
@@ -29,7 +30,7 @@ namespace BetterDrag
                 radius ?? GeometryQueries.defaultRadius,
                 targetPointWorld - originPointWorld,
                 maxDistance: maxDistance ?? GeometryQueries.defaultOriginOffset,
-                layerMask: GeometryQueries.layerMask
+                layerMask: layerMask ?? GeometryQueries.layerMask
             );
 
             var shipObject = rigidbody.gameObject;
@@ -68,7 +69,7 @@ namespace BetterDrag
                     hitInfo = hit;
                 }
             }
-#if DEBUG
+#if DEBUG && VERBOSE
             if (isHit)
             {
                 BetterDragDebug.LogLineBuffered(

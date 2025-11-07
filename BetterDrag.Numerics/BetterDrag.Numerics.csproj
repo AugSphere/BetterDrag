@@ -1,9 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net47</TargetFramework>
-    <AssemblyName>BetterDrag</AssemblyName>
-    <Product>BetterDrag</Product>
-    <Version>1.1.0</Version>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <Nullable>enable</Nullable>
     <LangVersion>latest</LangVersion>
@@ -13,12 +10,8 @@
       https://nuget.samboy.dev/v3/index.json
     </RestoreAdditionalProjectSources>
     <RootNamespace>BetterDrag</RootNamespace>
-    <Title>BetterDrag</Title>
-    <PackageId>com.AugSphere.BetterDrag</PackageId>
-    <Authors>AugSphere</Authors>
-    <Company>$(Authors)</Company>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
-    <Configurations>Debug;Release;Profile</Configurations>
+    <Configurations>Debug;Release</Configurations>
     <PackageProjectUrl>https://github.com/AugSphere/BetterDrag</PackageProjectUrl>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -29,20 +22,9 @@
     <WarningLevel>9999</WarningLevel>
     <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Profile|AnyCPU'">
-    <WarningLevel>9999</WarningLevel>
-    <Optimize>True</Optimize>
-    <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
-  </PropertyGroup>
   <ItemGroup>
-    <Compile Remove="BetterDrag.Numerics\**" />
-    <EmbeddedResource Remove="BetterDrag.Numerics\**" />
-    <None Remove="BetterDrag.Numerics\**" />
-  </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="BepInEx.Core" Version="5.*" />
-    <PackageReference Include="UnityEngine.Modules" Version="2019.1.10" IncludeAssets="compile" />
-    <PackageReference Include="DefaultDocumentation" Version="1.2.0" PrivateAssets="all" />
+    <PackageReference Include="MSTest.TestFramework" Version="4.0.1" />
+    <PackageReference Include="MSTest.TestAdapter" Version="4.0.1" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework.TrimEnd(`0123456789`))' == 'net'">
     <PackageReference
@@ -50,17 +32,6 @@
       Version="1.0.2"
       PrivateAssets="all"
     />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="BetterDrag.Numerics\BetterDrag.Numerics.csproj" />
-  </ItemGroup>
-  <ItemGroup>
-    <Reference Include="Assembly-CSharp">
-      <HintPath>lib\Assembly-CSharp.dll</HintPath>
-    </Reference>
-    <Reference Include="Crest">
-      <HintPath>lib\Crest.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <AssemblyAttribute Include="Microsoft.VisualStudio.TestTools.UnitTesting.DoNotParallelize" />

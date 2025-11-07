@@ -15,28 +15,23 @@ namespace BetterDrag
         public readonly string shipName = shipGameObject.name;
         public readonly FinalShipDragPerformanceData dragData =
             ShipDragDataStore.GetPerformanceData(shipGameObject);
+        private readonly Hydrostatics hydro = new();
         private float baseBuoyancy = 25f;
         private float overflowOffset = 5f;
         private float centerOfMassHeight = 0f;
         private float draftOffset = 0f;
         private float keelOffset = 1f;
         private float lengthAtWaterline = 15f;
+        private Vector3 keelPointPosition = Vector3.zero;
+        private Vector3 bowPointPosition = Vector3.zero;
+        private Vector3 sternPointPosition = Vector3.zero;
         private bool valuesSet = false;
 
 #if DEBUG
-        public Vector3 keelPointPosition = Vector3.zero;
-        public Vector3 bowPointPosition = Vector3.zero;
-        public Vector3 sternPointPosition = Vector3.zero;
-
-        public DebugSphereRenderer keelRenderer = new(shipGameObject.name, Color.red);
-        public DebugSphereRenderer overflowRenderer = new(
-            shipGameObject.name,
-            Color.blue,
-            0.5f,
-            0.05f
-        );
-        public DebugSphereRenderer bowRenderer = new(shipGameObject.name, Color.green);
-        public DebugSphereRenderer sternRenderer = new(shipGameObject.name, Color.green);
+        public DebugSphereRenderer keelRenderer = new(color: Color.red);
+        public DebugSphereRenderer overflowRenderer = new(color: Color.blue);
+        public DebugSphereRenderer bowRenderer = new(color: Color.green);
+        public DebugSphereRenderer sternRenderer = new(color: Color.green);
 
         public void DrawAll(Transform transform)
         {
@@ -44,6 +39,7 @@ namespace BetterDrag
             overflowRenderer.DrawSphere(transform.TransformPoint(overflowOffset * Vector3.up));
             bowRenderer.DrawSphere(transform.TransformPoint(this.bowPointPosition));
             sternRenderer.DrawSphere(transform.TransformPoint(this.sternPointPosition));
+            hydro.DrawHullPoints(transform);
         }
 #endif
 
@@ -64,6 +60,12 @@ namespace BetterDrag
             {
                 this.CalculateDraftOffset(boatProbes, rigidbody);
                 this.CalculateLWL(rigidbody);
+                this.hydro.CastHullRays(
+                    rigidbody,
+                    this.bowPointPosition,
+                    this.sternPointPosition,
+                    this.keelPointPosition
+                );
                 valuesSet = true;
             }
             return (
@@ -118,9 +120,9 @@ namespace BetterDrag
                 - keelPoint.y;
             this.draftOffset = Mathf.Clamp(draftOffset, -1f, 15f);
             this.keelOffset = Mathf.Clamp(-keelPoint.y, 0, 20f);
+            this.keelPointPosition = keelPoint;
 
 #if DEBUG
-            this.keelPointPosition = keelPoint;
             BetterDragDebug.LogLinesBuffered(
                 [
                     $"{rigidbody.name}: set keel height to {this.keelOffset}",
@@ -157,9 +159,10 @@ namespace BetterDrag
             var bowPointPosition = transform.InverseTransformPoint(bowHit.point);
             var sternPointPosition = transform.InverseTransformPoint(sternHit.point);
             this.lengthAtWaterline = (bowPointPosition - sternPointPosition).magnitude;
-#if DEBUG
             this.bowPointPosition = bowPointPosition;
             this.sternPointPosition = sternPointPosition;
+#if DEBUG
+
             BetterDragDebug.LogLineBuffered(
                 $"{rigidbody.name}: calculated LWL {this.lengthAtWaterline}"
             );
