@@ -162,9 +162,7 @@ namespace BetterDrag
             return nameof(ShipDragPerformanceData) + "(" + this.FieldRepr() + ")";
         }
 
-#pragma warning disable CA1822
         internal readonly string FieldRepr()
-#pragma warning restore CA1822
         {
 #if !DEBUG
             return "";

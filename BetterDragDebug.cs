@@ -22,7 +22,7 @@ namespace BetterDrag
 
         public static void FinishUpdate()
         {
-            counter++;
+            ++counter;
             FileLog.SetBuffer([]);
             textBuffer.Clear();
             valuesBuffer.Clear();
@@ -115,7 +115,7 @@ namespace BetterDrag
             lineRenderer.positionCount = s_UnitSphere.Length;
 
             Vector3[] vertices = new Vector3[s_UnitSphere.Length];
-            for (int idx = 0; idx < s_UnitSphere.Length; idx++)
+            for (int idx = 0; idx < s_UnitSphere.Length; ++idx)
             {
                 vertices[idx] = position + this.radius * s_UnitSphere[idx];
             }
@@ -126,7 +126,7 @@ namespace BetterDrag
         {
             Debug.Assert(len > 2);
             var vertices = new Vector3[len * 3];
-            for (int i = 0; i < len; i++)
+            for (int i = 0; i < len; ++i)
             {
                 var f = i / (float)len;
                 float c = Mathf.Cos(f * (float)(Math.PI * 2.0));

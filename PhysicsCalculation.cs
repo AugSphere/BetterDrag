@@ -1,5 +1,4 @@
-﻿using System;
-using Crest;
+﻿using Crest;
 using UnityEngine;
 
 namespace BetterDrag
@@ -19,7 +18,6 @@ namespace BetterDrag
         );
 
         public static float GetDragForceMagnitude(
-            BoatProbes boatProbes,
             Rigidbody rigidbody,
             ShipData shipData,
             float forwardVelocity,
@@ -30,22 +28,22 @@ namespace BetterDrag
             var wettedArea =
                 1.7f * shipData.dragData.LengthAtWaterline * draft + displacement / draft;
             var (areaHT, displacementHT) = shipData.GetHydrostaticValues(draft) ?? (0f, 0f);
-            forwardVelocity = velocityFilter.ClampValue(forwardVelocity, rigidbody);
+            var clampedVelocity = velocityFilter.ClampValue(forwardVelocity, rigidbody);
 
             var (viscousDrag, waveMakingDrag) = CalculateForwardDragForce(
-                forwardVelocity,
+                clampedVelocity,
                 displacement,
                 wettedArea,
                 shipData.dragData
             );
 
-            var dragForceMagnitude = -Mathf.Sign(forwardVelocity) * (viscousDrag + waveMakingDrag);
+            var dragForceMagnitude = -Mathf.Sign(clampedVelocity) * (viscousDrag + waveMakingDrag);
             var clampedForceMagnitude = forceFilter.ClampValue(dragForceMagnitude, rigidbody);
 
 #if DEBUG
             BetterDragDebug.LogCSVBuffered(
                 [
-                    ("forward velocity, m/s", forwardVelocity),
+                    ("clamped velocity, m/s", clampedVelocity),
                     ("draft, m", draft),
                     ("displacement, m^3", displacement),
                     ("area, m^2", wettedArea),
@@ -63,7 +61,7 @@ namespace BetterDrag
             BetterDragDebug.FinishUpdate();
 #endif
 
-            return dragForceMagnitude;
+            return clampedForceMagnitude;
         }
 
         static (float, float) CalculateForwardDragForce(
@@ -127,7 +125,7 @@ namespace BetterDrag
             float fullSpan = 0.8f * (overflowOffset + keelDepth);
             float spanRatio = originalSpan / fullSpan;
 
-            for (int idx = 0; idx < boatProbes._forcePoints.Length; idx++)
+            for (int idx = 0; idx < boatProbes._forcePoints.Length; ++idx)
             {
                 float waterHeightSample = seaLevel + queryResultDisps[idx].y - queryPoints[idx].y;
                 float draft = Mathf.Clamp(waterHeightSample + draftOffset, 0.001f, 20f);

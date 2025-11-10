@@ -1,8 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
 using Crest;
 using UnityEngine;
 using static BetterDrag.GeometryQueries;
+#if DEBUG
+using System.Collections.Generic;
+#endif
 
 namespace BetterDrag
 {
@@ -10,7 +12,7 @@ namespace BetterDrag
     {
         private static readonly Cache<ShipData> dataCache = new(
             "ShipData",
-            (gameObject) => new(gameObject)
+            static (gameObject) => new(gameObject)
         );
 
         public readonly string shipName = shipGameObject.name;
@@ -97,7 +99,7 @@ namespace BetterDrag
             this.baseBuoyancy = baseBuoyancy;
         }
 
-        public override string ToString()
+        public sealed override string ToString()
         {
             var name = nameof(ShipData);
             var fields = String.Join(

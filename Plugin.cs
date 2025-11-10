@@ -12,9 +12,7 @@ using HarmonyLib;
 
 namespace BetterDrag;
 
-#pragma warning disable CA2243
 [BepInPlugin(PLUGIN_GUID, PLUGIN_NAME, PLUGIN_VERSION)]
-#pragma warning restore CA2243
 [BepInProcess("Sailwind.exe")]
 internal class Plugin : BaseUnityPlugin
 {

@@ -2,7 +2,9 @@
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using HarmonyLib;
-using UnityEngine.Assertions;
+#if PROFILE
+using System.Globalization;
+#endif
 
 namespace BetterDrag
 {
@@ -55,9 +57,11 @@ namespace BetterDrag
 #if !PROFILE
             return;
 #else
-            Assert.IsTrue(names.Count == durations.Count);
+            UnityEngine.Debug.Assert(names.Count == durations.Count);
             PrintProfilingHeaderOnce();
-            FileLog.Log(durations.Join((n) => n.ToString(), delimiter: ";"));
+            FileLog.Log(
+                durations.Join((n) => n.ToString(CultureInfo.InvariantCulture), delimiter: ";")
+            );
 #endif
         }
 

@@ -28,7 +28,7 @@ namespace BetterDrag
             while (addForceCount < 2)
             {
                 if (enumerator.Current.Calls(m_AddForceAtPosition))
-                    addForceCount++;
+                    ++addForceCount;
                 yield return enumerator.Current;
                 enumerator.MoveNext();
             }
@@ -36,7 +36,7 @@ namespace BetterDrag
             while (addForceCount < 3)
             {
                 if (enumerator.Current.Calls(m_AddForceAtPosition))
-                    addForceCount++;
+                    ++addForceCount;
                 enumerator.MoveNext();
             }
 
@@ -90,7 +90,6 @@ namespace BetterDrag
             Profiler.Profile("UpdateBuoyancy");
 
             var signedDragForceMagnitude = PhysicsCalculation.GetDragForceMagnitude(
-                __instance,
                 ____rb,
                 shipData,
                 forwardVelocity,

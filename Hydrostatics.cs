@@ -4,7 +4,6 @@ namespace BetterDrag
 {
     internal class Hydrostatics(string shipName)
     {
-#pragma warning disable CA1814
         const uint lengthSegmentCount = 100;
         const uint heightSegmentCount = 50;
         const float maxHeight = 10f;
@@ -18,9 +17,7 @@ namespace BetterDrag
         float hegithSegmentSize;
         bool isRayCast;
         bool isTableFilled;
-#pragma warning disable CA1823
         readonly string shipName = shipName;
-#pragma warning restore CA1823
 
 #if DEBUG
         readonly DebugSphereRenderer[,] renderers = new DebugSphereRenderer[
@@ -28,7 +25,6 @@ namespace BetterDrag
             lengthSegmentCount + 1
         ];
 #endif
-#pragma warning restore CA1814
 
         internal (float area, float displacement)? GetValues(float draft)
         {
@@ -96,6 +92,7 @@ namespace BetterDrag
                 keelPoint,
                 LayerMask.GetMask("Ignore Raycast")
             );
+            isRayCast = hitsOnCapsule;
         }
 
         private bool CastHullRaysOnLayer(
@@ -112,12 +109,12 @@ namespace BetterDrag
             var maxLength = 1.3f * bowPoint.z;
             var isGettingHits = false;
 
-            for (int heightIdx = 0; heightIdx < heightSegmentCount + 1; heightIdx++)
+            for (int heightIdx = 0; heightIdx < heightSegmentCount + 1; ++heightIdx)
             {
                 float heightFraction = (float)heightIdx / heightSegmentCount;
                 var heightCoordinate = Mathf.Lerp(minHeight, maxHeight, heightFraction);
 
-                for (int lengthIdx = 0; lengthIdx < lengthSegmentCount + 1; lengthIdx++)
+                for (int lengthIdx = 0; lengthIdx < lengthSegmentCount + 1; ++lengthIdx)
                 {
                     float lengthFraction = (float)lengthIdx / lengthSegmentCount;
                     var lengthCoordinate = Mathf.Lerp(minLength, maxLength, lengthFraction);
@@ -167,11 +164,11 @@ namespace BetterDrag
             displacements[0] = 0f;
             wettedAreas[0] = 0f;
 
-            for (int heightIdx = 0; heightIdx < heightSegmentCount; heightIdx++)
+            for (int heightIdx = 0; heightIdx < heightSegmentCount; ++heightIdx)
             {
                 wettedAreas[heightIdx + 1] = wettedAreas[heightIdx];
                 displacements[heightIdx + 1] = displacements[heightIdx];
-                for (int lengthIdx = 0; lengthIdx < lengthSegmentCount; lengthIdx++)
+                for (int lengthIdx = 0; lengthIdx < lengthSegmentCount; ++lengthIdx)
                 {
                     var asternPointLow = hullPoints[heightIdx, lengthIdx];
                     var aheadPointLow = hullPoints[heightIdx, lengthIdx + 1];
@@ -202,9 +199,9 @@ namespace BetterDrag
 #if DEBUG
         internal void DrawHullPoints(Transform transform)
         {
-            for (int heightIdx = 0; heightIdx < heightSegmentCount; heightIdx++)
+            for (int heightIdx = 0; heightIdx < heightSegmentCount; ++heightIdx)
             {
-                for (int lengthIdx = 0; lengthIdx < lengthSegmentCount; lengthIdx++)
+                for (int lengthIdx = 0; lengthIdx < lengthSegmentCount; ++lengthIdx)
                 {
                     var hullPoint = hullPoints[heightIdx, lengthIdx];
                     if (hullPoint.x == 0)

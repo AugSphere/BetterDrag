@@ -9,7 +9,7 @@ namespace BetterDrag
         const uint sampleCount = 16;
         readonly float rateLimit = rateLimit;
         readonly float noFilterCutoff = noFilterCutoff;
-        readonly Cache<MemoryBuffer> cache = new(name, (_) => new());
+        readonly Cache<MemoryBuffer> cache = new(name, static (shipObject) => new());
 #if DEBUG && VERBOSE
         readonly string name = name;
 #endif
@@ -24,7 +24,7 @@ namespace BetterDrag
         {
             float min = float.MaxValue,
                 max = float.MinValue;
-            for (int idx = 0; idx < sampleCount; idx++)
+            for (int idx = 0; idx < sampleCount; ++idx)
             {
                 var sample = buffer[idx];
                 min = Mathf.Min(min, sample);
@@ -79,11 +79,11 @@ namespace BetterDrag
                 this.buffer[insertionIndex++ % sampleCount] = value;
             }
 
-            public override string ToString()
+            public sealed override string ToString()
             {
                 var stringBuilder = new StringBuilder();
                 stringBuilder.Append('[');
-                for (int idx = 0; idx < sampleCount; idx++)
+                for (int idx = 0; idx < sampleCount; ++idx)
                 {
                     stringBuilder.AppendFormat(
                         CultureInfo.InvariantCulture,
