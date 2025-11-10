@@ -9,20 +9,20 @@ using System.Diagnostics.CodeAnalysis;
     "Size",
     "LongLine:A long line must be avoided.",
     Justification = "Using CSharpier for formatting",
-    Scope = "Module"
+    Scope = "module"
 )]
 [assembly: SuppressMessage(
     "Naming",
     "Underscore:The name of local variables must not include underscores.",
     Justification = "Harmony magic needs underscore",
-    Scope = "Type",
+    Scope = "type",
     Target = "~T:BetterDrag.BoatProbesFixedUpdateDragPatch"
 )]
 [assembly: SuppressMessage(
     "Cleaning",
     "UnusedVariable:Unused variable is declared.",
     Justification = "Compatibility with delegate",
-    Scope = "Type",
+    Scope = "type",
     Target = "~T:BetterDrag.DragModel"
 )]
 [assembly: SuppressMessage(
@@ -35,28 +35,28 @@ using System.Diagnostics.CodeAnalysis;
 [assembly: SuppressMessage(
     "Cleaning",
     "ByteOrderMark:The Byte Order Mark (BOM) must be removed.",
-    Scope = "Module",
+    Scope = "module",
     Justification = "VS compatibility"
 )]
 [assembly: SuppressMessage(
     "Cleaning",
     "UnusedVariable:Unused variable is declared.",
     Justification = "Conditional compilation",
-    Scope = "Type",
+    Scope = "type",
     Target = "~T:BetterDrag.Profiler"
 )]
 [assembly: SuppressMessage(
     "Refactoring",
     "UninitializedLocalVariable:The local variable is not initialized at declaration.",
     Justification = "No cleaner way to branch",
-    Scope = "Type",
+    Scope = "type",
     Target = "~T:BetterDrag.DragModel"
 )]
 [assembly: SuppressMessage(
     "Performance",
     "CA1814:Prefer jagged arrays over multidimensional",
     Justification = "Wastes no space",
-    Scope = "Type",
+    Scope = "type",
     Target = "~T:BetterDrag.Hydrostatics"
 )]
 [assembly: SuppressMessage(
