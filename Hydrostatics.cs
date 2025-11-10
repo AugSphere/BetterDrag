@@ -2,7 +2,7 @@
 
 namespace BetterDrag
 {
-    internal class Hydrostatics
+    internal class Hydrostatics(string shipName)
     {
 #pragma warning disable CA1814
         const uint lengthSegmentCount = 100;
@@ -18,6 +18,9 @@ namespace BetterDrag
         float hegithSegmentSize;
         bool isRayCast;
         bool isTableFilled;
+#pragma warning disable CA1823
+        readonly string shipName = shipName;
+#pragma warning restore CA1823
 
 #if DEBUG
         readonly DebugSphereRenderer[,] renderers = new DebugSphereRenderer[
@@ -67,10 +70,47 @@ namespace BetterDrag
             Vector3 keelPoint
         )
         {
+            if (
+                CastHullRaysOnLayer(
+                    rigidbody,
+                    bowPoint,
+                    sternPoint,
+                    keelPoint,
+                    LayerMask.GetMask("OnlyPlayerCol+Paintable")
+                )
+            )
+            {
+                isRayCast = true;
+                return;
+            }
+
+#if DEBUG
+            BetterDragDebug.LogLineBuffered(
+                $"{shipName}: no hits on hull, falling back to capsule."
+            );
+#endif
+            var hitsOnCapsule = CastHullRaysOnLayer(
+                rigidbody,
+                bowPoint,
+                sternPoint,
+                keelPoint,
+                LayerMask.GetMask("Ignore Raycast")
+            );
+        }
+
+        private bool CastHullRaysOnLayer(
+            Rigidbody rigidbody,
+            Vector3 bowPoint,
+            Vector3 sternPoint,
+            Vector3 keelPoint,
+            int layerMask
+        )
+        {
             var minHeight = keelPoint.y;
             var maxHeight = Hydrostatics.maxHeight;
             var minLength = 1.3f * sternPoint.z;
             var maxLength = 1.3f * bowPoint.z;
+            var isGettingHits = false;
 
             for (int heightIdx = 0; heightIdx < heightSegmentCount + 1; heightIdx++)
             {
@@ -84,18 +124,16 @@ namespace BetterDrag
 
                     Vector3 castTarget = new(0, heightCoordinate, lengthCoordinate);
                     Vector3 castOrigin = castTarget + Vector3.right * 50f;
-                    var allHits = GeometryQueries.SphereCastToHull(
+                    var isHit = GeometryQueries.GetFirstHullHit(
                         castOrigin,
                         castTarget,
-                        rigidbody
-                    );
-                    var isHit = GeometryQueries.FilterHullColliders(
-                        allHits,
-                        rigidbody.gameObject,
-                        out var hitInfo
+                        rigidbody,
+                        out var hitInfo,
+                        layerMask: layerMask
                     );
                     if (isHit)
                     {
+                        isGettingHits = true;
                         var hitPoint = rigidbody.transform.InverseTransformPoint(hitInfo.point);
                         hullPoints[heightIdx, lengthIdx] = hitPoint;
                     }
@@ -110,7 +148,7 @@ namespace BetterDrag
             }
             hegithSegmentSize = Mathf.Abs(maxHeight - minHeight) / heightSegmentCount;
             lengthSegmentSize = Mathf.Abs(maxLength - minLength) / lengthSegmentCount;
-            this.isRayCast = true;
+            return isGettingHits;
         }
 
         internal void BuildTables()

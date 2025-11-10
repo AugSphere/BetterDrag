@@ -17,7 +17,7 @@ namespace BetterDrag
         public readonly ShipDragPerformanceData dragData = ShipDragConfigManager.GetPerformanceData(
             shipGameObject
         );
-        private readonly Hydrostatics hydrostatics = new();
+        private readonly Hydrostatics hydrostatics = new(shipGameObject.name);
         private float baseBuoyancy = 25f;
         private float overflowOffset = 5f;
         private float centerOfMassHeight;
@@ -36,11 +36,7 @@ namespace BetterDrag
         public DebugSphereRenderer sternRenderer = new(color: Color.green);
         public List<(DebugSphereRenderer renderer, Vector3 position)> sideRenderers = [];
 
-        public void DrawAll(
-            Transform transform,
-            bool drawHullPoints = false,
-            bool drawSidePoints = false
-        )
+        public void DrawAll(Transform transform, bool drawHullPoints = false)
         {
             keelRenderer.DrawSphere(transform.TransformPoint(this.keelPointPosition));
             overflowRenderer.DrawSphere(transform.TransformPoint(overflowOffset * Vector3.up));
@@ -48,8 +44,6 @@ namespace BetterDrag
             sternRenderer.DrawSphere(transform.TransformPoint(this.sternPointPosition));
             if (drawHullPoints)
                 hydrostatics.DrawHullPoints(transform);
-            if (drawSidePoints)
-                this.DrawSidePoints(transform);
         }
 #endif
 
@@ -77,7 +71,6 @@ namespace BetterDrag
                     this.keelPointPosition
                 );
                 this.hydrostatics.BuildTables();
-                this.FindSidePoints(rigidbody);
                 valuesSet = true;
             }
             return (
@@ -88,33 +81,6 @@ namespace BetterDrag
                 this.lengthAtWaterline
             );
         }
-
-#if DEBUG
-        internal void FindSidePoints(Rigidbody rigidbody)
-        {
-            var originPoint = Vector3.right * GeometryQueries.defaultOriginOffset;
-            var targetPoint = Vector3.zero;
-
-            var allHits = SphereCastToHull(originPoint, targetPoint, rigidbody, layerMask: -1);
-
-            foreach (var hit in allHits)
-            {
-                BetterDragDebug.LogLineBuffered(
-                    $"Side hit on {hit.collider.name} {hit.collider.GetType().FullName} layer {hit.collider.gameObject.layer}"
-                );
-                sideRenderers.Add((new(), rigidbody.transform.InverseTransformPoint(hit.point)));
-            }
-        }
-
-        internal void DrawSidePoints(Transform transform)
-        {
-            foreach (var (renderer, position) in this.sideRenderers)
-            {
-                var worldPosition = transform.TransformPoint(position);
-                renderer.DrawSphere(worldPosition);
-            }
-        }
-#endif
 
         internal (float area, float displacement)? GetHydrostaticValues(float draft)
         {

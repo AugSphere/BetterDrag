@@ -58,7 +58,7 @@ namespace BetterDrag
                 ]
             );
 
-            shipData.DrawAll(rigidbody.transform, drawHullPoints: true, drawSidePoints: true);
+            shipData.DrawAll(rigidbody.transform, drawHullPoints: true);
             BetterDragDebug.FlushBuffer(BetterDragDebug.Mode.Line);
             BetterDragDebug.FinishUpdate();
 #endif

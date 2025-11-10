@@ -22,65 +22,30 @@ namespace BetterDrag
             int? layerMask = null
         )
         {
-            var allHits = SphereCastToHull(
-                originPointBody,
-                targetPointBody,
-                rigidbody,
-                radius,
-                maxDistance,
-                layerMask
-            );
-            return FilterHullColliders(allHits, rigidbody.gameObject, out hitInfo);
-        }
-
-        internal static RaycastHit[] SphereCastToHull(
-            Vector3 originPointBody,
-            Vector3 targetPointBody,
-            Rigidbody rigidbody,
-            float? radius = null,
-            float? maxDistance = null,
-            int? layerMask = null
-        )
-        {
             var targetPointWorld = rigidbody.transform.TransformPoint(targetPointBody);
             var originPointWorld = rigidbody.transform.TransformPoint(originPointBody);
 
-            return Physics.SphereCastAll(
+            var allHits = Physics.SphereCastAll(
                 originPointWorld,
                 radius ?? GeometryQueries.defaultRadius,
                 targetPointWorld - originPointWorld,
                 maxDistance: maxDistance ?? GeometryQueries.defaultOriginOffset,
                 layerMask: layerMask ?? GeometryQueries.layerMask
             );
-        }
 
-        internal static bool FilterHullColliders(
-            RaycastHit[] hits,
-            GameObject shipObject,
-            out RaycastHit hitInfo
-        )
-        {
-            return FilterFirstHitsInOrder(
-                hits,
-                out hitInfo,
+            var shipObject = rigidbody.gameObject;
+            var hullHit = GetFirstHit(
+                allHits,
                 (hit) => IsClenableColliderOfShip(hit.collider, shipObject),
-                (hit) => IsCapsuleColliderOfShip(hit.collider, shipObject)
+                out hitInfo
             );
-        }
-
-        static bool FilterFirstHitsInOrder(
-            RaycastHit[] hits,
-            out RaycastHit hitInfo,
-            params Func<RaycastHit, bool>[] filters
-        )
-        {
-            hitInfo = default;
-            foreach (var filter in filters)
-            {
-                if (GetFirstHit(hits, filter, out hitInfo))
-                    return true;
-            }
-            return false;
+            if (hullHit)
+                return true;
+            return GetFirstHit(
+                allHits,
+                (hit) => IsCapsuleColliderOfShip(hit.collider, shipObject),
+                out hitInfo
+            );
         }
 
         static bool GetFirstHit(
@@ -132,13 +97,6 @@ namespace BetterDrag
         static bool IsCapsuleColliderOfShip(Collider collider, GameObject shipObject)
         {
             if (!typeof(CapsuleCollider).IsInstanceOfType(collider))
-                return false;
-            return ReferenceEquals(collider.attachedRigidbody.gameObject, shipObject);
-        }
-
-        static bool IsMeshColliderOfShip(Collider collider, GameObject shipObject)
-        {
-            if (!typeof(MeshCollider).IsInstanceOfType(collider))
                 return false;
             return ReferenceEquals(collider.attachedRigidbody.gameObject, shipObject);
         }
