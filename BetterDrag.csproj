@@ -20,6 +20,10 @@
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
     <Configurations>Debug;Release;Profile</Configurations>
     <PackageProjectUrl>https://github.com/AugSphere/BetterDrag</PackageProjectUrl>
+    <EnforceCodeStyleInBuild>True</EnforceCodeStyleInBuild>
+    <EnableNETAnalyzers>True</EnableNETAnalyzers>
+    <AnalysisLevel>latest-all</AnalysisLevel>
+    <DefaultDocumentationFileNameFactory>NameAndMd5Mix</DefaultDocumentationFileNameFactory>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <WarningLevel>9999</WarningLevel>
@@ -44,8 +48,14 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="BepInEx.Core" Version="5.*" />
+    <PackageReference Include="DefaultDocumentation" Version="1.2.2">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Bcl.HashCode" Version="6.0.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.14.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="4.14.0" />
     <PackageReference Include="UnityEngine.Modules" Version="2019.1.10" IncludeAssets="compile" />
-    <PackageReference Include="DefaultDocumentation" Version="1.2.0" PrivateAssets="all" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Assembly-CSharp">

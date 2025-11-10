@@ -12,7 +12,10 @@ namespace BetterDrag
         private static long lastTick;
 
         private static readonly List<string> names = [];
+#if PROFILE
         private static readonly List<long> durations = [];
+#endif
+
         private static bool isOnFirstRun = true;
 
         static Profiler()

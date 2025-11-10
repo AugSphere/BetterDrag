@@ -1,11 +1,11 @@
-### [BetterDrag](BetterDrag.md 'BetterDrag').[ShipDragPerformanceData](BetterDrag.ShipDragPerformanceData.md 'BetterDrag\.ShipDragPerformanceData')
+### [BetterDrag](BetterDrag.md 'BetterDrag').[ShipDragPerformanceData](ShipDragPerformanceData.md 'BetterDrag\.ShipDragPerformanceData')
 
-## ShipDragPerformanceData\.ViscousDragMultiplier Field
+## ShipDragPerformanceData\.LengthAtWaterline Field
 
-Ship\-specific drag multiplier for viscous resistance\.
+Length of the hull at waterline in metres\.
 
 ```csharp
-public Nullable<float> ViscousDragMultiplier;
+public Nullable<float> LengthAtWaterline;
 ```
 
 #### Field Value

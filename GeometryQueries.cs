@@ -5,8 +5,8 @@ namespace BetterDrag
 {
     internal static class GeometryQueries
     {
-        internal static readonly float defaultRadius = 0.1f;
-        internal static readonly float defaultOriginOffset = 100f;
+        internal const float defaultRadius = 0.1f;
+        internal const float defaultOriginOffset = 100f;
         static readonly int layerMask = LayerMask.GetMask(
             "Ignore Raycast", // CapsuleCollider layer
             "OnlyPlayerCol+Paintable" // hull player collider layer

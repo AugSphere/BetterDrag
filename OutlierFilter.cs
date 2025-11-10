@@ -1,15 +1,18 @@
-﻿using System.Text;
+﻿using System.Globalization;
+using System.Text;
 using UnityEngine;
 
 namespace BetterDrag
 {
     internal class OutlierFilter(string name, float rateLimit, float noFilterCutoff)
     {
-        static readonly uint sampleCount = 16;
+        const uint sampleCount = 16;
         readonly float rateLimit = rateLimit;
-        readonly string name = name;
         readonly float noFilterCutoff = noFilterCutoff;
         readonly Cache<MemoryBuffer> cache = new(name, (_) => new());
+#if DEBUG && VERBOSE
+        readonly string name = name;
+#endif
 
         public float ClampValue(float value, Rigidbody rigidbody)
         {
@@ -64,7 +67,7 @@ namespace BetterDrag
         class MemoryBuffer
         {
             readonly float[] buffer = new float[sampleCount];
-            private uint insertionIndex = 0;
+            private uint insertionIndex;
 
             public float this[int idx]
             {
@@ -79,14 +82,18 @@ namespace BetterDrag
             public override string ToString()
             {
                 var stringBuilder = new StringBuilder();
-                stringBuilder.Append("[");
+                stringBuilder.Append('[');
                 for (int idx = 0; idx < sampleCount; idx++)
                 {
-                    stringBuilder.AppendFormat("{0:F2}", this.buffer[idx]);
+                    stringBuilder.AppendFormat(
+                        CultureInfo.InvariantCulture,
+                        "{0:F2}",
+                        this.buffer[idx]
+                    );
                     if (idx != sampleCount - 1)
                         stringBuilder.Append(", ");
                 }
-                stringBuilder.Append("]");
+                stringBuilder.Append(']');
                 return stringBuilder.ToString();
             }
         }

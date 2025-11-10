@@ -13,7 +13,9 @@ namespace BetterDrag
             TValue
         >.CreateValueCallback createValueCallback = new(createValueCallback);
         private (GameObject key, TValue value)? lastAccessed;
+#pragma warning disable CA1823
         private readonly string name = name;
+#pragma warning restore CA1823
 
         public TValue GetValue(GameObject key)
         {

@@ -1,11 +1,11 @@
-### [BetterDrag](BetterDrag.md 'BetterDrag').[ShipDragPerformanceData](BetterDrag.ShipDragPerformanceData.md 'BetterDrag\.ShipDragPerformanceData')
+### [BetterDrag](BetterDrag.md 'BetterDrag').[ShipDragPerformanceData](ShipDragPerformanceData.md 'BetterDrag\.ShipDragPerformanceData')
 
-## ShipDragPerformanceData\.WaveMakingDragMultiplier Field
+## ShipDragPerformanceData\.ViscousDragMultiplier Field
 
-Ship\-specific drag multippier for wave\-making resistance\.
+Ship\-specific drag multiplier for viscous resistance\.
 
 ```csharp
-public Nullable<float> WaveMakingDragMultiplier;
+public Nullable<float> ViscousDragMultiplier;
 ```
 
 #### Field Value

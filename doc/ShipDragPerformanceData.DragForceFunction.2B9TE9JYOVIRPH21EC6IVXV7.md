@@ -1,4 +1,4 @@
-### [BetterDrag](BetterDrag.md 'BetterDrag').[ShipDragPerformanceData](BetterDrag.ShipDragPerformanceData.md 'BetterDrag\.ShipDragPerformanceData')
+### [BetterDrag](BetterDrag.md 'BetterDrag').[ShipDragPerformanceData](ShipDragPerformanceData.md 'BetterDrag\.ShipDragPerformanceData')
 
 ## ShipDragPerformanceData\.DragForceFunction\(float, float, float, float, float\) Delegate
 

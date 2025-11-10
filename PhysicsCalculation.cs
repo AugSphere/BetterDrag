@@ -58,8 +58,8 @@ namespace BetterDrag
                 ]
             );
 
-            //shipData.DrawAll(rigidbody.transform);
-            BetterDragDebug.FlushBuffer(BetterDragDebug.Mode.CSV);
+            shipData.DrawAll(rigidbody.transform, drawHullPoints: true, drawSidePoints: true);
+            BetterDragDebug.FlushBuffer(BetterDragDebug.Mode.Line);
             BetterDragDebug.FinishUpdate();
 #endif
 

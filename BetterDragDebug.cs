@@ -2,6 +2,7 @@
 using HarmonyLib;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using UnityEngine;
 
 namespace BetterDrag
@@ -73,7 +74,9 @@ namespace BetterDrag
                 FileLog.Log(textBuffer.Join(delimiter: ";"));
                 isOnFirstRun = false;
             }
-            FileLog.Log(valuesBuffer.Join((n) => n.ToString(), delimiter: ";"));
+            FileLog.Log(
+                valuesBuffer.Join((n) => n.ToString(CultureInfo.InvariantCulture), delimiter: ";")
+            );
             textBuffer.Clear();
             valuesBuffer.Clear();
         }

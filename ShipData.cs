@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Crest;
 using UnityEngine;
 using static BetterDrag.GeometryQueries;
@@ -18,28 +19,36 @@ namespace BetterDrag
         private readonly Hydrostatics hydrostatics = new();
         private float baseBuoyancy = 25f;
         private float overflowOffset = 5f;
-        private float centerOfMassHeight = 0f;
-        private float draftOffset = 0f;
+        private float centerOfMassHeight;
+        private float draftOffset;
         private float keelOffset = 1f;
         private float lengthAtWaterline = 15f;
         private Vector3 keelPointPosition = Vector3.zero;
         private Vector3 bowPointPosition = Vector3.zero;
         private Vector3 sternPointPosition = Vector3.zero;
-        private bool valuesSet = false;
+        private bool valuesSet;
 
 #if DEBUG
         public DebugSphereRenderer keelRenderer = new(color: Color.red);
         public DebugSphereRenderer overflowRenderer = new(color: Color.blue);
         public DebugSphereRenderer bowRenderer = new(color: Color.green);
         public DebugSphereRenderer sternRenderer = new(color: Color.green);
+        public List<(DebugSphereRenderer renderer, Vector3 position)> sideRenderers = [];
 
-        public void DrawAll(Transform transform)
+        public void DrawAll(
+            Transform transform,
+            bool drawHullPoints = false,
+            bool drawSidePoints = false
+        )
         {
             keelRenderer.DrawSphere(transform.TransformPoint(this.keelPointPosition));
             overflowRenderer.DrawSphere(transform.TransformPoint(overflowOffset * Vector3.up));
             bowRenderer.DrawSphere(transform.TransformPoint(this.bowPointPosition));
             sternRenderer.DrawSphere(transform.TransformPoint(this.sternPointPosition));
-            hydrostatics.DrawHullPoints(transform);
+            if (drawHullPoints)
+                hydrostatics.DrawHullPoints(transform);
+            if (drawSidePoints)
+                this.DrawSidePoints(transform);
         }
 #endif
 
@@ -67,6 +76,7 @@ namespace BetterDrag
                     this.keelPointPosition
                 );
                 this.hydrostatics.BuildTables();
+                this.FindSidePoints(rigidbody);
                 valuesSet = true;
             }
             return (
@@ -78,17 +88,44 @@ namespace BetterDrag
             );
         }
 
-        public (float area, float displacement)? GetHydrostaticValues(float draft)
+#if DEBUG
+        internal void FindSidePoints(Rigidbody rigidbody)
+        {
+            var originPoint = Vector3.right * GeometryQueries.defaultOriginOffset;
+            var targetPoint = Vector3.zero;
+
+            var allHits = SphereCastToHull(originPoint, targetPoint, rigidbody, layerMask: -1);
+
+            foreach (var hit in allHits)
+            {
+                BetterDragDebug.LogLineBuffered(
+                    $"Side hit on {hit.collider.name} {hit.collider.GetType().FullName} layer {hit.collider.gameObject.layer}"
+                );
+                sideRenderers.Add((new(), rigidbody.transform.InverseTransformPoint(hit.point)));
+            }
+        }
+
+        internal void DrawSidePoints(Transform transform)
+        {
+            foreach (var (renderer, position) in this.sideRenderers)
+            {
+                var worldPosition = transform.TransformPoint(position);
+                renderer.DrawSphere(worldPosition);
+            }
+        }
+#endif
+
+        internal (float area, float displacement)? GetHydrostaticValues(float draft)
         {
             return this.hydrostatics.GetValues(draft);
         }
 
-        public void SetCenterOfMassHeight(float centerOfMassHeight)
+        internal void SetCenterOfMassHeight(float centerOfMassHeight)
         {
             this.centerOfMassHeight = centerOfMassHeight;
         }
 
-        public void SetBaseBuoyancy(float baseBuoyancy)
+        internal void SetBaseBuoyancy(float baseBuoyancy)
         {
             this.baseBuoyancy = baseBuoyancy;
         }
@@ -111,7 +148,7 @@ namespace BetterDrag
             var originPoint = Vector3.down * GeometryQueries.defaultOriginOffset;
             var targetPoint = Vector3.zero;
 
-            if (!SphereCastToHull(originPoint, targetPoint, rigidbody, out var hitInfo))
+            if (!GetFirstHullHit(originPoint, targetPoint, rigidbody, out var hitInfo))
             {
 #if DEBUG
                 BetterDragDebug.LogLineBuffered($"{rigidbody.name}: keel cast failed");
@@ -147,8 +184,8 @@ namespace BetterDrag
             var sternOriginPoint = Vector3.back * GeometryQueries.defaultOriginOffset;
             var targetPoint = Vector3.up * lwlHeight;
 
-            var isBowHit = SphereCastToHull(bowOriginPoint, targetPoint, rigidbody, out var bowHit);
-            var isSternHit = SphereCastToHull(
+            var isBowHit = GetFirstHullHit(bowOriginPoint, targetPoint, rigidbody, out var bowHit);
+            var isSternHit = GetFirstHullHit(
                 sternOriginPoint,
                 targetPoint,
                 rigidbody,

@@ -4,9 +4,10 @@ namespace BetterDrag
 {
     internal class Hydrostatics
     {
+#pragma warning disable CA1814
         const uint lengthSegmentCount = 100;
         const uint heightSegmentCount = 50;
-        static readonly float maxHeight = 10f;
+        const float maxHeight = 10f;
         readonly Vector3[,] hullPoints = new Vector3[
             heightSegmentCount + 1,
             lengthSegmentCount + 1
@@ -15,8 +16,8 @@ namespace BetterDrag
         readonly float[] wettedAreas = new float[heightSegmentCount + 1];
         float lengthSegmentSize;
         float hegithSegmentSize;
-        bool isRayCast = false;
-        bool isTableFilled = false;
+        bool isRayCast;
+        bool isTableFilled;
 
 #if DEBUG
         readonly DebugSphereRenderer[,] renderers = new DebugSphereRenderer[
@@ -24,6 +25,7 @@ namespace BetterDrag
             lengthSegmentCount + 1
         ];
 #endif
+#pragma warning restore CA1814
 
         internal (float area, float displacement)? GetValues(float draft)
         {

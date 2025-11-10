@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
+using static BetterDrag.ShipDragPerformanceData;
 #if DEBUG
 using System.Reflection;
 #endif
 
+#pragma warning disable CA1051
 namespace BetterDrag
 {
     /// <summary>
@@ -19,12 +21,19 @@ namespace BetterDrag
     /// </para>
     /// </summary>
     [Serializable]
-    public class ShipDragPerformanceData
+    public struct ShipDragPerformanceData(
+        float? lengthAtWaterline = null,
+        float? formFactor = null,
+        float? viscousDragMultiplier = null,
+        float? waveMakingDragMultiplier = null,
+        DragForceFunction? calculateViscousDragForce = null,
+        DragForceFunction? calculateWaveMakingDragForce = null
+    ) : IEquatable<ShipDragPerformanceData>
     {
         /// <summary>
         /// Length of the hull at waterline in metres.
         /// </summary>
-        public float? LengthAtWaterline = null;
+        public float? LengthAtWaterline = lengthAtWaterline;
 
         /// <summary>
         /// Form factor of the hull for ITTC 57 friction line.
@@ -36,17 +45,17 @@ namespace BetterDrag
         /// Typical values range from 0.05 to 0.30, higher means more resistance.
         /// </para>
         /// </summary>
-        public float? FormFactor = null;
+        public float? FormFactor = formFactor;
 
         /// <summary>
         /// Ship-specific drag multiplier for viscous resistance.
         /// </summary>
-        public float? ViscousDragMultiplier = null;
+        public float? ViscousDragMultiplier = viscousDragMultiplier;
 
         /// <summary>
         /// Ship-specific drag multippier for wave-making resistance.
         /// </summary>
-        public float? WaveMakingDragMultiplier = null;
+        public float? WaveMakingDragMultiplier = waveMakingDragMultiplier;
 
         /// <summary>
         /// Custom force function type.
@@ -72,21 +81,74 @@ namespace BetterDrag
         /// </para>
         /// </summary>
         [NonSerialized]
-        public DragForceFunction? CalculateViscousDragForce = null;
+        public DragForceFunction? CalculateViscousDragForce = calculateViscousDragForce;
 
         /// <summary>
         /// Same as <see cref="CalculateViscousDragForce"/>, but for wave-making drag.
         /// </summary>
         [NonSerialized]
-        public DragForceFunction? CalculateWaveMakingDragForce = null;
+        public DragForceFunction? CalculateWaveMakingDragForce = calculateWaveMakingDragForce;
 
         /// <inheritdoc/>
-        public override string ToString()
+        public readonly override bool Equals(object? obj)
+        {
+            if (obj is not ShipDragPerformanceData)
+                return false;
+
+            return Equals((ShipDragPerformanceData)obj);
+        }
+
+        /// <inheritdoc/>
+        public readonly bool Equals(ShipDragPerformanceData other)
+        {
+            if (LengthAtWaterline != other.LengthAtWaterline)
+                return false;
+            if (FormFactor != other.FormFactor)
+                return false;
+            if (ViscousDragMultiplier != other.ViscousDragMultiplier)
+                return false;
+            if (WaveMakingDragMultiplier != other.WaveMakingDragMultiplier)
+                return false;
+            if (!ReferenceEquals(CalculateViscousDragForce, other.CalculateViscousDragForce))
+                return false;
+            if (!ReferenceEquals(CalculateWaveMakingDragForce, other.CalculateWaveMakingDragForce))
+                return false;
+
+            return true;
+        }
+
+        /// <inheritdoc/>
+        public static bool operator ==(ShipDragPerformanceData data1, ShipDragPerformanceData data2)
+        {
+            return data1.Equals(data2);
+        }
+
+        /// <inheritdoc/>
+        public static bool operator !=(ShipDragPerformanceData data1, ShipDragPerformanceData data2)
+        {
+            return !data1.Equals(data2);
+        }
+
+        /// <inheritdoc/>
+        public readonly override int GetHashCode()
+        {
+            return HashCode.Combine(
+                LengthAtWaterline,
+                FormFactor,
+                ViscousDragMultiplier,
+                WaveMakingDragMultiplier,
+                CalculateViscousDragForce,
+                CalculateWaveMakingDragForce
+            );
+        }
+
+        /// <inheritdoc/>
+        public readonly override string ToString()
         {
             return nameof(ShipDragPerformanceData) + "(" + this.FieldRepr() + ")";
         }
 
-        internal string FieldRepr()
+        internal readonly string FieldRepr()
         {
 #if !DEBUG
             return "";
@@ -152,7 +214,7 @@ namespace BetterDrag
         {
             if (shipName is null || data is null)
                 return false;
-            customPerformance[shipName] = data;
+            customPerformance[shipName] = data.Value;
             return true;
         }
 
@@ -171,10 +233,10 @@ namespace BetterDrag
             ShipDragPerformanceData mergedData = defaultData;
 
             if (customData is not null)
-                mergedData = ShipDragPerformanceData.Merge(customData, mergedData);
+                mergedData = ShipDragPerformanceData.Merge(customData.Value, mergedData);
 
             if (userData is not null)
-                mergedData = ShipDragPerformanceData.Merge(userData, mergedData);
+                mergedData = ShipDragPerformanceData.Merge(userData.Value, mergedData);
 
             var finalData = FinalShipDragPerformanceData.FillWithDefaults(mergedData);
 
@@ -231,7 +293,7 @@ namespace BetterDrag
             var shipName = ship.name;
             var suffix = "(Clone)";
 
-            while (shipName.EndsWith(suffix))
+            while (shipName.EndsWith(suffix, StringComparison.OrdinalIgnoreCase))
             {
                 shipName = shipName.Substring(0, shipName.Length - suffix.Length);
             }
@@ -311,3 +373,4 @@ namespace BetterDrag
         }
     }
 }
+#pragma warning restore CA1051
