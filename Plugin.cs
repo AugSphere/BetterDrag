@@ -110,7 +110,7 @@ internal class Plugin : BaseUnityPlugin
         {
             using (var fileStream = File.Open(filePath, FileMode.Open))
             {
-                ShipDragDataStore.FillUserPerformance(
+                ShipDragConfigManager.FillUserPerformance(
                     (Dictionary<string, ShipDragPerformanceData>)serializer.ReadObject(fileStream)
                 );
             }
@@ -119,15 +119,11 @@ internal class Plugin : BaseUnityPlugin
         }
         catch (Exception e) when (e is FileNotFoundException || e is SerializationException)
         {
-            shipOverrides["BOAT Example 1"] = new ShipDragPerformanceData()
-            {
-                LengthAtWaterline = 5f,
-            };
-            shipOverrides["BOAT Example 2"] = new ShipDragPerformanceData()
-            {
-                FormFactor = 1.23f,
-                WaveMakingDragMultiplier = 3f,
-            };
+            shipOverrides["BOAT Example 1"] = new ShipDragPerformanceData(lengthAtWaterline: 5f);
+            shipOverrides["BOAT Example 2"] = new ShipDragPerformanceData(
+                formFactor: 1.23f,
+                waveMakingDragMultiplier: 3f
+            );
 
             using (var stream = File.Open(filePath, FileMode.Create))
             {

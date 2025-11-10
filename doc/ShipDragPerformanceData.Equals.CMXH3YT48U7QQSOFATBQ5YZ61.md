@@ -5,7 +5,7 @@
 Indicates whether this instance and a specified object are equal\.
 
 ```csharp
-public override readonly bool Equals(object? obj);
+public override bool Equals(object? obj);
 ```
 #### Parameters
 

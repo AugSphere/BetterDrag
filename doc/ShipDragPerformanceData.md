@@ -2,7 +2,7 @@
 
 ## ShipDragPerformanceData Struct
 
-A class holding drag performance setting overrides for a single ship\.
+A struct holding drag performance setting overrides for a single ship\.
 
 
 All entries are optional, leave `null` for the ones you do not want to override.
@@ -10,16 +10,16 @@ All entries are optional, leave `null` for the ones you do not want to override.
 All units are metric. Unit reference: cog's LWL is approximately 12.39m.
 
 ```csharp
-public struct ShipDragPerformanceData : System.IEquatable<BetterDrag.ShipDragPerformanceData>
+public readonly struct ShipDragPerformanceData : System.IEquatable<BetterDrag.ShipDragPerformanceData>
 ```
 
 Implements [System\.IEquatable&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.iequatable-1 'System\.IEquatable\`1')[ShipDragPerformanceData](ShipDragPerformanceData.md 'BetterDrag\.ShipDragPerformanceData')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.iequatable-1 'System\.IEquatable\`1')
 
 | Constructors | |
 | :--- | :--- |
-| [ShipDragPerformanceData\(Nullable&lt;float&gt;, Nullable&lt;float&gt;, Nullable&lt;float&gt;, Nullable&lt;float&gt;, DragForceFunction, DragForceFunction\)](ShipDragPerformanceData..ctor.HG4REY357WGVFLFL97M62XODD.md 'BetterDrag\.ShipDragPerformanceData\.ShipDragPerformanceData\(System\.Nullable\<float\>, System\.Nullable\<float\>, System\.Nullable\<float\>, System\.Nullable\<float\>, BetterDrag\.ShipDragPerformanceData\.DragForceFunction, BetterDrag\.ShipDragPerformanceData\.DragForceFunction\)') | A class holding drag performance setting overrides for a single ship\.    All entries are optional, leave `null` for the ones you do not want to override.  All units are metric. Unit reference: cog's LWL is approximately 12.39m. |
+| [ShipDragPerformanceData\(Nullable&lt;float&gt;, Nullable&lt;float&gt;, Nullable&lt;float&gt;, Nullable&lt;float&gt;, DragForceFunction, DragForceFunction\)](ShipDragPerformanceData..ctor.HG4REY357WGVFLFL97M62XODD.md 'BetterDrag\.ShipDragPerformanceData\.ShipDragPerformanceData\(System\.Nullable\<float\>, System\.Nullable\<float\>, System\.Nullable\<float\>, System\.Nullable\<float\>, BetterDrag\.ShipDragPerformanceData\.DragForceFunction, BetterDrag\.ShipDragPerformanceData\.DragForceFunction\)') | A struct holding drag performance setting overrides for a single ship\.    All entries are optional, leave `null` for the ones you do not want to override.  All units are metric. Unit reference: cog's LWL is approximately 12.39m. |
 
-| Fields | |
+| Properties | |
 | :--- | :--- |
 | [CalculateViscousDragForce](ShipDragPerformanceData.CalculateViscousDragForce.md 'BetterDrag\.ShipDragPerformanceData\.CalculateViscousDragForce') | An optional custom viscous drag force curve as a function of velocity and ship characteristics\.   Input speed is non-negative in m/s (around 5 for 10 chip log knots), typical outputs are on the order of 500 for a small ship at 5m/s. |
 | [CalculateWaveMakingDragForce](ShipDragPerformanceData.CalculateWaveMakingDragForce.md 'BetterDrag\.ShipDragPerformanceData\.CalculateWaveMakingDragForce') | Same as [CalculateViscousDragForce](ShipDragPerformanceData.CalculateViscousDragForce.md 'BetterDrag\.ShipDragPerformanceData\.CalculateViscousDragForce'), but for wave\-making drag\. |

@@ -1,12 +1,12 @@
 ### [BetterDrag](BetterDrag.md 'BetterDrag').[ShipDragPerformanceData](ShipDragPerformanceData.md 'BetterDrag\.ShipDragPerformanceData')
 
-## ShipDragPerformanceData\.LengthAtWaterline Field
+## ShipDragPerformanceData\.LengthAtWaterline Property
 
 Length of the hull at waterline in metres\.
 
 ```csharp
-public Nullable<float> LengthAtWaterline;
+public float LengthAtWaterline { get; }
 ```
 
-#### Field Value
-[System\.Nullable&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.nullable-1 'System\.Nullable\`1')[System\.Single](https://learn.microsoft.com/en-us/dotnet/api/system.single 'System\.Single')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.nullable-1 'System\.Nullable\`1')
+#### Property Value
+[System\.Single](https://learn.microsoft.com/en-us/dotnet/api/system.single 'System\.Single')

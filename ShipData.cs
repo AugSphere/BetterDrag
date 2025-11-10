@@ -14,8 +14,9 @@ namespace BetterDrag
         );
 
         public readonly string shipName = shipGameObject.name;
-        public readonly FinalShipDragPerformanceData dragData =
-            ShipDragDataStore.GetPerformanceData(shipGameObject);
+        public readonly ShipDragPerformanceData dragData = ShipDragConfigManager.GetPerformanceData(
+            shipGameObject
+        );
         private readonly Hydrostatics hydrostatics = new();
         private float baseBuoyancy = 25f;
         private float overflowOffset = 5f;

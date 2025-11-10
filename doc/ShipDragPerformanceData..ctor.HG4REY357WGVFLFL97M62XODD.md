@@ -2,7 +2,7 @@
 
 ## ShipDragPerformanceData\(Nullable\<float\>, Nullable\<float\>, Nullable\<float\>, Nullable\<float\>, DragForceFunction, DragForceFunction\) Constructor
 
-A class holding drag performance setting overrides for a single ship\.
+A struct holding drag performance setting overrides for a single ship\.
 
 
 All entries are optional, leave `null` for the ones you do not want to override.

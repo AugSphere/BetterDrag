@@ -5,7 +5,7 @@
 Returns the fully qualified type name of this instance\.
 
 ```csharp
-public override readonly string ToString();
+public override string ToString();
 ```
 
 #### Returns

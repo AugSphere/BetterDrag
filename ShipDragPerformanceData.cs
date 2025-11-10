@@ -6,11 +6,10 @@ using static BetterDrag.ShipDragPerformanceData;
 using System.Reflection;
 #endif
 
-#pragma warning disable CA1051
 namespace BetterDrag
 {
     /// <summary>
-    /// A class holding drag performance setting overrides for a single ship.
+    /// A struct holding drag performance setting overrides for a single ship.
     ///
     /// <para>
     /// All entries are optional, leave <c>null</c> for the ones you do not want to override.
@@ -21,7 +20,7 @@ namespace BetterDrag
     /// </para>
     /// </summary>
     [Serializable]
-    public struct ShipDragPerformanceData(
+    public readonly struct ShipDragPerformanceData(
         float? lengthAtWaterline = null,
         float? formFactor = null,
         float? viscousDragMultiplier = null,
@@ -30,10 +29,23 @@ namespace BetterDrag
         DragForceFunction? calculateWaveMakingDragForce = null
     ) : IEquatable<ShipDragPerformanceData>
     {
+        private readonly float? lengthAtWaterline = lengthAtWaterline;
+        private readonly float? formFactor = formFactor;
+        private readonly float? viscousDragMultiplier = viscousDragMultiplier;
+        private readonly float? waveMakingDragMultiplier = waveMakingDragMultiplier;
+
+        [NonSerialized]
+        private readonly DragForceFunction? calculateViscousDragForce = calculateViscousDragForce;
+
+        [NonSerialized]
+        private readonly DragForceFunction? calculateWaveMakingDragForce =
+            calculateWaveMakingDragForce;
+
         /// <summary>
         /// Length of the hull at waterline in metres.
         /// </summary>
-        public float? LengthAtWaterline = lengthAtWaterline;
+        public readonly float LengthAtWaterline =>
+            this.lengthAtWaterline ?? placeholderData.LengthAtWaterline;
 
         /// <summary>
         /// Form factor of the hull for ITTC 57 friction line.
@@ -45,17 +57,19 @@ namespace BetterDrag
         /// Typical values range from 0.05 to 0.30, higher means more resistance.
         /// </para>
         /// </summary>
-        public float? FormFactor = formFactor;
+        public readonly float FormFactor => this.formFactor ?? placeholderData.FormFactor;
 
         /// <summary>
         /// Ship-specific drag multiplier for viscous resistance.
         /// </summary>
-        public float? ViscousDragMultiplier = viscousDragMultiplier;
+        public readonly float ViscousDragMultiplier =>
+            this.viscousDragMultiplier ?? placeholderData.ViscousDragMultiplier;
 
         /// <summary>
         /// Ship-specific drag multippier for wave-making resistance.
         /// </summary>
-        public float? WaveMakingDragMultiplier = waveMakingDragMultiplier;
+        public readonly float WaveMakingDragMultiplier =>
+            this.waveMakingDragMultiplier ?? placeholderData.WaveMakingDragMultiplier;
 
         /// <summary>
         /// Custom force function type.
@@ -80,14 +94,14 @@ namespace BetterDrag
         /// Input speed is non-negative in m/s (around 5 for 10 chip log knots), typical outputs are on the order of 500 for a small ship at 5m/s.
         /// </para>
         /// </summary>
-        [NonSerialized]
-        public DragForceFunction? CalculateViscousDragForce = calculateViscousDragForce;
+        public readonly DragForceFunction CalculateViscousDragForce =>
+            this.calculateViscousDragForce ?? placeholderData.CalculateViscousDragForce;
 
         /// <summary>
         /// Same as <see cref="CalculateViscousDragForce"/>, but for wave-making drag.
         /// </summary>
-        [NonSerialized]
-        public DragForceFunction? CalculateWaveMakingDragForce = calculateWaveMakingDragForce;
+        public readonly DragForceFunction CalculateWaveMakingDragForce =>
+            this.calculateWaveMakingDragForce ?? placeholderData.CalculateWaveMakingDragForce;
 
         /// <inheritdoc/>
         public readonly override bool Equals(object? obj)
@@ -163,12 +177,12 @@ namespace BetterDrag
             }
             return String.Join(
                 ", ",
-                $"LWL={this.LengthAtWaterline}",
-                $"FormFactor={this.FormFactor}",
-                $"ViscousDragMultiplier={this.ViscousDragMultiplier}",
-                $"WaveMakingDragMultiplier={this.WaveMakingDragMultiplier}",
-                $"CalculateViscousDragForce={FuncRepr(this.CalculateViscousDragForce)}",
-                $"CalculateWaveMakingDragForce={FuncRepr(this.CalculateWaveMakingDragForce)}"
+                $"LWL={this.lengthAtWaterline}",
+                $"FormFactor={this.formFactor}",
+                $"ViscousDragMultiplier={this.viscousDragMultiplier}",
+                $"WaveMakingDragMultiplier={this.waveMakingDragMultiplier}",
+                $"CalculateViscousDragForce={FuncRepr(this.calculateViscousDragForce)}",
+                $"CalculateWaveMakingDragForce={FuncRepr(this.calculateWaveMakingDragForce)}"
             );
 #endif
         }
@@ -178,27 +192,34 @@ namespace BetterDrag
             ShipDragPerformanceData lowPriority
         )
         {
-            return new ShipDragPerformanceData()
-            {
-                LengthAtWaterline = highPriority.LengthAtWaterline ?? lowPriority.LengthAtWaterline,
-                FormFactor = highPriority.FormFactor ?? lowPriority.FormFactor,
-                ViscousDragMultiplier =
-                    highPriority.ViscousDragMultiplier ?? lowPriority.ViscousDragMultiplier,
-                WaveMakingDragMultiplier =
-                    highPriority.WaveMakingDragMultiplier ?? lowPriority.WaveMakingDragMultiplier,
-                CalculateViscousDragForce =
-                    highPriority.CalculateViscousDragForce ?? lowPriority.CalculateViscousDragForce,
-                CalculateWaveMakingDragForce =
-                    highPriority.CalculateWaveMakingDragForce
-                    ?? lowPriority.CalculateWaveMakingDragForce,
-            };
+            return new ShipDragPerformanceData(
+                lengthAtWaterline: highPriority.lengthAtWaterline ?? lowPriority.lengthAtWaterline,
+                formFactor: highPriority.formFactor ?? lowPriority.formFactor,
+                viscousDragMultiplier: highPriority.viscousDragMultiplier
+                    ?? lowPriority.viscousDragMultiplier,
+                waveMakingDragMultiplier: highPriority.waveMakingDragMultiplier
+                    ?? lowPriority.waveMakingDragMultiplier,
+                calculateViscousDragForce: highPriority.calculateViscousDragForce
+                    ?? lowPriority.calculateViscousDragForce,
+                calculateWaveMakingDragForce: highPriority.calculateWaveMakingDragForce
+                    ?? lowPriority.calculateWaveMakingDragForce
+            );
         }
+
+        internal static readonly ShipDragPerformanceData placeholderData = new(
+            lengthAtWaterline: 15f,
+            formFactor: 0.15f,
+            viscousDragMultiplier: 1.0f,
+            waveMakingDragMultiplier: 1.0f,
+            calculateViscousDragForce: DragModel.CalculateViscousDragForce,
+            calculateWaveMakingDragForce: DragModel.CalculateViscousDragForce
+        );
     };
 
     /// <summary>
-    /// Storage class for this mod's ship configurations.
+    /// A class that manages custom and default ship configurations.
     /// </summary>
-    public static class ShipDragDataStore
+    public static class ShipDragConfigManager
     {
         private static Dictionary<String, ShipDragPerformanceData> userPerformance = [];
         private static readonly Dictionary<String, ShipDragPerformanceData> customPerformance = [];
@@ -209,7 +230,7 @@ namespace BetterDrag
         /// </summary>
         /// <param name="shipName">The name of the ship object. Can be found in a <see  href="https://docs.google.com/spreadsheets/d/12ndyNEJiD8HcoesP820oOKChHkRptmAVZpposfEcEaY/edit?usp=sharing">community spreadsheet</see>.</param>
         /// <param name="data">Ship's peformance overrides.</param>
-        /// <returns>`true` if custom performace was successfully set.</returns>
+        /// <returns><c>true</c> if custom performace was successfully set.</returns>
         public static bool SetCustomPerformance(string? shipName, ShipDragPerformanceData? data)
         {
             if (shipName is null || data is null)
@@ -222,15 +243,13 @@ namespace BetterDrag
         /// Return drag performance for a ship.
         /// <para>Priority: user config > custom performance > default performance.</para>
         /// </summary>
-        internal static FinalShipDragPerformanceData GetPerformanceData(GameObject ship)
+        internal static ShipDragPerformanceData GetPerformanceData(GameObject ship)
         {
             ShipDragPerformanceData? userData = GetPerformance(ship, userPerformance);
             ShipDragPerformanceData? customData = GetPerformance(ship, customPerformance);
-            ShipDragPerformanceData defaultData = (ShipDragPerformanceData)GetDefaultPerformance(
-                ship
-            );
+            ShipDragPerformanceData shipDefaultData = GetDefaultPerformance(ship);
 
-            ShipDragPerformanceData mergedData = defaultData;
+            ShipDragPerformanceData mergedData = shipDefaultData;
 
             if (customData is not null)
                 mergedData = ShipDragPerformanceData.Merge(customData.Value, mergedData);
@@ -238,20 +257,18 @@ namespace BetterDrag
             if (userData is not null)
                 mergedData = ShipDragPerformanceData.Merge(userData.Value, mergedData);
 
-            var finalData = FinalShipDragPerformanceData.FillWithDefaults(mergedData);
-
-#if DEBUG && VERBOSE
+#if DEBUG
             BetterDragDebug.LogLinesBuffered(
                 [
                     $"\nMerging data for: {ship.name}",
                     $"User data: {userData}",
                     $"Custom data: {customData}",
-                    $"Default data: {defaultData}",
-                    $"Merged data: {finalData}\n",
+                    $"Default data: {shipDefaultData}",
+                    $"Merged data: {mergedData}\n",
                 ]
             );
 #endif
-            return finalData;
+            return mergedData;
         }
 
         internal static void FillUserPerformance(
@@ -261,13 +278,13 @@ namespace BetterDrag
             userPerformance = userConfig;
         }
 
-        internal static FinalShipDragPerformanceData GetDefaultPerformance(GameObject ship)
+        internal static ShipDragPerformanceData GetDefaultPerformance(GameObject ship)
         {
             var shipName = GetNormalizedShipName(ship);
             return GetDefaultPerformanceByName(shipName);
         }
 
-        internal static FinalShipDragPerformanceData GetDefaultPerformanceByName(string shipName)
+        internal static ShipDragPerformanceData GetDefaultPerformanceByName(string shipName)
         {
             return (shipName) switch
             {
@@ -312,65 +329,4 @@ namespace BetterDrag
             return isPresent ? data : null;
         }
     }
-
-    /// <summary>
-    /// Same as <see cref="ShipDragPerformanceData"/>, but all values are not null.
-    /// </summary>
-    internal class FinalShipDragPerformanceData(
-        float lengthAtWaterline = 20.0f,
-        float formFactor = 0.20f,
-        float viscousDragMultiplier = 1.0f,
-        float waveMakingDragMultiplier = 1.0f
-    )
-    {
-        public float LengthAtWaterline = lengthAtWaterline;
-        public float FormFactor = formFactor;
-        public float ViscousDragMultiplier = viscousDragMultiplier;
-        public float WaveMakingDragMultiplier = waveMakingDragMultiplier;
-        public ShipDragPerformanceData.DragForceFunction CalculateViscousDragForce =
-            DragModel.CalculateViscousDragForce;
-        public ShipDragPerformanceData.DragForceFunction CalculateWaveMakingDragForce =
-            DragModel.CalculateWaveMakingDragForce;
-
-        /// <inheritdoc/>
-        public override string ToString()
-        {
-            return nameof(FinalShipDragPerformanceData)
-                + "("
-                + ((ShipDragPerformanceData)this).FieldRepr()
-                + ")";
-        }
-
-        public static FinalShipDragPerformanceData FillWithDefaults(ShipDragPerformanceData data)
-        {
-            var defaultData = new FinalShipDragPerformanceData();
-            return new()
-            {
-                LengthAtWaterline = data.LengthAtWaterline ?? defaultData.LengthAtWaterline,
-                FormFactor = data.FormFactor ?? defaultData.FormFactor,
-                ViscousDragMultiplier =
-                    data.ViscousDragMultiplier ?? defaultData.ViscousDragMultiplier,
-                WaveMakingDragMultiplier =
-                    data.WaveMakingDragMultiplier ?? defaultData.WaveMakingDragMultiplier,
-                CalculateViscousDragForce =
-                    data.CalculateViscousDragForce ?? defaultData.CalculateViscousDragForce,
-                CalculateWaveMakingDragForce =
-                    data.CalculateWaveMakingDragForce ?? defaultData.CalculateWaveMakingDragForce,
-            };
-        }
-
-        public static explicit operator ShipDragPerformanceData(FinalShipDragPerformanceData data)
-        {
-            return new()
-            {
-                LengthAtWaterline = data.LengthAtWaterline,
-                FormFactor = data.FormFactor,
-                ViscousDragMultiplier = data.ViscousDragMultiplier,
-                WaveMakingDragMultiplier = data.WaveMakingDragMultiplier,
-                CalculateViscousDragForce = data.CalculateViscousDragForce,
-                CalculateWaveMakingDragForce = data.CalculateWaveMakingDragForce,
-            };
-        }
-    }
 }
-#pragma warning restore CA1051

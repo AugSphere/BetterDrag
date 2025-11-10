@@ -70,7 +70,7 @@ namespace BetterDrag
             float forwardVelocity,
             float displacement,
             float wettedArea,
-            FinalShipDragPerformanceData performanceData
+            ShipDragPerformanceData performanceData
         )
         {
             var absVelocity = Mathf.Abs(forwardVelocity);
@@ -154,7 +154,7 @@ namespace BetterDrag
         private static float CalculateDisplacementScale(
             float draft,
             float fullSpan,
-            FinalShipDragPerformanceData shipDragPerformanceData
+            ShipDragPerformanceData shipDragPerformanceData
         )
         {
             var relativeToOverflow = draft / fullSpan;

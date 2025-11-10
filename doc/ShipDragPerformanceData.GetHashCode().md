@@ -5,7 +5,7 @@
 Returns the hash code for this instance\.
 
 ```csharp
-public override readonly int GetHashCode();
+public override int GetHashCode();
 ```
 
 #### Returns
