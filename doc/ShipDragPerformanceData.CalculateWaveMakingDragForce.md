@@ -9,4 +9,4 @@ public BetterDrag.ShipDragPerformanceData.DragForceFunction CalculateWaveMakingD
 ```
 
 #### Property Value
-[DragForceFunction\(float, float, float, float, float\)](ShipDragPerformanceData.DragForceFunction.2B9TE9JYOVIRPH21EC6IVXV7.md 'BetterDrag\.ShipDragPerformanceData\.DragForceFunction\(float, float, float, float, float\)')
+[DragForceFunction\(float, float, float, float, float\)](ShipDragPerformanceData.DragForceFunction(float,float,float,float,float).md 'BetterDrag\.ShipDragPerformanceData\.DragForceFunction\(float, float, float, float, float\)')

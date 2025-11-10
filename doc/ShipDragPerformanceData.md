@@ -17,7 +17,7 @@ Implements [System\.IEquatable&lt;](https://learn.microsoft.com/en-us/dotnet/api
 
 | Constructors | |
 | :--- | :--- |
-| [ShipDragPerformanceData\(Nullable&lt;float&gt;, Nullable&lt;float&gt;, Nullable&lt;float&gt;, Nullable&lt;float&gt;, DragForceFunction, DragForceFunction\)](ShipDragPerformanceData..ctor.HG4REY357WGVFLFL97M62XODD.md 'BetterDrag\.ShipDragPerformanceData\.ShipDragPerformanceData\(System\.Nullable\<float\>, System\.Nullable\<float\>, System\.Nullable\<float\>, System\.Nullable\<float\>, BetterDrag\.ShipDragPerformanceData\.DragForceFunction, BetterDrag\.ShipDragPerformanceData\.DragForceFunction\)') | A struct holding drag performance setting overrides for a single ship\.    All entries are optional, leave `null` for the ones you do not want to override.  All units are metric. Unit reference: cog's LWL is approximately 12.39m. |
+| [ShipDragPerformanceData\(Nullable&lt;float&gt;, Nullable&lt;float&gt;, Nullable&lt;float&gt;, Nullable&lt;float&gt;, DragForceFunction, DragForceFunction\)](ShipDragPerformanceData.ShipDragPerformanceData(Nullable_float_,Nullable_float_,Nullable_float_,Nullable_float_,DragForceFunction,DragForceFunction).md 'BetterDrag\.ShipDragPerformanceData\.ShipDragPerformanceData\(System\.Nullable\<float\>, System\.Nullable\<float\>, System\.Nullable\<float\>, System\.Nullable\<float\>, BetterDrag\.ShipDragPerformanceData\.DragForceFunction, BetterDrag\.ShipDragPerformanceData\.DragForceFunction\)') | A struct holding drag performance setting overrides for a single ship\.    All entries are optional, leave `null` for the ones you do not want to override.  All units are metric. Unit reference: cog's LWL is approximately 12.39m. |
 
 | Properties | |
 | :--- | :--- |
@@ -30,6 +30,6 @@ Implements [System\.IEquatable&lt;](https://learn.microsoft.com/en-us/dotnet/api
 
 | Methods | |
 | :--- | :--- |
-| [Equals\(object\)](ShipDragPerformanceData.Equals.CMXH3YT48U7QQSOFATBQ5YZ61.md 'BetterDrag\.ShipDragPerformanceData\.Equals\(object\)') | Indicates whether this instance and a specified object are equal\. |
+| [Equals\(object\)](ShipDragPerformanceData.Equals(object).md 'BetterDrag\.ShipDragPerformanceData\.Equals\(object\)') | Indicates whether this instance and a specified object are equal\. |
 | [GetHashCode\(\)](ShipDragPerformanceData.GetHashCode().md 'BetterDrag\.ShipDragPerformanceData\.GetHashCode\(\)') | Returns the hash code for this instance\. |
 | [ToString\(\)](ShipDragPerformanceData.ToString().md 'BetterDrag\.ShipDragPerformanceData\.ToString\(\)') | Returns the fully qualified type name of this instance\. |

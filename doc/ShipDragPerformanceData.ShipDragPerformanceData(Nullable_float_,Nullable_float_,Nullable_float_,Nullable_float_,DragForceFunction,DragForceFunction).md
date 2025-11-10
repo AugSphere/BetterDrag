@@ -32,8 +32,8 @@ public ShipDragPerformanceData(System.Nullable<float> lengthAtWaterline=null, Sy
 
 <a name='BetterDrag.ShipDragPerformanceData.ShipDragPerformanceData(System.Nullable_float_,System.Nullable_float_,System.Nullable_float_,System.Nullable_float_,BetterDrag.ShipDragPerformanceData.DragForceFunction,BetterDrag.ShipDragPerformanceData.DragForceFunction).calculateViscousDragForce'></a>
 
-`calculateViscousDragForce` [DragForceFunction\(float, float, float, float, float\)](ShipDragPerformanceData.DragForceFunction.2B9TE9JYOVIRPH21EC6IVXV7.md 'BetterDrag\.ShipDragPerformanceData\.DragForceFunction\(float, float, float, float, float\)')
+`calculateViscousDragForce` [DragForceFunction\(float, float, float, float, float\)](ShipDragPerformanceData.DragForceFunction(float,float,float,float,float).md 'BetterDrag\.ShipDragPerformanceData\.DragForceFunction\(float, float, float, float, float\)')
 
 <a name='BetterDrag.ShipDragPerformanceData.ShipDragPerformanceData(System.Nullable_float_,System.Nullable_float_,System.Nullable_float_,System.Nullable_float_,BetterDrag.ShipDragPerformanceData.DragForceFunction,BetterDrag.ShipDragPerformanceData.DragForceFunction).calculateWaveMakingDragForce'></a>
 
-`calculateWaveMakingDragForce` [DragForceFunction\(float, float, float, float, float\)](ShipDragPerformanceData.DragForceFunction.2B9TE9JYOVIRPH21EC6IVXV7.md 'BetterDrag\.ShipDragPerformanceData\.DragForceFunction\(float, float, float, float, float\)')
+`calculateWaveMakingDragForce` [DragForceFunction\(float, float, float, float, float\)](ShipDragPerformanceData.DragForceFunction(float,float,float,float,float).md 'BetterDrag\.ShipDragPerformanceData\.DragForceFunction\(float, float, float, float, float\)')

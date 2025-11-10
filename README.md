@@ -23,7 +23,7 @@ settings.
 * `com.AugSphere.BetterDrag.shipdata.json` in the same directory as
 `BetterDrag.dll` allows to override specific ship settings.
 
-Refer to [ShipDragPerformanceData documentation](doc/BetterDrag.ShipDragPerformanceData.md)
+Refer to [ShipDragPerformanceData documentation](doc/ShipDragPerformanceData.md)
 for what the settings mean. Setting custom water drag functions through
 config files is not currently supported.
 
@@ -43,7 +43,7 @@ public class Plugin : BaseUnityPlugin
         BetterDragCompatibility.AddBetterDragData();
 ```
 
-Call [SetCustomPerformance](doc/BetterDrag.ShipDragDataStore.SetCustomPerformance(string,BetterDrag.ShipDragPerformanceData).md)
+Call [SetCustomPerformance](doc/ShipDragConfigManager.SetCustomPerformance(string,Nullable_ShipDragPerformanceData_).md)
 with the name of your ship. Names can be found in
 [this community spreadsheet](https://docs.google.com/spreadsheets/d/12ndyNEJiD8HcoesP820oOKChHkRptmAVZpposfEcEaY/edit?usp=sharing).
 
