@@ -82,12 +82,15 @@ namespace BetterDrag
 
                     Vector3 castTarget = new(0, heightCoordinate, lengthCoordinate);
                     Vector3 castOrigin = castTarget + Vector3.right * 50f;
-                    var isHit = GeometryQueries.SphereCastToHull(
+                    var allHits = GeometryQueries.SphereCastToHull(
                         castOrigin,
                         castTarget,
-                        rigidbody,
-                        out var hitInfo,
-                        layerMask: LayerMask.GetMask("OnlyPlayerCol+Paintable")
+                        rigidbody
+                    );
+                    var isHit = GeometryQueries.FilterHullColliders(
+                        allHits,
+                        rigidbody.gameObject,
+                        out var hitInfo
                     );
                     if (isHit)
                     {
