@@ -212,7 +212,7 @@ namespace BetterDrag
             viscousDragMultiplier: 1.0f,
             waveMakingDragMultiplier: 1.0f,
             calculateViscousDragForce: DragModel.CalculateViscousDragForce,
-            calculateWaveMakingDragForce: DragModel.CalculateViscousDragForce
+            calculateWaveMakingDragForce: DragModel.CalculateWaveMakingDragForce
         );
     };
 
