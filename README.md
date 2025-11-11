@@ -85,7 +85,7 @@ internal static class BetterDragCompatibility
         };
 
         var shipName = "BOAT GLORIANA (182)";
-        return BetterDrag.ShipDragDataStore.SetCustomPerformance(shipName, customData);
+        return BetterDrag.ShipDragConfigManager.SetCustomPerformance(shipName, customData);
     }
 }
 ```
