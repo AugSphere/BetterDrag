@@ -7,6 +7,7 @@ namespace BetterDrag
         const uint lengthSegmentCount = 100;
         const uint heightSegmentCount = 50;
         const float maxHeight = 10f;
+        static readonly Vector3 sentinelVector = Vector3.zero + 128f * Vector3.up;
         readonly Vector3[,] hullPoints = new Vector3[
             heightSegmentCount + 1,
             lengthSegmentCount + 1
@@ -120,7 +121,8 @@ namespace BetterDrag
                     var lengthCoordinate = Mathf.Lerp(minLength, maxLength, lengthFraction);
 
                     Vector3 castTarget = new(0, heightCoordinate, lengthCoordinate);
-                    Vector3 castOrigin = castTarget + Vector3.right * 50f;
+                    Vector3 castOrigin =
+                        castTarget + Vector3.right * GeometryQueries.defaultOriginOffset;
                     var isHit = GeometryQueries.GetFirstHullHit(
                         castOrigin,
                         castTarget,
@@ -136,7 +138,7 @@ namespace BetterDrag
                     }
                     else
                     {
-                        hullPoints[heightIdx, lengthIdx] = castTarget;
+                        hullPoints[heightIdx, lengthIdx] = sentinelVector;
                     }
 #if DEBUG
                     renderers[heightIdx, lengthIdx] = new(radius: 0.1f);
@@ -175,25 +177,34 @@ namespace BetterDrag
                     var asternPointHigh = hullPoints[heightIdx + 1, lengthIdx];
                     var aheadPointHigh = hullPoints[heightIdx + 1, lengthIdx + 1];
 
-                    var (lowArea, lowDisplacement) = Numerics.GetTriangleContribution(
-                        (
-                            new UnityVector3(asternPointLow),
-                            new UnityVector3(aheadPointLow),
-                            new UnityVector3(aheadPointHigh)
-                        )
+                    this.ApplyTriangleContribution(
+                        heightIdx,
+                        asternPointLow,
+                        aheadPointLow,
+                        aheadPointHigh
                     );
-                    var (highArea, highDisplacement) = Numerics.GetTriangleContribution(
-                        (
-                            new UnityVector3(asternPointLow),
-                            new UnityVector3(aheadPointHigh),
-                            new UnityVector3(asternPointHigh)
-                        )
+
+                    this.ApplyTriangleContribution(
+                        heightIdx,
+                        asternPointLow,
+                        aheadPointHigh,
+                        asternPointHigh
                     );
-                    this.wettedAreas[heightIdx + 1] += lowArea + highArea;
-                    this.displacements[heightIdx + 1] += lowDisplacement + highDisplacement;
                 }
             }
             isTableFilled = true;
+        }
+
+        void ApplyTriangleContribution(int heightIdx, Vector3 v1, Vector3 v2, Vector3 v3)
+        {
+            if (v1 == sentinelVector || v2 == sentinelVector || v3 == sentinelVector)
+                return;
+
+            var (area, displacement) = Numerics.GetTriangleContribution(
+                (new UnityVector3(v1), new UnityVector3(v2), new UnityVector3(v3))
+            );
+            this.wettedAreas[heightIdx + 1] += area;
+            this.displacements[heightIdx + 1] += displacement;
         }
 
 #if DEBUG
@@ -204,7 +215,7 @@ namespace BetterDrag
                 for (int lengthIdx = 0; lengthIdx < lengthSegmentCount; ++lengthIdx)
                 {
                     var hullPoint = hullPoints[heightIdx, lengthIdx];
-                    if (hullPoint.x == 0)
+                    if (hullPoint == sentinelVector)
                         continue;
                     var worldPoint = transform.TransformPoint(hullPoint);
                     renderers[heightIdx, lengthIdx].DrawSphere(worldPoint);
