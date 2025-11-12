@@ -26,9 +26,9 @@ namespace BetterDrag
         private float draftOffset;
         private float keelOffset = 1f;
         private float lengthAtWaterline = 15f;
-        private Vector3 keelPointPosition = Vector3.zero;
-        private Vector3 bowPointPosition = Vector3.zero;
-        private Vector3 sternPointPosition = Vector3.zero;
+        private Vector3 keelPointPosition;
+        private Vector3 bowPointPosition;
+        private Vector3 sternPointPosition;
         private bool valuesSet;
 
 #if DEBUG

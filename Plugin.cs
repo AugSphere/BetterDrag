@@ -26,6 +26,7 @@ internal class Plugin : BaseUnityPlugin
     internal static ConfigEntry<float>? globalViscousDragMultiplier;
     internal static ConfigEntry<float>? globalWaveMakingDragMultiplier;
     internal static ConfigEntry<float>? globalShipLengthMultiplier;
+    internal static ConfigEntry<float>? globalBuoyancyMultiplier;
     internal static Dictionary<string, ShipDragPerformanceData> shipOverrides = [];
 #if DEBUG
     internal static ConfigEntry<int>? debugPrintPeriod;
@@ -73,6 +74,16 @@ internal class Plugin : BaseUnityPlugin
             1.0f,
             new ConfigDescription(
                 "Ship length multiplier, higher values raise the maximum speed",
+                new AcceptableValueRange<float>(0.1f, 5.0f)
+            )
+        );
+
+        globalBuoyancyMultiplier = Config.Bind(
+            "--------- Global Multipliers ---------",
+            nameof(globalBuoyancyMultiplier),
+            1.0f,
+            new ConfigDescription(
+                "Buoyancy multiplier",
                 new AcceptableValueRange<float>(0.1f, 5.0f)
             )
         );

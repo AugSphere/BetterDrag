@@ -22,6 +22,10 @@ namespace BetterDrag
             float froudeNumber = absVelocity / Mathf.Sqrt(lengthAtWaterline * 10.0f);
             float force;
 
+#if DEBUG
+            BetterDragDebug.LogCSVBuffered([("Fr", froudeNumber)]);
+#endif
+
             if (froudeNumber <= 0.001f)
             {
                 force = froudeNumber * froudeNumber;
@@ -35,11 +39,6 @@ namespace BetterDrag
                 force = froudeSquared * forceScaling * forceOscillation;
             }
             force *= displacement * tuningWaveMakingDragMult;
-
-#if DEBUG
-            BetterDragDebug.LogCSVBuffered([("Fr", froudeNumber)]);
-#endif
-
             return force;
         }
 

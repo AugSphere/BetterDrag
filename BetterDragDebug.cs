@@ -43,7 +43,7 @@ namespace BetterDrag
             FileLog.LogBuffered(lines);
         }
 
-        public static void LogCSVBuffered(List<(string, float)> entries)
+        public static void LogCSVBuffered((string, float)[] entries)
         {
             foreach (var (text, value) in entries)
             {

@@ -85,7 +85,7 @@ namespace BetterDrag
                 ____queryPoints,
                 ____totalWeight,
                 out var displacement,
-                out var draft
+                out var wettedArea
             );
             Profiler.Profile("UpdateBuoyancy");
 
@@ -93,8 +93,8 @@ namespace BetterDrag
                 ____rb,
                 shipData,
                 forwardVelocity,
-                draft,
-                displacement
+                displacement,
+                wettedArea
             );
             Profiler.Profile("GetDragForceMagnitude");
 
@@ -103,6 +103,12 @@ namespace BetterDrag
             Profiler.Profile("AddForceAtPosition");
 
             Profiler.LogDurations();
+
+#if DEBUG
+            shipData.DrawAll(____rb.transform, drawHullPoints: true);
+            BetterDragDebug.FlushBuffer(BetterDragDebug.Mode.Line);
+            BetterDragDebug.FinishUpdate();
+#endif
         }
 
         [HarmonyPostfix]
