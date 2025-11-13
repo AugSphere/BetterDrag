@@ -17,6 +17,8 @@ namespace BetterDrag
             noFilterCutoff: 0.1f
         );
 
+        static readonly float waterWeight = 1000f * Mathf.Abs(Physics.gravity.y);
+
         public static float GetDragForceMagnitude(
             Rigidbody rigidbody,
             ShipData shipData,
@@ -99,7 +101,6 @@ namespace BetterDrag
             out float wettedArea
         )
         {
-            float weight = 1000f * Mathf.Abs(Physics.gravity.y);
             totalDisplacement = 0.0f;
             wettedArea = 0.0f;
 #if DEBUG
@@ -108,12 +109,10 @@ namespace BetterDrag
             var averageFbArea = 0.0f;
 #endif
 
-            var (baseBuoyancy, overflowOffset, draftOffset, keelDepth, _) = shipData.GetValues(
-                boatProbes,
-                rigidbody
-            );
+            var (baseBuoyancy, overflowOffset, draftOffset, keelDepth, _, draftSpanRatio) =
+                shipData.GetValues(boatProbes, rigidbody);
             var lengthAtWaterline = shipData.dragData.LengthAtWaterline;
-            var displacementCorrection = Mathf.Clamp(25f - 0.8f * lengthAtWaterline, 5f, 25f);
+            var buoyancyMultiplier = shipData.dragData.BuoyancyMultiplier;
 
             float seaLevel = OceanRenderer.Instance.SeaLevel;
 
@@ -126,8 +125,9 @@ namespace BetterDrag
                     draft
                     * baseBuoyancy
                     * boatProbes._forcePoints[idx]._weight
-                    * displacementCorrection;
-                var fallbackWettedArea = 4f * lengthAtWaterline * draft;
+                    * draftSpanRatio
+                    / buoyancyMultiplier;
+                var fallbackWettedArea = 3f * lengthAtWaterline * draft;
                 var (area, displacement) =
                     shipData.GetHydrostaticValues(draft)
                     ?? (fallbackWettedArea, fallbackDisplacement);
@@ -141,11 +141,11 @@ namespace BetterDrag
 #endif
 
                 float force =
-                    weight
+                    PhysicsCalculation.waterWeight
                     * displacement
                     * boatProbes._forceMultiplier
                     / baseBuoyancy
-                    / displacementCorrection
+                    * buoyancyMultiplier
                     * Plugin.globalBuoyancyMultiplier!.Value;
                 rigidbody.AddForceAtPosition(Vector3.up * force, queryPoints[idx]);
                 boatProbes.appliedBuoyancyForces[idx] = force;
@@ -159,6 +159,7 @@ namespace BetterDrag
                     ("displacementFb, m^3", totalFbDispalcement),
                     ("area, m^2", wettedArea),
                     ("areaFb, m^2", averageFbArea),
+                    ("baseBuoyancy", baseBuoyancy),
                 ]
             );
 #endif

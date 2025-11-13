@@ -23,6 +23,7 @@ namespace BetterDrag
     public readonly struct ShipDragPerformanceData(
         float? lengthAtWaterline = null,
         float? formFactor = null,
+        float? buoyancyMultiplier = null,
         float? viscousDragMultiplier = null,
         float? waveMakingDragMultiplier = null,
         DragForceFunction? calculateViscousDragForce = null,
@@ -31,6 +32,7 @@ namespace BetterDrag
     {
         private readonly float? lengthAtWaterline = lengthAtWaterline;
         private readonly float? formFactor = formFactor;
+        private readonly float? buoyancyMultiplier = buoyancyMultiplier;
         private readonly float? viscousDragMultiplier = viscousDragMultiplier;
         private readonly float? waveMakingDragMultiplier = waveMakingDragMultiplier;
 
@@ -58,6 +60,12 @@ namespace BetterDrag
         /// </para>
         /// </summary>
         public readonly float FormFactor => this.formFactor ?? placeholderData.FormFactor;
+
+        /// <summary>
+        /// Ship-specific buoyancy multippier.
+        /// </summary>
+        public readonly float BuoyancyMultiplier =>
+            this.buoyancyMultiplier ?? placeholderData.BuoyancyMultiplier;
 
         /// <summary>
         /// Ship-specific drag multiplier for viscous resistance.
@@ -115,17 +123,19 @@ namespace BetterDrag
         /// <inheritdoc/>
         public readonly bool Equals(ShipDragPerformanceData other)
         {
-            if (LengthAtWaterline != other.LengthAtWaterline)
+            if (lengthAtWaterline != other.lengthAtWaterline)
                 return false;
-            if (FormFactor != other.FormFactor)
+            if (formFactor != other.formFactor)
                 return false;
-            if (ViscousDragMultiplier != other.ViscousDragMultiplier)
+            if (buoyancyMultiplier != other.buoyancyMultiplier)
                 return false;
-            if (WaveMakingDragMultiplier != other.WaveMakingDragMultiplier)
+            if (viscousDragMultiplier != other.viscousDragMultiplier)
                 return false;
-            if (!ReferenceEquals(CalculateViscousDragForce, other.CalculateViscousDragForce))
+            if (waveMakingDragMultiplier != other.waveMakingDragMultiplier)
                 return false;
-            if (!ReferenceEquals(CalculateWaveMakingDragForce, other.CalculateWaveMakingDragForce))
+            if (!ReferenceEquals(calculateViscousDragForce, other.calculateViscousDragForce))
+                return false;
+            if (!ReferenceEquals(calculateWaveMakingDragForce, other.calculateWaveMakingDragForce))
                 return false;
 
             return true;
@@ -147,12 +157,13 @@ namespace BetterDrag
         public readonly override int GetHashCode()
         {
             return HashCode.Combine(
-                LengthAtWaterline,
-                FormFactor,
-                ViscousDragMultiplier,
-                WaveMakingDragMultiplier,
-                CalculateViscousDragForce,
-                CalculateWaveMakingDragForce
+                lengthAtWaterline,
+                formFactor,
+                buoyancyMultiplier,
+                viscousDragMultiplier,
+                waveMakingDragMultiplier,
+                calculateViscousDragForce,
+                calculateWaveMakingDragForce
             );
         }
 
@@ -179,6 +190,7 @@ namespace BetterDrag
                 ", ",
                 $"LWL={this.lengthAtWaterline}",
                 $"FormFactor={this.formFactor}",
+                $"BuoyancyMultiplier={this.buoyancyMultiplier}",
                 $"ViscousDragMultiplier={this.viscousDragMultiplier}",
                 $"WaveMakingDragMultiplier={this.waveMakingDragMultiplier}",
                 $"CalculateViscousDragForce={FuncRepr(this.calculateViscousDragForce)}",
@@ -195,6 +207,8 @@ namespace BetterDrag
             return new ShipDragPerformanceData(
                 lengthAtWaterline: highPriority.lengthAtWaterline ?? lowPriority.lengthAtWaterline,
                 formFactor: highPriority.formFactor ?? lowPriority.formFactor,
+                buoyancyMultiplier: highPriority.buoyancyMultiplier
+                    ?? lowPriority.buoyancyMultiplier,
                 viscousDragMultiplier: highPriority.viscousDragMultiplier
                     ?? lowPriority.viscousDragMultiplier,
                 waveMakingDragMultiplier: highPriority.waveMakingDragMultiplier
@@ -209,6 +223,7 @@ namespace BetterDrag
         internal static readonly ShipDragPerformanceData placeholderData = new(
             lengthAtWaterline: 15f,
             formFactor: 0.15f,
+            buoyancyMultiplier: 0.12f,
             viscousDragMultiplier: 1.0f,
             waveMakingDragMultiplier: 1.0f,
             calculateViscousDragForce: DragModel.CalculateViscousDragForce,
@@ -288,19 +303,19 @@ namespace BetterDrag
         {
             return (shipName) switch
             {
-                "BOAT dhow small (10)" => new(12.76f, 0.25f),
-                "BOAT dhow medium (20)" => new(21.03f, 0.21f),
-                "BOAT medi small (40)" => new(12.39f, 0.24f),
-                "BOAT medi medium (50)" => new(24.83f, 0.19f),
-                "BOAT junk large (70)" => new(29.9f, 0.23f),
-                "BOAT junk medium (80)" => new(21.8f, 0.22f),
-                "BOAT junk small singleroof(90)" => new(11.07f, 0.25f),
-                "BOAT Shroud Small" => new(14.77f, 0.12f),
-                "BOAT Shroud Large" => new(34.56f, 0.12f, 0.85f, 0.9f),
-                "BOAT GLORIANA (182)" => new(24.6f, 0.18f),
-                "BOAT CHRONIAN (187)" => new(36f, 0.20f),
-                "BOAT CAELANOR (192)" => new(18f, 0.26f),
-                "BOAT GALLUS (197)" => new(9.2f, 0.15f),
+                "BOAT dhow small (10)" => new(12.76f, 0.25f, 0.08f),
+                "BOAT dhow medium (20)" => new(21.03f, 0.21f, 0.10f),
+                "BOAT medi small (40)" => new(12.39f, 0.24f, 0.07f),
+                "BOAT medi medium (50)" => new(24.83f, 0.19f, 0.17f),
+                "BOAT junk large (70)" => new(29.9f, 0.23f, 0.11f),
+                "BOAT junk medium (80)" => new(21.8f, 0.22f, 0.09f),
+                "BOAT junk small singleroof(90)" => new(11.07f, 0.23f, 0.09f),
+                "BOAT Shroud Small" => new(14.77f, 0.12f, 0.16f),
+                "BOAT Shroud Large" => new(34.56f, 0.12f, 0.16f, 0.85f, 0.9f),
+                "BOAT GLORIANA (182)" => new(24.6f, 0.18f, 0.09f),
+                "BOAT CHRONIAN (187)" => new(36f, 0.20f, 0.09f),
+                "BOAT CAELANOR (192)" => new(18f, 0.22f, 0.13f),
+                "BOAT GALLUS (197)" => new(9.2f, 0.15f, 0.10f),
                 _ => new(),
             };
         }

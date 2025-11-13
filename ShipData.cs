@@ -26,6 +26,7 @@ namespace BetterDrag
         private float draftOffset;
         private float keelOffset = 1f;
         private float lengthAtWaterline = 15f;
+        private float draftSpanRatio;
         private Vector3 keelPointPosition;
         private Vector3 bowPointPosition;
         private Vector3 sternPointPosition;
@@ -59,7 +60,8 @@ namespace BetterDrag
             float overflowOffset,
             float draftOffset,
             float keelDepth,
-            float lengthAtWaterline
+            float lengthAtWaterline,
+            float draftSpanRatio
         ) GetValues(BoatProbes boatProbes, Rigidbody rigidbody)
         {
             if (!this.valuesSet)
@@ -80,7 +82,8 @@ namespace BetterDrag
                 this.overflowOffset,
                 this.draftOffset,
                 this.keelOffset,
-                this.lengthAtWaterline
+                this.lengthAtWaterline,
+                this.draftSpanRatio
             );
         }
 
@@ -107,7 +110,9 @@ namespace BetterDrag
                 $"valueName={this.shipName}",
                 $"baseBuoyancy={this.baseBuoyancy}",
                 $"overflowOffset={this.overflowOffset}",
-                $"draftOffset={this.draftOffset}"
+                $"draftOffset={this.draftOffset}",
+                $"keelOffset={this.keelOffset}",
+                $"draftSpanRatio={this.draftSpanRatio}"
             );
             return name + "(" + fields + ")";
         }
@@ -133,6 +138,9 @@ namespace BetterDrag
             this.draftOffset = Mathf.Clamp(draftOffset, -1f, 15f);
             this.keelOffset = Mathf.Clamp(-keelPoint.y, 0, 20f);
             this.keelPointPosition = keelPoint;
+            var originalDraftSpan = keelOffset - draftOffset + this.overflowOffset;
+            var fullDraftSpan = keelOffset + this.overflowOffset;
+            this.draftSpanRatio = originalDraftSpan / fullDraftSpan;
 
 #if DEBUG
             BetterDragDebug.LogLinesBuffered(

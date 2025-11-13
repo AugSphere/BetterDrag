@@ -106,7 +106,7 @@ namespace BetterDrag
 
 #if DEBUG
             shipData.DrawAll(____rb.transform, drawHullPoints: true);
-            BetterDragDebug.FlushBuffer(BetterDragDebug.Mode.Line);
+            BetterDragDebug.FlushBuffer(BetterDragDebug.Mode.CSV);
             BetterDragDebug.FinishUpdate();
 #endif
         }
