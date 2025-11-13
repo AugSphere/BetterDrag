@@ -4,8 +4,9 @@ namespace BetterDrag
 {
     internal static class DragModel
     {
-        private const float tuningTotalDragMult = 500.0f;
-        private const float tuningRelativeWaveMakingDragMult = 0.15f;
+        private const float tuningTotalDragMult = 300.0f;
+        private const float tuningRelativeWaveMakingDragMult = 0.3f;
+        private static float g = Mathf.Abs(Physics.gravity.y);
 
         private const float tuningViscousDragMult = tuningTotalDragMult;
         private const float tuningWaveMakingDragMult =
@@ -19,25 +20,19 @@ namespace BetterDrag
             float wettedArea
         )
         {
-            float froudeNumber = absVelocity / Mathf.Sqrt(lengthAtWaterline * 10.0f);
+            float froudeNumber = absVelocity / Mathf.Sqrt(lengthAtWaterline * g);
             float force;
 
 #if DEBUG
             BetterDragDebug.LogCSVBuffered([("Fr", froudeNumber)]);
 #endif
+            if (absVelocity < 1e-4)
+                return 0f;
 
-            if (froudeNumber <= 0.001f)
-            {
-                force = froudeNumber * froudeNumber;
-            }
-            else
-            {
-                froudeNumber += 0.04f;
-                float froudeSquared = froudeNumber * froudeNumber;
-                float forceScaling = 0.5f + 4f / (Mathf.Exp(8f - 20f * froudeNumber) + 1f);
-                float forceOscillation = 2f - Mathf.Cos(1.0f / froudeSquared);
-                force = froudeSquared * forceScaling * forceOscillation;
-            }
+            float forceScaling = (Mathf.Exp(froudeNumber * 10f) - 1f) / 500f;
+            float forceOscillation = 2f + Mathf.Cos(2f * Mathf.PI / froudeNumber);
+            force = forceScaling * forceOscillation;
+
             force *= displacement * tuningWaveMakingDragMult;
             return force;
         }
