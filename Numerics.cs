@@ -1,22 +1,22 @@
 ﻿using System;
+using UnityEngine;
 
 namespace BetterDrag
 {
     internal static class Numerics
     {
-        internal static (float area, float displacement) GetTriangleContribution<T>(
-            (IVector3<T>, IVector3<T>, IVector3<T>) vertices
+        internal static (float area, float displacement) GetTriangleContribution(
+            Vector3 v1,
+            Vector3 v2,
+            Vector3 v3
         )
-            where T : struct
         {
-            var side1 = vertices.Item2.Subtract(vertices.Item1);
-            var side2 = vertices.Item3.Subtract(vertices.Item1);
-            var cross = side1.Cross(side2);
-            var area = cross.Magnitude / 2f;
-            var averageBeam = Math.Abs(
-                (vertices.Item1.X + vertices.Item2.X + vertices.Item3.X) / 3f
-            );
-            var baseArea = Math.Abs(cross.X) / 2f;
+            var side1 = v2 - v1;
+            var side2 = v3 - v1;
+            var cross = Vector3.Cross(side1, side2);
+            var area = cross.magnitude / 2f;
+            var averageBeam = Math.Abs((v1.x + v2.x + v3.x) / 3f);
+            var baseArea = Math.Abs(cross.x) / 2f;
             var displacement = averageBeam * baseArea;
             return (area, displacement);
         }

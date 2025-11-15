@@ -200,9 +200,7 @@ namespace BetterDrag
             if (v1 == sentinelVector || v2 == sentinelVector || v3 == sentinelVector)
                 return;
 
-            var (area, displacement) = Numerics.GetTriangleContribution(
-                (new UnityVector3(v1), new UnityVector3(v2), new UnityVector3(v3))
-            );
+            var (area, displacement) = Numerics.GetTriangleContribution(v1, v2, v3);
             this.wettedAreas[heightIdx + 1] += area;
             this.displacements[heightIdx + 1] += displacement;
         }
