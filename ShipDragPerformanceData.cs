@@ -272,7 +272,7 @@ namespace BetterDrag
             if (userData is not null)
                 mergedData = ShipDragPerformanceData.Merge(userData.Value, mergedData);
 
-#if DEBUG && VERBOSE
+#if DEBUG
             BetterDragDebug.LogLinesBuffered(
                 [
                     $"\nMerging data for: {ship.name}",
@@ -310,8 +310,8 @@ namespace BetterDrag
                 "BOAT junk large (70)" => new(29.9f, 0.23f, 0.11f),
                 "BOAT junk medium (80)" => new(21.8f, 0.22f, 0.09f),
                 "BOAT junk small singleroof(90)" => new(11.07f, 0.23f, 0.09f),
-                "BOAT Shroud Small" => new(14.77f, 0.8f, 0.16f),
-                "BOAT Shroud Large" => new(34.56f, 0.6f, 0.16f),
+                "BOAT Shroud Small" => new(14.77f, 0.8f, 0.16f, 0.9f, 0.95f),
+                "BOAT Shroud Large" => new(34.56f, 0.6f, 0.16f, 0.9f, 0.9f),
                 "BOAT GLORIANA (182)" => new(24.6f, 0.18f, 0.09f),
                 "BOAT CHRONIAN (187)" => new(36f, 0.20f, 0.09f),
                 "BOAT CAELANOR (192)" => new(18f, 0.22f, 0.13f),

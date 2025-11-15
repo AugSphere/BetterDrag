@@ -105,7 +105,7 @@ namespace BetterDrag
             Profiler.LogDurations();
 
 #if DEBUG
-            shipData.DrawAll(____rb.transform, drawHullPoints: true);
+            shipData.DrawAll(____rb.transform, drawHullPoints: false);
             BetterDragDebug.FlushBuffer(BetterDragDebug.Mode.CSV);
             BetterDragDebug.FinishUpdate();
 #endif
