@@ -22,7 +22,6 @@ internal class Plugin : BaseUnityPlugin
 
     internal static new ManualLogSource? Logger;
 
-    internal static ConfigEntry<int>? draftSamplingPeriod;
     internal static ConfigEntry<float>? globalViscousDragMultiplier;
     internal static ConfigEntry<float>? globalWaveMakingDragMultiplier;
     internal static ConfigEntry<float>? globalShipLengthMultiplier;
@@ -37,16 +36,6 @@ internal class Plugin : BaseUnityPlugin
         Logger = base.Logger;
 
         Harmony.CreateAndPatchAll(Assembly.GetExecutingAssembly(), PLUGIN_GUID);
-
-        draftSamplingPeriod = Config.Bind(
-            "--------- Physics configuration ---------",
-            "draftSamplingPeriod",
-            5,
-            new ConfigDescription(
-                "How often ship draft is sampled, in unity fixed updates: 10 means approximately every 5 frames at 40 FPS",
-                new AcceptableValueRange<int>(1, 50)
-            )
-        );
 
         globalViscousDragMultiplier = Config.Bind(
             "--------- Global Multipliers ---------",
