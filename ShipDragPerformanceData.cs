@@ -316,7 +316,7 @@ namespace BetterDrag
                 "BOAT CHRONIAN (187)" => new(36f, 0.20f, 0.09f),
                 "BOAT CAELANOR (192)" => new(18f, 0.22f, 0.13f),
                 "BOAT GALLUS (197)" => new(9.2f, 0.15f, 0.10f),
-                "BOAT Le Requin (131)" => new(36f, 0.10f, 0.10f),
+                "BOAT Le Requin (131)" => new(36.8f, 0.10f, 0.10f),
                 _ => new(),
             };
         }
