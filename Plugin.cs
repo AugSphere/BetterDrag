@@ -18,7 +18,7 @@ internal class Plugin : BaseUnityPlugin
 {
     private const string PLUGIN_GUID = "com.AugSphere.BetterDrag";
     private const string PLUGIN_NAME = "BetterDrag";
-    private const string PLUGIN_VERSION = "1.0.1";
+    private const string PLUGIN_VERSION = "1.1.0";
 
     internal static new ManualLogSource? Logger;
 
