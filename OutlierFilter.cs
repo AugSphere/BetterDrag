@@ -1,15 +1,18 @@
-﻿using System.Text;
+﻿using System.Globalization;
+using System.Text;
 using UnityEngine;
 
 namespace BetterDrag
 {
-    internal class OutlierFilter(string name, float noFilterCutoff)
+    internal class OutlierFilter(string name, float rateLimit, float noFilterCutoff)
     {
-        static readonly uint sampleCount = 16;
-        static readonly float rateLimit = 1.3f;
-        readonly string name = name;
+        const uint sampleCount = 16;
+        readonly float rateLimit = rateLimit;
         readonly float noFilterCutoff = noFilterCutoff;
-        readonly Cache<MemoryBuffer> cache = new(name, (_) => new());
+        readonly Cache<MemoryBuffer> cache = new(name, static (shipObject) => new());
+#if DEBUG && VERBOSE
+        readonly string name = name;
+#endif
 
         public float ClampValue(float value, Rigidbody rigidbody)
         {
@@ -21,7 +24,7 @@ namespace BetterDrag
         {
             float min = float.MaxValue,
                 max = float.MinValue;
-            for (int idx = 0; idx < sampleCount; idx++)
+            for (int idx = 0; idx < sampleCount; ++idx)
             {
                 var sample = buffer[idx];
                 min = Mathf.Min(min, sample);
@@ -51,7 +54,7 @@ namespace BetterDrag
             }
             else
             {
-#if DEBUG
+#if DEBUG && VERBOSE
                 Debug.LogBuffered(
                     $"{this.name}: clipped {value, 10:F02} to {clampedValue, 10:F02}; samples: {buffer}"
                 );
@@ -64,11 +67,11 @@ namespace BetterDrag
         class MemoryBuffer
         {
             readonly float[] buffer = new float[sampleCount];
-            private uint insertionIndex = 0;
+            private uint insertionIndex;
 
-            public float this[int index]
+            public float this[int idx]
             {
-                get { return this.buffer[index]; }
+                get { return this.buffer[idx]; }
             }
 
             public void Insert(float value)
@@ -76,17 +79,21 @@ namespace BetterDrag
                 this.buffer[insertionIndex++ % sampleCount] = value;
             }
 
-            public override string ToString()
+            public sealed override string ToString()
             {
                 var stringBuilder = new StringBuilder();
-                stringBuilder.Append("[");
-                for (int i = 0; i < sampleCount; i++)
+                stringBuilder.Append('[');
+                for (int idx = 0; idx < sampleCount; ++idx)
                 {
-                    stringBuilder.AppendFormat("{0:F2}", this.buffer[i]);
-                    if (i != sampleCount - 1)
+                    stringBuilder.AppendFormat(
+                        CultureInfo.InvariantCulture,
+                        "{0:F2}",
+                        this.buffer[idx]
+                    );
+                    if (idx != sampleCount - 1)
                         stringBuilder.Append(", ");
                 }
-                stringBuilder.Append("]");
+                stringBuilder.Append(']');
                 return stringBuilder.ToString();
             }
         }

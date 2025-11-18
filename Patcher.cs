@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Reflection;
-using System.Runtime.CompilerServices;
 using Crest;
 using HarmonyLib;
 using UnityEngine;
@@ -29,7 +28,7 @@ namespace BetterDrag
             while (addForceCount < 2)
             {
                 if (enumerator.Current.Calls(m_AddForceAtPosition))
-                    addForceCount++;
+                    ++addForceCount;
                 yield return enumerator.Current;
                 enumerator.MoveNext();
             }
@@ -37,7 +36,7 @@ namespace BetterDrag
             while (addForceCount < 3)
             {
                 if (enumerator.Current.Calls(m_AddForceAtPosition))
-                    addForceCount++;
+                    ++addForceCount;
                 enumerator.MoveNext();
             }
 
@@ -49,37 +48,53 @@ namespace BetterDrag
             }
         }
 
-        [HarmonyReversePatch]
-        [HarmonyPatch(typeof(Component), nameof(Component.transform), MethodType.Getter)]
-        [MethodImpl(MethodImplOptions.NoInlining)]
-        static Transform ComponentBaseTransform(BoatProbes _) => null!;
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(BoatProbes), "FixedUpdateBuoyancy")]
+        static bool DropOriginalBuoyancy() => false;
 
         [HarmonyPostfix]
         [HarmonyPatch(typeof(BoatProbes), "FixedUpdateDrag")]
-        static void AddCustomLongitudinalDrag(
+        static void AddCustomPhysics(
             Vector3 waterSurfaceVel,
             BoatProbes __instance,
             Rigidbody ____rb,
             float ____forceHeightOffset,
-            Vector3 ___lastVel
+            Vector3 ___lastVel,
+            Vector3[] ____queryResultDisps,
+            Vector3[] ____queryPoints,
+            float ____totalWeight
         )
         {
             Profiler.RestartClock();
 
-            var transform = ComponentBaseTransform(__instance);
-            Profiler.Profile("transform");
-
             Vector3 bodyVelocity = __instance.dontUpdateVelocity ? ___lastVel : ____rb.velocity;
             Vector3 velocityVector = bodyVelocity - waterSurfaceVel;
             Vector3 dragPositionVector = ____rb.position + ____forceHeightOffset * Vector3.up;
-            var forwardVector = transform.forward;
+            var forwardVector = ____rb.transform.forward;
             var forwardVelocity = Vector3.Dot(forwardVector, velocityVector);
             Profiler.Profile("velocity");
 
-            var signedDragForceMagnitude = PhysicsCalculation.GetDragForceMagnitude(
+            var shipData = ShipData.GetShipData(__instance.gameObject);
+            Profiler.Profile("GetShipData");
+
+            PhysicsCalculation.UpdateBuoyancy(
                 __instance,
                 ____rb,
-                forwardVelocity
+                shipData,
+                ____queryResultDisps,
+                ____queryPoints,
+                ____totalWeight,
+                out var displacement,
+                out var wettedArea
+            );
+            Profiler.Profile("UpdateBuoyancy");
+
+            var signedDragForceMagnitude = PhysicsCalculation.GetDragForceMagnitude(
+                ____rb,
+                shipData,
+                forwardVelocity,
+                displacement,
+                wettedArea
             );
             Profiler.Profile("GetDragForceMagnitude");
 
@@ -88,6 +103,36 @@ namespace BetterDrag
             Profiler.Profile("AddForceAtPosition");
 
             Profiler.LogDurations();
+
+#if DEBUG
+            shipData.DrawAll(____rb.transform, drawHullPoints: false);
+            BetterDragDebug.FlushBuffer(BetterDragDebug.Mode.CSV);
+            BetterDragDebug.FinishUpdate();
+#endif
+        }
+
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(BoatProbes), "Start")]
+        static void BoatProbesStart(BoatProbes __instance, Vector3 ____centerOfMass)
+        {
+            var boatData = ShipData.GetShipData(__instance.gameObject);
+            boatData.SetCenterOfMassHeight(____centerOfMass.y);
+        }
+
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(BoatDamage), "Start")]
+        static void BoatDamageStart(BoatDamage __instance, float ___baseBuoyancy)
+        {
+            __instance.waterDrag = 0f;
+            var boatData = ShipData.GetShipData(__instance.gameObject);
+            boatData.SetBaseBuoyancy(___baseBuoyancy);
+        }
+
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(WaveSplashZone), "Start")]
+        static void WaveSplashZoneStart(WaveSplashZone __instance)
+        {
+            ShipData.CalculateOverflowOffset(__instance);
         }
     }
 }

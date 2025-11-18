@@ -4,11 +4,12 @@ namespace BetterDrag
 {
     internal static class DragModel
     {
-        private static readonly float tuningTotalDragMult = 300.0f;
-        private static readonly float tuningRelativeWaveMakingDragMult = 0.65f;
+        private const float tuningTotalDragMult = 325.0f;
+        private const float tuningRelativeWaveMakingDragMult = 0.25f;
+        private static float g = Mathf.Abs(Physics.gravity.y);
 
-        private static readonly float tuningViscousDragMult = tuningTotalDragMult;
-        private static readonly float tuningWaveMakingDragMult =
+        private const float tuningViscousDragMult = tuningTotalDragMult;
+        private const float tuningWaveMakingDragMult =
             tuningTotalDragMult * tuningRelativeWaveMakingDragMult;
 
         public static float CalculateWaveMakingDragForce(
@@ -19,33 +20,20 @@ namespace BetterDrag
             float wettedArea
         )
         {
-            float froudeNumber = absVelocity / Mathf.Sqrt(lengthAtWaterline * 10.0f);
+            float froudeNumber = absVelocity / Mathf.Sqrt(lengthAtWaterline * g);
             float force;
 
-            if (froudeNumber <= 0.1476)
-            {
-                force = 0.02179f / 0.1476f * froudeNumber;
-            }
-            else
-            {
-                float forceScaling = 1.0f + 1.4f / (Mathf.Exp(18.0f - 40.0f * froudeNumber) + 1.0f);
-                float forceOscillation =
-                    Mathf.Pow(froudeNumber, 2)
-                    * (
-                        2.0f
-                        - Mathf.Sqrt(froudeNumber)
-                            * Mathf.Cos(1.0f / Mathf.Pow(froudeNumber, 2) - 1.9f)
-                    );
-                force = forceScaling * forceOscillation;
-            }
-            force *= displacement * tuningWaveMakingDragMult;
-
 #if DEBUG
-            Debug.LogDragModelBuffered(
-                [$"Froude number: {froudeNumber}", $"Unmodified WM resistance: {force}"]
-            );
+            BetterDragDebug.LogCSVBuffered([("Fr", froudeNumber)]);
 #endif
+            if (absVelocity < 1e-4)
+                return 0f;
 
+            float forceScaling = (Mathf.Exp(froudeNumber * 10f) - 1f) / 500f;
+            float forceOscillation = 2f + Mathf.Cos(2f * Mathf.PI / froudeNumber);
+            force = forceScaling * forceOscillation;
+
+            force *= displacement * tuningWaveMakingDragMult;
             return force;
         }
 
@@ -66,16 +54,11 @@ namespace BetterDrag
             }
             else
             {
-                float coefficient = 0.075f / Mathf.Pow(Mathf.Log10(reynoldsNumber) - 2.0f, 2);
-                force = coefficient * wettedArea * (1.0f + formFactor) * Mathf.Pow(absVelocity, 2);
+                float speedOrder = Mathf.Log10(reynoldsNumber) - 2.0f;
+                float coefficient = 0.075f / (speedOrder * speedOrder);
+                force = coefficient * wettedArea * (1.0f + formFactor) * absVelocity * absVelocity;
                 force *= tuningViscousDragMult;
             }
-
-#if DEBUG
-            Debug.LogDragModelBuffered(
-                [$"Reynolds number: {reynoldsNumber:E2}", $"Unmodified viscous resistance: {force}"]
-            );
-#endif
 
             return force;
         }

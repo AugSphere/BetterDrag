@@ -2,7 +2,9 @@
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using HarmonyLib;
-using UnityEngine.Assertions;
+#if PROFILE
+using System.Globalization;
+#endif
 
 namespace BetterDrag
 {
@@ -12,7 +14,10 @@ namespace BetterDrag
         private static long lastTick;
 
         private static readonly List<string> names = [];
+#if PROFILE
         private static readonly List<long> durations = [];
+#endif
+
         private static bool isOnFirstRun = true;
 
         static Profiler()
@@ -52,9 +57,11 @@ namespace BetterDrag
 #if !PROFILE
             return;
 #else
-            Assert.IsTrue(names.Count == durations.Count);
+            UnityEngine.Debug.Assert(names.Count == durations.Count);
             PrintProfilingHeaderOnce();
-            FileLog.Log(durations.ConvertAll((n) => n.ToString()).Join(delimiter: ","));
+            FileLog.Log(
+                durations.Join((n) => n.ToString(CultureInfo.InvariantCulture), delimiter: ";")
+            );
 #endif
         }
 
@@ -63,7 +70,7 @@ namespace BetterDrag
             if (!isOnFirstRun)
                 return;
             FileLog.Log($"Performance clock frequency {Stopwatch.Frequency}");
-            FileLog.Log(names.Join(delimiter: ","));
+            FileLog.Log(names.Join(delimiter: ";"));
             isOnFirstRun = false;
         }
 

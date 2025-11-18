@@ -1,4 +1,4 @@
-Modifies boat physics to introduce more realistic drag, with the hull's shape
+Modifies ship physics to introduce more realistic drag, with the hull's shape
 and size now affecting longitudinal drag.
 
 # Key features
@@ -7,13 +7,17 @@ and size now affecting longitudinal drag.
 * A simple simulation of wave-making resistance: hull and hump speeds are
   modelled for each hull.
 * Heavily laden ships that sit lower in the water experience more drag.
-* Configurable water drag settings for each ship and globally.
+* An improved buoyancy simulation that uses the hull shape.
+* Configurable water drag and buoyancy settings for each ship and globally.
 
 # Installation
 The mod depends on [BepInEx 5](https://github.com/BepInEx/BepInEx).
 
 After BepInEx is installed, extract the contents of the release archive into
 the `Sailwind\BepInEx\plugins` folder.
+
+This mod does not interact with save files, it can be added or removed at
+any time. No new save or save cleaner is required.
 
 # Configuration
 After launching the game once with the mod installed two configuration files
@@ -23,7 +27,7 @@ settings.
 * `com.AugSphere.BetterDrag.shipdata.json` in the same directory as
 `BetterDrag.dll` allows to override specific ship settings.
 
-Refer to [ShipDragPerformanceData documentation](doc/BetterDrag.ShipDragPerformanceData.md)
+Refer to [ShipDragPerformanceData documentation](doc/ShipDragPerformanceData.md)
 for what the settings mean. Setting custom water drag functions through
 config files is not currently supported.
 
@@ -43,7 +47,7 @@ public class Plugin : BaseUnityPlugin
         BetterDragCompatibility.AddBetterDragData();
 ```
 
-Call [SetCustomPerformance](doc/BetterDrag.ShipDragDataStore.SetCustomPerformance(string,BetterDrag.ShipDragPerformanceData).md)
+Call [SetCustomPerformance](doc/ShipDragConfigManager.SetCustomPerformance(string,Nullable_ShipDragPerformanceData_).md)
 with the name of your ship. Names can be found in
 [this community spreadsheet](https://docs.google.com/spreadsheets/d/12ndyNEJiD8HcoesP820oOKChHkRptmAVZpposfEcEaY/edit?usp=sharing).
 
@@ -75,17 +79,15 @@ internal static class BetterDragCompatibility
         if (!IsEnabled)
             return false;
         BetterDrag.ShipDragPerformanceData.DragForceFunction customViscousDragFunc = 
-            (forwardVelocity, _, _, _, _) => {
-            return forwardVelocity * 100f;
-        };
-        var customData = new BetterDrag.ShipDragPerformanceData()
-        {
-            LengthAtWaterline = 50,
-            CalculateViscousDragForce = customViscousDragFunc,
-        };
+            (forwardVelocity, _, _, _, _) => forwardVelocity * 100f;
+
+        var customData = new BetterDrag.ShipDragPerformanceData(
+            lengthAtWaterline: 50,
+            calculateViscousDragForce: customViscousDragFunc
+        );
 
         var shipName = "BOAT GLORIANA (182)";
-        return BetterDrag.ShipDragDataStore.SetCustomPerformance(shipName, customData);
+        return BetterDrag.ShipDragConfigManager.SetCustomPerformance(shipName, customData);
     }
 }
 ```
