@@ -75,14 +75,12 @@ internal static class BetterDragCompatibility
         if (!IsEnabled)
             return false;
         BetterDrag.ShipDragPerformanceData.DragForceFunction customViscousDragFunc = 
-            (forwardVelocity, _, _, _, _) => {
-            return forwardVelocity * 100f;
-        };
-        var customData = new BetterDrag.ShipDragPerformanceData()
-        {
-            LengthAtWaterline = 50,
-            CalculateViscousDragForce = customViscousDragFunc,
-        };
+            (forwardVelocity, _, _, _, _) => forwardVelocity * 100f;
+
+        var customData = new BetterDrag.ShipDragPerformanceData(
+            lengthAtWaterline: 50,
+            calculateViscousDragForce: customViscousDragFunc
+        );
 
         var shipName = "BOAT GLORIANA (182)";
         return BetterDrag.ShipDragConfigManager.SetCustomPerformance(shipName, customData);
