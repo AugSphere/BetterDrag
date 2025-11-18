@@ -1,4 +1,4 @@
-Modifies boat physics to introduce more realistic drag, with the hull's shape
+Modifies ship physics to introduce more realistic drag, with the hull's shape
 and size now affecting longitudinal drag.
 
 # Key features
@@ -7,13 +7,17 @@ and size now affecting longitudinal drag.
 * A simple simulation of wave-making resistance: hull and hump speeds are
   modelled for each hull.
 * Heavily laden ships that sit lower in the water experience more drag.
-* Configurable water drag settings for each ship and globally.
+* An improved buoyancy simulation that uses the hull shape.
+* Configurable water drag and buoyancy settings for each ship and globally.
 
 # Installation
 The mod depends on [BepInEx 5](https://github.com/BepInEx/BepInEx).
 
 After BepInEx is installed, extract the contents of the release archive into
 the `Sailwind\BepInEx\plugins` folder.
+
+This mod does not interact with save files, it can be added or removed at
+any time. No new save or save cleaner is required.
 
 # Configuration
 After launching the game once with the mod installed two configuration files
