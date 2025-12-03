@@ -105,8 +105,7 @@ namespace BetterDrag
             Profiler.LogDurations();
 
 #if DEBUG
-            shipData.DrawAll(____rb.transform, drawHullPoints: false);
-            BetterDragDebug.FlushBuffer(BetterDragDebug.Mode.CSV);
+            BetterDragDebug.FlushBuffer(BetterDragDebug.Mode.Line);
             BetterDragDebug.FinishUpdate();
 #endif
         }
@@ -115,8 +114,8 @@ namespace BetterDrag
         [HarmonyPatch(typeof(BoatProbes), "Start")]
         static void BoatProbesStart(BoatProbes __instance, Vector3 ____centerOfMass)
         {
-            var boatData = ShipData.GetShipData(__instance.gameObject);
-            boatData.SetCenterOfMassHeight(____centerOfMass.y);
+            var shipData = ShipData.GetShipData(__instance.gameObject);
+            shipData.SetCenterOfMassHeight(____centerOfMass.y);
         }
 
         [HarmonyPostfix]
@@ -124,15 +123,17 @@ namespace BetterDrag
         static void BoatDamageStart(BoatDamage __instance, float ___baseBuoyancy)
         {
             __instance.waterDrag = 0f;
-            var boatData = ShipData.GetShipData(__instance.gameObject);
-            boatData.SetBaseBuoyancy(___baseBuoyancy);
+            var shipData = ShipData.GetShipData(__instance.gameObject);
+            shipData.SetBaseBuoyancy(___baseBuoyancy);
         }
 
         [HarmonyPostfix]
         [HarmonyPatch(typeof(WaveSplashZone), "Start")]
         static void WaveSplashZoneStart(WaveSplashZone __instance)
         {
-            ShipData.CalculateOverflowOffset(__instance);
+            var rigidbody = __instance.GetComponentInParent<Rigidbody>();
+            var shipData = ShipData.GetShipData(rigidbody.gameObject);
+            shipData.CalculateOverflowOffset(rigidbody, __instance);
         }
     }
 }

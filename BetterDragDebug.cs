@@ -85,41 +85,66 @@ namespace BetterDrag
     internal class DebugSphereRenderer
     {
         private static readonly Vector3[] s_UnitSphere = MakeUnitSphere(16);
-        private readonly GameObject gameObject;
-        private readonly float debugLineSize;
-        private readonly float radius;
-        private readonly UnityEngine.Color color;
+        private GameObject gameObject;
         private readonly LineRenderer lineRenderer;
+        private readonly PositionUpdater positionUpdater;
 
         internal DebugSphereRenderer(
-            string? name = null,
+            Rigidbody rigidbody,
+            Vector3 center,
             UnityEngine.Color? color = null,
             float? radius = null,
             float? debugLineSize = null
         )
         {
-            this.gameObject = new GameObject(nameof(DebugSphereRenderer) + "(" + name + ")");
-            this.debugLineSize = debugLineSize ?? 0.1f;
-            this.radius = radius ?? 0.5f;
-            this.color = color ?? UnityEngine.Color.magenta;
-            lineRenderer = gameObject.AddComponent<LineRenderer>();
+            this.gameObject = new GameObject(
+                nameof(DebugSphereRenderer) + "(" + rigidbody.name + ")"
+            );
+            lineRenderer = this.gameObject.AddComponent<LineRenderer>();
             lineRenderer.material = new Material(Shader.Find("Sprites/Default"));
+            lineRenderer.startColor = color ?? UnityEngine.Color.magenta;
+            lineRenderer.endColor = color ?? UnityEngine.Color.magenta;
+            lineRenderer.startWidth = debugLineSize ?? 0.1f;
+            lineRenderer.endWidth = debugLineSize ?? 0.1f;
+            lineRenderer.positionCount = s_UnitSphere.Length;
+            positionUpdater = this.gameObject.AddComponent<PositionUpdater>();
+            positionUpdater.lineRenderer = lineRenderer;
+            positionUpdater.radius = radius ?? 0.5f;
+            positionUpdater.center = center;
+            positionUpdater.rigidbody = rigidbody;
         }
 
-        public void DrawSphere(Vector3 position)
+        private class PositionUpdater : MonoBehaviour
         {
-            lineRenderer.startColor = this.color;
-            lineRenderer.endColor = this.color;
-            lineRenderer.startWidth = this.debugLineSize;
-            lineRenderer.endWidth = this.debugLineSize;
-            lineRenderer.positionCount = s_UnitSphere.Length;
+            public Rigidbody? rigidbody;
+            public float radius;
+            public LineRenderer? lineRenderer;
+            public Vector3 center;
 
-            Vector3[] vertices = new Vector3[s_UnitSphere.Length];
-            for (int idx = 0; idx < s_UnitSphere.Length; ++idx)
+            void Awake()
             {
-                vertices[idx] = position + this.radius * s_UnitSphere[idx];
+                DontDestroyOnLoad(gameObject);
             }
-            lineRenderer.SetPositions(vertices);
+
+            void Update()
+            {
+                if (rigidbody is null)
+                    return;
+                var centerInWorld = rigidbody.transform.TransformPoint(center);
+                SetSpherePositions(centerInWorld);
+            }
+
+            private void SetSpherePositions(Vector3 centerInWorld)
+            {
+                if (lineRenderer is null)
+                    return;
+                Vector3[] vertices = new Vector3[s_UnitSphere.Length];
+                for (int idx = 0; idx < s_UnitSphere.Length; ++idx)
+                {
+                    vertices[idx] = centerInWorld + this.radius * s_UnitSphere[idx];
+                }
+                lineRenderer.SetPositions(vertices);
+            }
         }
 
         private static Vector3[] MakeUnitSphere(int len)

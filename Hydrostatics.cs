@@ -1,4 +1,7 @@
 ﻿using UnityEngine;
+#if DEBUG
+using System.Collections.Generic;
+#endif
 
 namespace BetterDrag
 {
@@ -21,10 +24,7 @@ namespace BetterDrag
         readonly string shipName = shipName;
 
 #if DEBUG
-        readonly DebugSphereRenderer[,] renderers = new DebugSphereRenderer[
-            heightSegmentCount + 1,
-            lengthSegmentCount + 1
-        ];
+        readonly List<DebugSphereRenderer> renderers = [];
 #endif
 
         internal (float area, float displacement)? GetValues(float draft)
@@ -135,14 +135,14 @@ namespace BetterDrag
                         isGettingHits = true;
                         var hitPoint = rigidbody.transform.InverseTransformPoint(hitInfo.point);
                         hullPoints[heightIdx, lengthIdx] = hitPoint;
+#if DEBUG
+                        renderers.Add(new(rigidbody, hitPoint, radius: 0.1f));
+#endif
                     }
                     else
                     {
                         hullPoints[heightIdx, lengthIdx] = sentinelVector;
                     }
-#if DEBUG
-                    renderers[heightIdx, lengthIdx] = new(radius: 0.1f);
-#endif
                 }
             }
             hegithSegmentSize = Mathf.Abs(maxHeight - minHeight) / heightSegmentCount;
@@ -204,22 +204,5 @@ namespace BetterDrag
             this.wettedAreas[heightIdx + 1] += area;
             this.displacements[heightIdx + 1] += displacement;
         }
-
-#if DEBUG
-        internal void DrawHullPoints(Transform transform)
-        {
-            for (int heightIdx = 0; heightIdx < heightSegmentCount; ++heightIdx)
-            {
-                for (int lengthIdx = 0; lengthIdx < lengthSegmentCount; ++lengthIdx)
-                {
-                    var hullPoint = hullPoints[heightIdx, lengthIdx];
-                    if (hullPoint == sentinelVector)
-                        continue;
-                    var worldPoint = transform.TransformPoint(hullPoint);
-                    renderers[heightIdx, lengthIdx].DrawSphere(worldPoint);
-                }
-            }
-        }
-#endif
     }
 }

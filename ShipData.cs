@@ -2,9 +2,6 @@
 using Crest;
 using UnityEngine;
 using static BetterDrag.GeometryQueries;
-#if DEBUG
-using System.Collections.Generic;
-#endif
 
 namespace BetterDrag
 {
@@ -21,7 +18,7 @@ namespace BetterDrag
         );
         private readonly Hydrostatics hydrostatics = new(shipGameObject.name);
         private float baseBuoyancy = 25f;
-        private float overflowOffset = 5f;
+        private float overflowOffset = 10f;
         private float centerOfMassHeight;
         private float draftOffset;
         private float keelOffset = 1f;
@@ -33,21 +30,10 @@ namespace BetterDrag
         private bool valuesSet;
 
 #if DEBUG
-        public DebugSphereRenderer keelRenderer = new(color: Color.red);
-        public DebugSphereRenderer overflowRenderer = new(color: Color.blue);
-        public DebugSphereRenderer bowRenderer = new(color: Color.green);
-        public DebugSphereRenderer sternRenderer = new(color: Color.green);
-        public List<(DebugSphereRenderer renderer, Vector3 position)> sideRenderers = [];
-
-        public void DrawAll(Transform transform, bool drawHullPoints = false)
-        {
-            keelRenderer.DrawSphere(transform.TransformPoint(this.keelPointPosition));
-            overflowRenderer.DrawSphere(transform.TransformPoint(overflowOffset * Vector3.up));
-            bowRenderer.DrawSphere(transform.TransformPoint(this.bowPointPosition));
-            sternRenderer.DrawSphere(transform.TransformPoint(this.sternPointPosition));
-            if (drawHullPoints)
-                hydrostatics.DrawHullPoints(transform);
-        }
+        public DebugSphereRenderer? keelRenderer;
+        public DebugSphereRenderer? overflowRenderer;
+        public DebugSphereRenderer? bowRenderer;
+        public DebugSphereRenderer? sternRenderer;
 #endif
 
         public static ShipData GetShipData(GameObject shipGameObject)
@@ -112,6 +98,7 @@ namespace BetterDrag
                 $"overflowOffset={this.overflowOffset}",
                 $"draftOffset={this.draftOffset}",
                 $"keelOffset={this.keelOffset}",
+                $"lengthAtWaterline={this.lengthAtWaterline}",
                 $"draftSpanRatio={this.draftSpanRatio}"
             );
             return name + "(" + fields + ")";
@@ -149,6 +136,7 @@ namespace BetterDrag
                     $"{rigidbody.name}: set draft offset to {this.draftOffset} from {hitInfo.collider.name}",
                 ]
             );
+            this.keelRenderer = new(rigidbody, keelPoint, Color.red);
 #endif
         }
 
@@ -186,24 +174,25 @@ namespace BetterDrag
             BetterDragDebug.LogLineBuffered(
                 $"{rigidbody.name}: calculated LWL {this.lengthAtWaterline}"
             );
+            this.bowRenderer = new(rigidbody, bowPointPosition, Color.green);
+            this.sternRenderer = new(rigidbody, sternPointPosition, Color.green);
 #endif
         }
 
-        internal static void CalculateOverflowOffset(WaveSplashZone splashZone)
+        internal void CalculateOverflowOffset(Rigidbody rigidbody, WaveSplashZone splashZone)
         {
-            var rigidbody = splashZone.GetComponentInParent<Rigidbody>();
-            var shipData = ShipData.GetShipData(rigidbody.gameObject);
             var worldOverflowPoint =
                 splashZone.transform.position
                 + splashZone.transform.TransformDirection(Vector3.up) * splashZone.verticalOffset;
             var bodyOffset = rigidbody.transform.InverseTransformPoint(worldOverflowPoint).y;
 
-            shipData.overflowOffset = Mathf.Min(shipData.overflowOffset, bodyOffset);
+            this.overflowOffset = Mathf.Min(this.overflowOffset, bodyOffset);
 
 #if DEBUG
             BetterDragDebug.LogLineBuffered(
-                $"{rigidbody.name}: set overflow offset to {shipData.overflowOffset}"
+                $"{rigidbody.name}: set overflow offset to {this.overflowOffset}"
             );
+            this.overflowRenderer = new(rigidbody, new(0, bodyOffset, 0), Color.blue);
 #endif
         }
     }
