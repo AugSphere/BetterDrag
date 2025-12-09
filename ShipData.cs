@@ -68,6 +68,11 @@ namespace BetterDrag
                     this.keelPointPosition
                 );
                 this.hydrostatics.BuildTables();
+                this.hydrostatics.UpdateProbePositions(
+                    boatProbes,
+                    this.bowPointPosition,
+                    this.sternPointPosition
+                );
 #if DEBUG
                 this.SetupProbeRenderers(boatProbes);
 #endif
