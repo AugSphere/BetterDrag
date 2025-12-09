@@ -2,6 +2,9 @@
 using Crest;
 using UnityEngine;
 using static BetterDrag.GeometryQueries;
+#if DEBUG
+using System.Collections.Generic;
+#endif
 
 namespace BetterDrag
 {
@@ -12,7 +15,8 @@ namespace BetterDrag
             static (gameObject) => new(gameObject)
         );
 
-        public readonly string shipName = shipGameObject.name;
+        private readonly string shipName = shipGameObject.name;
+        private readonly Rigidbody rigidbody = shipGameObject.GetComponent<Rigidbody>();
         public readonly ShipDragPerformanceData dragData = ShipDragConfigManager.GetPerformanceData(
             shipGameObject
         );
@@ -34,6 +38,9 @@ namespace BetterDrag
         public DebugSphereRenderer? overflowRenderer;
         public DebugSphereRenderer? bowRenderer;
         public DebugSphereRenderer? sternRenderer;
+        public DebugSphereRenderer? comRenderer;
+        public DebugSphereRenderer? rbComRenderer;
+        public List<DebugVectorRenderer> depthProbeRenderers = [];
 #endif
 
         public static ShipData GetShipData(GameObject shipGameObject)
@@ -48,12 +55,12 @@ namespace BetterDrag
             float keelDepth,
             float lengthAtWaterline,
             float draftSpanRatio
-        ) GetValues(BoatProbes boatProbes, Rigidbody rigidbody)
+        ) GetValues(BoatProbes boatProbes)
         {
             if (!this.valuesSet)
             {
-                this.CalculateDraftOffset(boatProbes, rigidbody);
-                this.CalculateLWL(rigidbody);
+                this.CalculateDraftOffset(boatProbes);
+                this.CalculateLWL();
                 this.hydrostatics.CastHullRays(
                     rigidbody,
                     this.bowPointPosition,
@@ -61,6 +68,9 @@ namespace BetterDrag
                     this.keelPointPosition
                 );
                 this.hydrostatics.BuildTables();
+#if DEBUG
+                this.SetupProbeRenderers(boatProbes);
+#endif
                 valuesSet = true;
             }
             return (
@@ -78,9 +88,20 @@ namespace BetterDrag
             return this.hydrostatics.GetValues(draft);
         }
 
-        internal void SetCenterOfMassHeight(float centerOfMassHeight)
+        internal void SetCenterOfMass(Vector3 centerOfMass)
         {
-            this.centerOfMassHeight = centerOfMassHeight;
+            this.centerOfMassHeight = centerOfMass.y;
+#if DEBUG
+            this.comRenderer = new(this.rigidbody, centerOfMass, Color.cyan, 0.6f);
+            this.rbComRenderer = new(
+                this.rigidbody,
+                Vector3.zero,
+                Color.white,
+                2f,
+                0.4f,
+                relativeToCoM: true
+            );
+#endif
         }
 
         internal void SetBaseBuoyancy(float baseBuoyancy)
@@ -104,7 +125,7 @@ namespace BetterDrag
             return name + "(" + fields + ")";
         }
 
-        private void CalculateDraftOffset(BoatProbes boatProbes, Rigidbody rigidbody)
+        private void CalculateDraftOffset(BoatProbes boatProbes)
         {
             var originPoint = Vector3.down * GeometryQueries.defaultOriginOffset;
             var targetPoint = Vector3.zero;
@@ -140,7 +161,7 @@ namespace BetterDrag
 #endif
         }
 
-        private void CalculateLWL(Rigidbody rigidbody)
+        private void CalculateLWL()
         {
             var fullSpan = this.keelOffset + this.overflowOffset;
             var lwlHeight = -this.keelOffset + 0.5f * fullSpan;
@@ -179,21 +200,38 @@ namespace BetterDrag
 #endif
         }
 
-        internal void CalculateOverflowOffset(Rigidbody rigidbody, WaveSplashZone splashZone)
+        internal void CalculateOverflowOffset(WaveSplashZone splashZone)
         {
             var worldOverflowPoint =
                 splashZone.transform.position
                 + splashZone.transform.TransformDirection(Vector3.up) * splashZone.verticalOffset;
-            var bodyOffset = rigidbody.transform.InverseTransformPoint(worldOverflowPoint).y;
+            var bodyOffset = this.rigidbody.transform.InverseTransformPoint(worldOverflowPoint).y;
 
             this.overflowOffset = Mathf.Min(this.overflowOffset, bodyOffset);
 
 #if DEBUG
             BetterDragDebug.LogLineBuffered(
-                $"{rigidbody.name}: set overflow offset to {this.overflowOffset}"
+                $"{this.rigidbody.name}: set overflow offset to {this.overflowOffset}"
             );
-            this.overflowRenderer = new(rigidbody, new(0, bodyOffset, 0), Color.blue);
+            this.overflowRenderer = new(this.rigidbody, new(0, bodyOffset, 0), Color.blue);
 #endif
         }
+
+#if DEBUG
+        private void SetupProbeRenderers(BoatProbes boatProbes)
+        {
+            for (int idx = 0; idx < boatProbes._forcePoints.Length; ++idx)
+            {
+                this.depthProbeRenderers.Add(
+                    new(
+                        this.rigidbody,
+                        boatProbes._forcePoints[idx]._offsetPosition
+                            + new Vector3(0f, this.centerOfMassHeight, 0f),
+                        Vector3.up
+                    )
+                );
+            }
+        }
+#endif
     }
 }

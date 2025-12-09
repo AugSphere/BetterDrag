@@ -115,7 +115,7 @@ namespace BetterDrag
         static void BoatProbesStart(BoatProbes __instance, Vector3 ____centerOfMass)
         {
             var shipData = ShipData.GetShipData(__instance.gameObject);
-            shipData.SetCenterOfMassHeight(____centerOfMass.y);
+            shipData.SetCenterOfMass(____centerOfMass);
         }
 
         [HarmonyPostfix]
@@ -133,7 +133,7 @@ namespace BetterDrag
         {
             var rigidbody = __instance.GetComponentInParent<Rigidbody>();
             var shipData = ShipData.GetShipData(rigidbody.gameObject);
-            shipData.CalculateOverflowOffset(rigidbody, __instance);
+            shipData.CalculateOverflowOffset(__instance);
         }
     }
 }

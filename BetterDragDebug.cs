@@ -91,10 +91,11 @@ namespace BetterDrag
 
         internal DebugSphereRenderer(
             Rigidbody rigidbody,
-            Vector3 center,
+            Vector3 origin,
             UnityEngine.Color? color = null,
-            float? radius = null,
-            float? debugLineSize = null
+            float radius = 0.5f,
+            float debugLineSize = 0.1f,
+            bool relativeToCoM = false
         )
         {
             this.gameObject = new GameObject(
@@ -104,14 +105,15 @@ namespace BetterDrag
             lineRenderer.material = new Material(Shader.Find("Sprites/Default"));
             lineRenderer.startColor = color ?? UnityEngine.Color.magenta;
             lineRenderer.endColor = color ?? UnityEngine.Color.magenta;
-            lineRenderer.startWidth = debugLineSize ?? 0.1f;
-            lineRenderer.endWidth = debugLineSize ?? 0.1f;
+            lineRenderer.startWidth = debugLineSize;
+            lineRenderer.endWidth = debugLineSize;
             lineRenderer.positionCount = s_UnitSphere.Length;
             positionUpdater = this.gameObject.AddComponent<PositionUpdater>();
             positionUpdater.lineRenderer = lineRenderer;
-            positionUpdater.radius = radius ?? 0.5f;
-            positionUpdater.center = center;
+            positionUpdater.radius = radius;
+            positionUpdater.origin = origin;
             positionUpdater.rigidbody = rigidbody;
+            positionUpdater.relativeToCoM = relativeToCoM;
         }
 
         private class PositionUpdater : MonoBehaviour
@@ -119,7 +121,8 @@ namespace BetterDrag
             public Rigidbody? rigidbody;
             public float radius;
             public LineRenderer? lineRenderer;
-            public Vector3 center;
+            public Vector3 origin;
+            public bool relativeToCoM;
 
             void Awake()
             {
@@ -130,18 +133,20 @@ namespace BetterDrag
             {
                 if (rigidbody is null)
                     return;
-                var centerInWorld = rigidbody.transform.TransformPoint(center);
-                SetSpherePositions(centerInWorld);
+                var originInWorld = rigidbody.transform.TransformPoint(
+                    origin + (relativeToCoM ? 1f : 0f) * rigidbody.centerOfMass
+                );
+                SetSpherePositions(originInWorld);
             }
 
-            private void SetSpherePositions(Vector3 centerInWorld)
+            private void SetSpherePositions(Vector3 originInWorld)
             {
                 if (lineRenderer is null)
                     return;
                 Vector3[] vertices = new Vector3[s_UnitSphere.Length];
                 for (int idx = 0; idx < s_UnitSphere.Length; ++idx)
                 {
-                    vertices[idx] = centerInWorld + this.radius * s_UnitSphere[idx];
+                    vertices[idx] = originInWorld + this.radius * s_UnitSphere[idx];
                 }
                 lineRenderer.SetPositions(vertices);
             }
@@ -161,6 +166,68 @@ namespace BetterDrag
                 vertices[2 * len + i] = new(s, 0, c);
             }
             return vertices;
+        }
+    }
+
+    internal class DebugVectorRenderer
+    {
+        private GameObject gameObject;
+        private readonly LineRenderer lineRenderer;
+        private readonly PositionUpdater positionUpdater;
+
+        internal DebugVectorRenderer(
+            Rigidbody rigidbody,
+            Vector3 origin,
+            Vector3 direction,
+            float? debugLineSize = null
+        )
+        {
+            this.gameObject = new GameObject(
+                nameof(DebugSphereRenderer) + "(" + rigidbody.name + ")"
+            );
+            lineRenderer = this.gameObject.AddComponent<LineRenderer>();
+            lineRenderer.material = new Material(Shader.Find("Sprites/Default"));
+            lineRenderer.startWidth = debugLineSize ?? 0.25f;
+            lineRenderer.endWidth = debugLineSize ?? 0.25f;
+            lineRenderer.positionCount = 2;
+            positionUpdater = this.gameObject.AddComponent<PositionUpdater>();
+            positionUpdater.lineRenderer = lineRenderer;
+            positionUpdater.rigidbody = rigidbody;
+            positionUpdater.origin = origin;
+            positionUpdater.direction = direction;
+        }
+
+        internal void SetMagnitude(float magnitude)
+        {
+            this.positionUpdater.magnitude = magnitude;
+        }
+
+        private class PositionUpdater : MonoBehaviour
+        {
+            public Rigidbody? rigidbody;
+            public LineRenderer? lineRenderer;
+            public Vector3 origin;
+            public Vector3 direction;
+            public float magnitude;
+
+            void Awake()
+            {
+                DontDestroyOnLoad(gameObject);
+            }
+
+            void Update()
+            {
+                if (rigidbody is null || lineRenderer is null)
+                    return;
+                var originInWorld = rigidbody.transform.TransformPoint(origin);
+                var directionInWorld = rigidbody.transform.TransformDirection(direction);
+                var color = magnitude < 0 ? UnityEngine.Color.red : UnityEngine.Color.green;
+                lineRenderer.startColor = color;
+                lineRenderer.endColor = color;
+                lineRenderer.SetPositions(
+                    [originInWorld, originInWorld + directionInWorld * magnitude]
+                );
+            }
         }
     }
 }
