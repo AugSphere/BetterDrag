@@ -111,6 +111,13 @@ namespace BetterDrag
         }
 
         [HarmonyPostfix]
+        [HarmonyPatch(typeof(BoatMass), nameof(BoatMass.UpdateMass))]
+        static void UpdateMass(Rigidbody ___body)
+        {
+            ___body.mass = ___body.mass * Plugin.globalMassMultiplier!.Value;
+        }
+
+        [HarmonyPostfix]
         [HarmonyPatch(typeof(BoatProbes), "Start")]
         static void BoatProbesStart(BoatProbes __instance, Vector3 ____centerOfMass)
         {
