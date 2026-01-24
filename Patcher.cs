@@ -112,9 +112,10 @@ namespace BetterDrag
 
         [HarmonyPostfix]
         [HarmonyPatch(typeof(BoatMass), nameof(BoatMass.UpdateMass))]
-        static void UpdateMass(Rigidbody ___body)
+        static void UpdateMass(Rigidbody ___body, float ___selfMass, float ___partsMass)
         {
-            ___body.mass = ___body.mass * Plugin.globalMassMultiplier!.Value;
+            ___body.mass +=
+                (___selfMass + ___partsMass) * (Plugin.globalMassMultiplier!.Value - 1f);
         }
 
         [HarmonyPostfix]
