@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.Serialization;
 using UnityEngine;
 using static BetterDrag.ShipDragPerformanceData;
 #if DEBUG
@@ -19,7 +20,7 @@ namespace BetterDrag
     /// All units are metric. Unit reference: cog's LWL is approximately 12.39m.
     /// </para>
     /// </summary>
-    [Serializable]
+    [DataContract]
     public readonly struct ShipDragPerformanceData(
         float? lengthAtWaterline = null,
         float? formFactor = null,
@@ -31,11 +32,22 @@ namespace BetterDrag
         DragForceFunction? calculateWaveMakingDragForce = null
     ) : IEquatable<ShipDragPerformanceData>
     {
+        [DataMember(EmitDefaultValue = false, IsRequired = false)]
         private readonly float? lengthAtWaterline = lengthAtWaterline;
+
+        [DataMember(EmitDefaultValue = false, IsRequired = false)]
         private readonly float? formFactor = formFactor;
+
+        [DataMember(EmitDefaultValue = false, IsRequired = false)]
         private readonly float? buoyancyMultiplier = buoyancyMultiplier;
+
+        [DataMember(EmitDefaultValue = false, IsRequired = false)]
         private readonly float? massMultiplier = massMultiplier;
+
+        [DataMember(EmitDefaultValue = false, IsRequired = false)]
         private readonly float? viscousDragMultiplier = viscousDragMultiplier;
+
+        [DataMember(EmitDefaultValue = false, IsRequired = false)]
         private readonly float? waveMakingDragMultiplier = waveMakingDragMultiplier;
 
         [NonSerialized]
