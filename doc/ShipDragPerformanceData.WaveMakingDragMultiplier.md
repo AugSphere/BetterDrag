@@ -2,7 +2,7 @@
 
 ## ShipDragPerformanceData\.WaveMakingDragMultiplier Property
 
-Ship\-specific drag multippier for wave\-making resistance\.
+Ship\-specific drag multiplier for wave\-making resistance\.
 
 ```csharp
 public float WaveMakingDragMultiplier { get; }

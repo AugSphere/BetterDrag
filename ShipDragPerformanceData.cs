@@ -58,7 +58,7 @@ namespace BetterDrag
             calculateWaveMakingDragForce;
 
         /// <summary>
-        /// Length of the hull at waterline in metres.
+        /// Length of the hull at waterline in meters.
         /// </summary>
         public readonly float LengthAtWaterline =>
             this.lengthAtWaterline ?? placeholderData.LengthAtWaterline;
@@ -76,7 +76,7 @@ namespace BetterDrag
         public readonly float FormFactor => this.formFactor ?? placeholderData.FormFactor;
 
         /// <summary>
-        /// Ship-specific buoyancy multippier.
+        /// Ship-specific buoyancy multiplier.
         /// </summary>
         public readonly float BuoyancyMultiplier =>
             this.buoyancyMultiplier ?? placeholderData.BuoyancyMultiplier;
@@ -94,7 +94,7 @@ namespace BetterDrag
             this.viscousDragMultiplier ?? placeholderData.ViscousDragMultiplier;
 
         /// <summary>
-        /// Ship-specific drag multippier for wave-making resistance.
+        /// Ship-specific drag multiplier for wave-making resistance.
         /// </summary>
         public readonly float WaveMakingDragMultiplier =>
             this.waveMakingDragMultiplier ?? placeholderData.WaveMakingDragMultiplier;
@@ -102,8 +102,8 @@ namespace BetterDrag
         /// <summary>
         /// Custom force function type.
         /// </summary>
-        /// <param name="forwardVelocity">Absolute forward component of ship velocity in default unity metres/second.</param>
-        /// <param name="lengthAtWaterline">Length at waterline in metres. Specified in ship's configuration.</param>
+        /// <param name="forwardVelocity">Absolute forward component of ship velocity in default unity meters/second.</param>
+        /// <param name="lengthAtWaterline">Length at waterline in meters. Specified in ship's configuration.</param>
         /// <param name="formFactor">Form factor of the ship. Specified in ship's configuration.</param>
         /// <param name="displacement">Ship's displacement in m^3. Calculated by the mod.</param>
         /// <param name="wettedArea">Ship's wetted surface area in m^2. Calculated by the mod.</param>
@@ -270,8 +270,8 @@ namespace BetterDrag
         /// <para>Existing data is overwritten.</para>
         /// </summary>
         /// <param name="shipName">The name of the ship object. Can be found in a <see  href="https://docs.google.com/spreadsheets/d/12ndyNEJiD8HcoesP820oOKChHkRptmAVZpposfEcEaY/edit?usp=sharing">community spreadsheet</see>.</param>
-        /// <param name="data">Ship's peformance overrides.</param>
-        /// <returns><c>true</c> if custom performace was successfully set.</returns>
+        /// <param name="data">Ship's performance overrides.</param>
+        /// <returns><c>true</c> if custom performance was successfully set.</returns>
         public static bool SetCustomPerformance(string? shipName, ShipDragPerformanceData? data)
         {
             if (shipName is null || data is null)

@@ -2,7 +2,7 @@
 
 ## ShipDragPerformanceData\.LengthAtWaterline Property
 
-Length of the hull at waterline in metres\.
+Length of the hull at waterline in meters\.
 
 ```csharp
 public float LengthAtWaterline { get; }

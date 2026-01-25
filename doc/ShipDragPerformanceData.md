@@ -21,14 +21,14 @@ Implements [System\.IEquatable&lt;](https://learn.microsoft.com/en-us/dotnet/api
 
 | Properties | |
 | :--- | :--- |
-| [BuoyancyMultiplier](ShipDragPerformanceData.BuoyancyMultiplier.md 'BetterDrag\.ShipDragPerformanceData\.BuoyancyMultiplier') | Ship\-specific buoyancy multippier\. |
+| [BuoyancyMultiplier](ShipDragPerformanceData.BuoyancyMultiplier.md 'BetterDrag\.ShipDragPerformanceData\.BuoyancyMultiplier') | Ship\-specific buoyancy multiplier\. |
 | [CalculateViscousDragForce](ShipDragPerformanceData.CalculateViscousDragForce.md 'BetterDrag\.ShipDragPerformanceData\.CalculateViscousDragForce') | An optional custom viscous drag force curve as a function of velocity and ship characteristics\.   Input speed is non-negative in m/s (around 5 for 10 chip log knots), typical outputs are on the order of 500 for a small ship at 5m/s. |
 | [CalculateWaveMakingDragForce](ShipDragPerformanceData.CalculateWaveMakingDragForce.md 'BetterDrag\.ShipDragPerformanceData\.CalculateWaveMakingDragForce') | Same as [CalculateViscousDragForce](ShipDragPerformanceData.CalculateViscousDragForce.md 'BetterDrag\.ShipDragPerformanceData\.CalculateViscousDragForce'), but for wave\-making drag\. |
 | [FormFactor](ShipDragPerformanceData.FormFactor.md 'BetterDrag\.ShipDragPerformanceData\.FormFactor') | Form factor of the hull for ITTC 57 friction line\.    Represents additional drag caused by a ship's hull form compared to a flat plate of the same wetted surface area.  Typical values range from 0.05 to 0.30, higher means more resistance. |
-| [LengthAtWaterline](ShipDragPerformanceData.LengthAtWaterline.md 'BetterDrag\.ShipDragPerformanceData\.LengthAtWaterline') | Length of the hull at waterline in metres\. |
+| [LengthAtWaterline](ShipDragPerformanceData.LengthAtWaterline.md 'BetterDrag\.ShipDragPerformanceData\.LengthAtWaterline') | Length of the hull at waterline in meters\. |
 | [MassMultiplier](ShipDragPerformanceData.MassMultiplier.md 'BetterDrag\.ShipDragPerformanceData\.MassMultiplier') | Ship\-specific mass multiplier\. |
 | [ViscousDragMultiplier](ShipDragPerformanceData.ViscousDragMultiplier.md 'BetterDrag\.ShipDragPerformanceData\.ViscousDragMultiplier') | Ship\-specific drag multiplier for viscous resistance\. |
-| [WaveMakingDragMultiplier](ShipDragPerformanceData.WaveMakingDragMultiplier.md 'BetterDrag\.ShipDragPerformanceData\.WaveMakingDragMultiplier') | Ship\-specific drag multippier for wave\-making resistance\. |
+| [WaveMakingDragMultiplier](ShipDragPerformanceData.WaveMakingDragMultiplier.md 'BetterDrag\.ShipDragPerformanceData\.WaveMakingDragMultiplier') | Ship\-specific drag multiplier for wave\-making resistance\. |
 
 | Methods | |
 | :--- | :--- |
