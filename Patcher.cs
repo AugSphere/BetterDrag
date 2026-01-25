@@ -114,8 +114,10 @@ namespace BetterDrag
         [HarmonyPatch(typeof(BoatMass), nameof(BoatMass.UpdateMass))]
         static void UpdateMass(Rigidbody ___body, float ___selfMass, float ___partsMass)
         {
+            var shipData = ShipData.GetShipData(___body.gameObject);
             ___body.mass +=
-                (___selfMass + ___partsMass) * (Plugin.globalMassMultiplier!.Value - 1f);
+                (___selfMass + ___partsMass)
+                * (Plugin.globalMassMultiplier!.Value * shipData.dragData.MassMultiplier - 1f);
         }
 
         [HarmonyPostfix]

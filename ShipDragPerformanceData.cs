@@ -24,6 +24,7 @@ namespace BetterDrag
         float? lengthAtWaterline = null,
         float? formFactor = null,
         float? buoyancyMultiplier = null,
+        float? massMultiplier = null,
         float? viscousDragMultiplier = null,
         float? waveMakingDragMultiplier = null,
         DragForceFunction? calculateViscousDragForce = null,
@@ -33,6 +34,7 @@ namespace BetterDrag
         private readonly float? lengthAtWaterline = lengthAtWaterline;
         private readonly float? formFactor = formFactor;
         private readonly float? buoyancyMultiplier = buoyancyMultiplier;
+        private readonly float? massMultiplier = massMultiplier;
         private readonly float? viscousDragMultiplier = viscousDragMultiplier;
         private readonly float? waveMakingDragMultiplier = waveMakingDragMultiplier;
 
@@ -66,6 +68,12 @@ namespace BetterDrag
         /// </summary>
         public readonly float BuoyancyMultiplier =>
             this.buoyancyMultiplier ?? placeholderData.BuoyancyMultiplier;
+
+        /// <summary>
+        /// Ship-specific mass multiplier.
+        /// </summary>
+        public readonly float MassMultiplier =>
+            this.massMultiplier ?? placeholderData.MassMultiplier;
 
         /// <summary>
         /// Ship-specific drag multiplier for viscous resistance.
@@ -129,6 +137,8 @@ namespace BetterDrag
                 return false;
             if (buoyancyMultiplier != other.buoyancyMultiplier)
                 return false;
+            if (massMultiplier != other.massMultiplier)
+                return false;
             if (viscousDragMultiplier != other.viscousDragMultiplier)
                 return false;
             if (waveMakingDragMultiplier != other.waveMakingDragMultiplier)
@@ -160,6 +170,7 @@ namespace BetterDrag
                 lengthAtWaterline,
                 formFactor,
                 buoyancyMultiplier,
+                massMultiplier,
                 viscousDragMultiplier,
                 waveMakingDragMultiplier,
                 calculateViscousDragForce,
@@ -191,6 +202,7 @@ namespace BetterDrag
                 $"LWL={this.lengthAtWaterline}",
                 $"FormFactor={this.formFactor}",
                 $"BuoyancyMultiplier={this.buoyancyMultiplier}",
+                $"MassMultiplier={this.massMultiplier}",
                 $"ViscousDragMultiplier={this.viscousDragMultiplier}",
                 $"WaveMakingDragMultiplier={this.waveMakingDragMultiplier}",
                 $"CalculateViscousDragForce={FuncRepr(this.calculateViscousDragForce)}",
@@ -209,6 +221,7 @@ namespace BetterDrag
                 formFactor: highPriority.formFactor ?? lowPriority.formFactor,
                 buoyancyMultiplier: highPriority.buoyancyMultiplier
                     ?? lowPriority.buoyancyMultiplier,
+                massMultiplier: highPriority.massMultiplier ?? lowPriority.massMultiplier,
                 viscousDragMultiplier: highPriority.viscousDragMultiplier
                     ?? lowPriority.viscousDragMultiplier,
                 waveMakingDragMultiplier: highPriority.waveMakingDragMultiplier
@@ -224,6 +237,7 @@ namespace BetterDrag
             lengthAtWaterline: 15f,
             formFactor: 0.15f,
             buoyancyMultiplier: 0.12f,
+            massMultiplier: 1f,
             viscousDragMultiplier: 1.0f,
             waveMakingDragMultiplier: 1.0f,
             calculateViscousDragForce: DragModel.CalculateViscousDragForce,
