@@ -5,6 +5,7 @@ using System.Reflection;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Json;
 using System.Text;
+using System.Xml;
 using BepInEx;
 using BepInEx.Configuration;
 using BepInEx.Logging;
@@ -123,8 +124,17 @@ internal class Plugin : BaseUnityPlugin
 
             Logger!.LogInfo($"Read user ship configurations from {PLUGIN_GUID}.shipdata.json");
         }
-        catch (Exception e) when (e is FileNotFoundException || e is SerializationException)
+        catch (Exception e)
+            when (e is FileNotFoundException
+                || e is SerializationException
+                || e.InnerException is XmlException
+            )
         {
+            if (e is FileNotFoundException)
+                Logger!.LogWarning($"No configuration file found at {filePath}");
+            else
+                Logger!.LogError($"Invalid JSON formatting of {filePath}");
+
             shipOverrides["BOAT Example 1"] = new ShipDragPerformanceData(lengthAtWaterline: 5f);
             shipOverrides["BOAT Example 2"] = new ShipDragPerformanceData(
                 formFactor: 1.23f,
