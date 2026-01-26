@@ -25,7 +25,9 @@ will be created:
 * `Sailwind\BepInEx\config\com.AugSphere.BetterDrag.cfg` holds global mod
 settings.
 * `com.AugSphere.BetterDrag.shipdata.json` in the same directory as
-`BetterDrag.dll` allows to override specific ship settings.
+`BetterDrag.dll` allows to override settings for individual ships. Ship names from
+[the community spreadsheet](https://docs.google.com/spreadsheets/d/12ndyNEJiD8HcoesP820oOKChHkRptmAVZpposfEcEaY/edit?usp=sharing)
+are used to select the ships to modify.
 
 Refer to [ShipDragPerformanceData documentation](doc/ShipDragPerformanceData.md)
 for what the settings mean. Setting custom water drag functions through
