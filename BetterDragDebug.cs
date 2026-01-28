@@ -116,6 +116,12 @@ namespace BetterDrag
             positionUpdater.relativeToCoM = relativeToCoM;
         }
 
+        internal void SetColor(Color color)
+        {
+            lineRenderer.startColor = color;
+            lineRenderer.endColor = color;
+        }
+
         private class PositionUpdater : MonoBehaviour
         {
             public Rigidbody? rigidbody;

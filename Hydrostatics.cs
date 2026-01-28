@@ -1,8 +1,5 @@
 ﻿using Crest;
 using UnityEngine;
-#if DEBUG
-using System.Collections.Generic;
-#endif
 
 namespace BetterDrag
 {
@@ -19,8 +16,8 @@ namespace BetterDrag
             heightSegmentCount + 1,
             lengthSegmentCount + 1
         ];
-        readonly float[] displacements = new float[heightSegmentCount + 1];
-        readonly float[] wettedAreas = new float[heightSegmentCount + 1];
+        readonly float[,] displacements = new float[probeLengthPositions, heightSegmentCount + 1];
+        readonly float[,] wettedAreas = new float[probeLengthPositions, heightSegmentCount + 1];
         readonly float[] beamLengths = new float[lengthSegmentCount + 1];
         float lengthSegmentSize;
         float heightSegmentSize;
@@ -29,10 +26,22 @@ namespace BetterDrag
         readonly string shipName = shipName;
 
 #if DEBUG
-        readonly List<DebugSphereRenderer> renderers = [];
+        static readonly Color[] colorList =
+        [
+            Color.white,
+            Color.gray,
+            Color.black,
+            Color.blue,
+            Color.red,
+            Color.green,
+        ];
+        readonly DebugSphereRenderer?[,] renderers = new DebugSphereRenderer?[
+            heightSegmentCount + 1,
+            lengthSegmentCount + 1
+        ];
 #endif
 
-        internal (float area, float displacement)? GetValues(float draft)
+        internal (float area, float displacement)? GetValues(int probeIdx, float draft)
         {
             if (!isTableFilled)
             {
@@ -48,21 +57,22 @@ namespace BetterDrag
                 Mathf.Clamp01(draft / Hydrostatics.maxHeight) * heightSegmentCount;
             var heightSegmentFloor = (int)heightSegmentFloat;
             var heightSegmentFraction = heightSegmentFloat % 1f;
+            var halfProbeIdx = probeIdx / 2;
             if (heightSegmentFloor == heightSegmentCount)
             {
                 return (
-                    wettedAreas[heightSegmentCount] * 2f,
-                    displacements[heightSegmentCount] * 2f
+                    wettedAreas[halfProbeIdx, heightSegmentCount] * 2f,
+                    displacements[halfProbeIdx, heightSegmentCount] * 2f
                 );
             }
             var area = Mathf.Lerp(
-                wettedAreas[heightSegmentFloor],
-                wettedAreas[heightSegmentFloor + 1],
+                wettedAreas[halfProbeIdx, heightSegmentFloor],
+                wettedAreas[halfProbeIdx, heightSegmentFloor + 1],
                 heightSegmentFraction
             );
             var displacement = Mathf.Lerp(
-                displacements[heightSegmentFloor],
-                displacements[heightSegmentFloor + 1],
+                displacements[halfProbeIdx, heightSegmentFloor],
+                displacements[halfProbeIdx, heightSegmentFloor + 1],
                 heightSegmentFraction
             );
             return (area * 2f, displacement * 2f);
@@ -119,15 +129,14 @@ namespace BetterDrag
 
         internal float? GetBeam(float rigidBodyZ)
         {
-            if (!isTableFilled)
+            if (!this.isRayCast)
             {
 #if DEBUG
-
                 BetterDragDebug.LogLineBuffered(
-                    "Trying to get a value from hydrostatic tables before they are built."
+                    "Trying to get beam values before finding hull, aborting."
                 );
-                return null;
 #endif
+                return null;
             }
             var lengthSegmentFloat =
                 Mathf.Clamp01((rigidBodyZ - minLength) / (maxLength - minLength))
@@ -225,7 +234,7 @@ namespace BetterDrag
                         hullPoints[heightIdx, lengthIdx] = hitPoint;
                         beamLengths[lengthIdx] = Mathf.Max(beamLengths[lengthIdx], hitPoint.x);
 #if DEBUG
-                        renderers.Add(new(rigidbody, hitPoint, radius: 0.1f));
+                        renderers[heightIdx, lengthIdx] = new(rigidbody, hitPoint, radius: 0.1f);
 #endif
                     }
                     else
@@ -239,7 +248,7 @@ namespace BetterDrag
             return isGettingHits;
         }
 
-        internal void BuildTables()
+        internal void BuildTables(BoatProbes boatProbes)
         {
             if (!this.isRayCast)
             {
@@ -251,21 +260,31 @@ namespace BetterDrag
                 return;
             }
 
-            displacements[0] = 0f;
-            wettedAreas[0] = 0f;
-
             for (int heightIdx = 0; heightIdx < heightSegmentCount; ++heightIdx)
             {
-                wettedAreas[heightIdx + 1] = wettedAreas[heightIdx];
-                displacements[heightIdx + 1] = displacements[heightIdx];
+                for (int halfProbeIdx = 0; halfProbeIdx < probeLengthPositions; ++halfProbeIdx)
+                {
+                    wettedAreas[halfProbeIdx, heightIdx + 1] = wettedAreas[halfProbeIdx, heightIdx];
+                    displacements[halfProbeIdx, heightIdx + 1] = displacements[
+                        halfProbeIdx,
+                        heightIdx
+                    ];
+                }
                 for (int lengthIdx = 0; lengthIdx < lengthSegmentCount; ++lengthIdx)
                 {
                     var asternPointLow = hullPoints[heightIdx, lengthIdx];
                     var aheadPointLow = hullPoints[heightIdx, lengthIdx + 1];
                     var asternPointHigh = hullPoints[heightIdx + 1, lengthIdx];
                     var aheadPointHigh = hullPoints[heightIdx + 1, lengthIdx + 1];
+                    var halfProbeIdx =
+                        FindNearestProbe(boatProbes._forcePoints, asternPointLow) / 2;
+#if DEBUG
+                    if (renderers[heightIdx, lengthIdx] is not null)
+                        renderers[heightIdx, lengthIdx]!.SetColor(colorList[halfProbeIdx]);
+#endif
 
                     this.ApplyTriangleContribution(
+                        halfProbeIdx,
                         heightIdx,
                         asternPointLow,
                         aheadPointLow,
@@ -273,6 +292,7 @@ namespace BetterDrag
                     );
 
                     this.ApplyTriangleContribution(
+                        halfProbeIdx,
                         heightIdx,
                         asternPointLow,
                         aheadPointHigh,
@@ -283,14 +303,36 @@ namespace BetterDrag
             isTableFilled = true;
         }
 
-        void ApplyTriangleContribution(int heightIdx, Vector3 v1, Vector3 v2, Vector3 v3)
+        static int FindNearestProbe(FloaterForcePoints[] forcePoints, Vector3 position)
+        {
+            var minDistanceSq = float.MaxValue;
+            var minIdx = 0;
+            for (var idx = 0; idx < forcePoints.Length; ++idx)
+            {
+                var distanceSq = (forcePoints[idx]._offsetPosition - position).sqrMagnitude;
+                if (distanceSq < minDistanceSq)
+                {
+                    minDistanceSq = distanceSq;
+                    minIdx = idx;
+                }
+            }
+            return minIdx;
+        }
+
+        void ApplyTriangleContribution(
+            int halfProbeIdx,
+            int heightIdx,
+            Vector3 v1,
+            Vector3 v2,
+            Vector3 v3
+        )
         {
             if (v1 == sentinelVector || v2 == sentinelVector || v3 == sentinelVector)
                 return;
 
             var (area, displacement) = Numerics.GetTriangleContribution(v1, v2, v3);
-            this.wettedAreas[heightIdx + 1] += area;
-            this.displacements[heightIdx + 1] += displacement;
+            this.wettedAreas[halfProbeIdx, heightIdx + 1] += area;
+            this.displacements[halfProbeIdx, heightIdx + 1] += displacement;
         }
     }
 }

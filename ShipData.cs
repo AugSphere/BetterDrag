@@ -67,12 +67,12 @@ namespace BetterDrag
                     this.sternPointPosition,
                     this.keelPointPosition
                 );
-                this.hydrostatics.BuildTables();
                 this.hydrostatics.UpdateProbePositions(
                     boatProbes,
                     this.bowPointPosition,
                     this.sternPointPosition
                 );
+                this.hydrostatics.BuildTables(boatProbes);
 #if DEBUG
                 this.SetupProbeRenderers(boatProbes);
 #endif
@@ -88,9 +88,9 @@ namespace BetterDrag
             );
         }
 
-        internal (float area, float displacement)? GetHydrostaticValues(float draft)
+        internal (float area, float displacement)? GetHydrostaticValues(int probeIdx, float draft)
         {
-            return this.hydrostatics.GetValues(draft);
+            return this.hydrostatics.GetValues(probeIdx, draft);
         }
 
         internal void SetCenterOfMass(Vector3 centerOfMass)
