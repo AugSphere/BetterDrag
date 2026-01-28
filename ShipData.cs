@@ -61,7 +61,7 @@ namespace BetterDrag
             {
                 this.CalculateDraftOffset(boatProbes);
                 this.CalculateLWL();
-                this.hydrostatics.CastHullRays(
+                var (hullPoints, beamWidths) = this.hydrostatics.CastHullRays(
                     rigidbody,
                     this.bowPointPosition,
                     this.sternPointPosition,
@@ -70,11 +70,13 @@ namespace BetterDrag
                 this.hydrostatics.UpdateProbePositions(
                     boatProbes,
                     this.bowPointPosition,
-                    this.sternPointPosition
+                    this.sternPointPosition,
+                    beamWidths
                 );
-                this.hydrostatics.BuildTables(boatProbes);
+                this.hydrostatics.BuildTables(boatProbes, hullPoints);
 #if DEBUG
                 this.SetupProbeRenderers(boatProbes);
+                BetterDragDebug.LogLineBuffered($"{shipName}: ship data filled");
 #endif
                 valuesSet = true;
             }

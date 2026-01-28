@@ -12,13 +12,8 @@ namespace BetterDrag
         float minLength;
         float maxLength;
         static readonly Vector3 sentinelVector = Vector3.zero + 128f * Vector3.up;
-        readonly Vector3[,] hullPoints = new Vector3[
-            heightSegmentCount + 1,
-            lengthSegmentCount + 1
-        ];
         readonly float[,] displacements = new float[probeLengthPositions, heightSegmentCount + 1];
         readonly float[,] wettedAreas = new float[probeLengthPositions, heightSegmentCount + 1];
-        readonly float[] beamLengths = new float[lengthSegmentCount + 1];
         bool isRayCast;
         bool isProbeUpdated;
         bool isTableFilled;
@@ -80,7 +75,8 @@ namespace BetterDrag
         internal void UpdateProbePositions(
             BoatProbes boatProbes,
             Vector3 bowPoint,
-            Vector3 sternPoint
+            Vector3 sternPoint,
+            float[] beamWidths
         )
         {
             if (!this.isRayCast)
@@ -101,7 +97,7 @@ namespace BetterDrag
                 var probeZ =
                     (maxProbeZ - minProbeZ) / (float)(probeLengthPositions - 1) * lengthIdx
                     + minProbeZ;
-                var beam = this.GetBeam(probeZ);
+                var beam = this.GetBeam(beamWidths, probeZ);
                 if (beam is null)
                 {
 #if DEBUG
@@ -127,7 +123,7 @@ namespace BetterDrag
             isProbeUpdated = true;
         }
 
-        internal float? GetBeam(float rigidBodyZ)
+        internal float? GetBeam(float[] beamWidths, float rigidBodyZ)
         {
             if (!this.isRayCast)
             {
@@ -145,19 +141,19 @@ namespace BetterDrag
             var lengthSegmentFraction = lengthSegmentFloat % 1f;
             if (lengthSegmentFloor == lengthSegmentCount)
             {
-                return beamLengths[lengthSegmentCount] * 2f;
+                return beamWidths[lengthSegmentCount] * 2f;
             }
             else
             {
                 return Mathf.Lerp(
-                        beamLengths[lengthSegmentFloor],
-                        beamLengths[lengthSegmentFloor + 1],
+                        beamWidths[lengthSegmentFloor],
+                        beamWidths[lengthSegmentFloor + 1],
                         lengthSegmentFraction
                     ) * 2f;
             }
         }
 
-        internal void CastHullRays(
+        internal (Vector3[,] hullPoints, float[] beamWidths) CastHullRays(
             Rigidbody rigidbody,
             Vector3 bowPoint,
             Vector3 sternPoint,
@@ -170,12 +166,14 @@ namespace BetterDrag
                     bowPoint,
                     sternPoint,
                     keelPoint,
-                    LayerMask.GetMask("OnlyPlayerCol+Paintable")
+                    LayerMask.GetMask("OnlyPlayerCol+Paintable"),
+                    out var hullPoints,
+                    out var beamWidths
                 )
             )
             {
                 isRayCast = true;
-                return;
+                return (hullPoints, beamWidths);
             }
 
 #if DEBUG
@@ -188,9 +186,12 @@ namespace BetterDrag
                 bowPoint,
                 sternPoint,
                 keelPoint,
-                LayerMask.GetMask("Ignore Raycast")
+                LayerMask.GetMask("Ignore Raycast"),
+                out hullPoints,
+                out beamWidths
             );
             isRayCast = hitsOnCapsule;
+            return (hullPoints, beamWidths);
         }
 
         private bool CastHullRaysOnLayer(
@@ -198,9 +199,13 @@ namespace BetterDrag
             Vector3 bowPoint,
             Vector3 sternPoint,
             Vector3 keelPoint,
-            int layerMask
+            int layerMask,
+            out Vector3[,] hullPoints,
+            out float[] beamWidths
         )
         {
+            hullPoints = new Vector3[heightSegmentCount + 1, lengthSegmentCount + 1];
+            beamWidths = new float[lengthSegmentCount + 1];
             var minHeight = keelPoint.y;
             var maxHeight = Hydrostatics.maxHeight;
             minLength = 1.3f * sternPoint.z;
@@ -232,7 +237,7 @@ namespace BetterDrag
                         isGettingHits = true;
                         var hitPoint = rigidbody.transform.InverseTransformPoint(hitInfo.point);
                         hullPoints[heightIdx, lengthIdx] = hitPoint;
-                        beamLengths[lengthIdx] = Mathf.Max(beamLengths[lengthIdx], hitPoint.x);
+                        beamWidths[lengthIdx] = Mathf.Max(beamWidths[lengthIdx], hitPoint.x);
 #if DEBUG
                         renderers[heightIdx, lengthIdx] = new(rigidbody, hitPoint, radius: 0.1f);
 #endif
@@ -246,7 +251,7 @@ namespace BetterDrag
             return isGettingHits;
         }
 
-        internal void BuildTables(BoatProbes boatProbes)
+        internal void BuildTables(BoatProbes boatProbes, Vector3[,] hullPoints)
         {
             if (!this.isProbeUpdated)
             {
