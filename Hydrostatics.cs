@@ -22,6 +22,7 @@ namespace BetterDrag
         float lengthSegmentSize;
         float heightSegmentSize;
         bool isRayCast;
+        bool isProbeUpdated;
         bool isTableFilled;
         readonly string shipName = shipName;
 
@@ -125,6 +126,7 @@ namespace BetterDrag
                     forcePointIdx
                 ];
             }
+            isProbeUpdated = true;
         }
 
         internal float? GetBeam(float rigidBodyZ)
@@ -250,11 +252,11 @@ namespace BetterDrag
 
         internal void BuildTables(BoatProbes boatProbes)
         {
-            if (!this.isRayCast)
+            if (!this.isProbeUpdated)
             {
 #if DEBUG
                 BetterDragDebug.LogLineBuffered(
-                    "Trying to build hydrostatic tables before finding hull, aborting."
+                    "Trying to build hydrostatic tables before updating boat probes, aborting."
                 );
 #endif
                 return;
