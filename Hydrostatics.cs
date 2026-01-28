@@ -3,21 +3,20 @@ using UnityEngine;
 
 namespace BetterDrag
 {
-    internal class Hydrostatics(string shipName)
+    internal class Hydrostatics
     {
         const uint lengthSegmentCount = 100;
         const uint heightSegmentCount = 50;
         const uint probeLengthPositions = 6;
+        readonly float minHeight;
         const float maxHeight = 10f;
-        float minLength;
-        float maxLength;
+        readonly float minLength;
+        readonly float maxLength;
         static readonly Vector3 sentinelVector = Vector3.zero + 128f * Vector3.up;
         readonly float[,] displacements = new float[probeLengthPositions, heightSegmentCount + 1];
         readonly float[,] wettedAreas = new float[probeLengthPositions, heightSegmentCount + 1];
-        bool isRayCast;
-        bool isProbeUpdated;
-        bool isTableFilled;
-        readonly string shipName = shipName;
+        readonly bool isTableFilled;
+        readonly string shipName;
 
 #if DEBUG
         static readonly Color[] colorList =
@@ -34,6 +33,33 @@ namespace BetterDrag
             lengthSegmentCount + 1
         ];
 #endif
+
+        internal Hydrostatics(
+            string shipName,
+            Rigidbody rigidbody,
+            BoatProbes boatProbes,
+            Vector3 bowPointPosition,
+            Vector3 sternPointPosition,
+            Vector3 keelPointPosition
+        )
+        {
+            this.shipName = shipName;
+            this.minHeight = keelPointPosition.y;
+            this.minLength = 1.3f * sternPointPosition.z;
+            this.maxLength = 1.3f * bowPointPosition.z;
+            if (!CastHullRays(rigidbody, out var hullPoints, out var beamWidths))
+            {
+#if DEBUG
+                BetterDragDebug.LogLineBuffered(
+                    "Failed to cast rays to the hull, falling back to default hydrostatics."
+                );
+#endif
+                return;
+            }
+            UpdateProbePositions(boatProbes, bowPointPosition, sternPointPosition, beamWidths);
+            BuildTables(boatProbes, hullPoints);
+            isTableFilled = true;
+        }
 
         internal (float area, float displacement)? GetValues(int probeIdx, float draft)
         {
@@ -79,16 +105,6 @@ namespace BetterDrag
             float[] beamWidths
         )
         {
-            if (!this.isRayCast)
-            {
-#if DEBUG
-                BetterDragDebug.LogLineBuffered(
-                    "Trying to update probes before finding hull, aborting."
-                );
-#endif
-                return;
-            }
-
             var maxProbeZ = bowPoint.z * 0.9f;
             var minProbeZ = sternPoint.z * 0.9f;
             Vector3[] newPositions = new Vector3[boatProbes._forcePoints.Length];
@@ -98,17 +114,8 @@ namespace BetterDrag
                     (maxProbeZ - minProbeZ) / (float)(probeLengthPositions - 1) * lengthIdx
                     + minProbeZ;
                 var beam = this.GetBeam(beamWidths, probeZ);
-                if (beam is null)
-                {
-#if DEBUG
-                    BetterDragDebug.LogLineBuffered(
-                        "Hull beam value query failed, keeping default probes."
-                    );
-#endif
-                    return;
-                }
-                newPositions[lengthIdx * 2] = new(-beam.Value / 2.5f, 0f, probeZ);
-                newPositions[lengthIdx * 2 + 1] = new(beam.Value / 2.5f, 0f, probeZ);
+                newPositions[lengthIdx * 2] = new(-beam / 2.5f, 0f, probeZ);
+                newPositions[lengthIdx * 2 + 1] = new(beam / 2.5f, 0f, probeZ);
             }
             for (
                 var forcePointIdx = 0;
@@ -120,20 +127,10 @@ namespace BetterDrag
                     forcePointIdx
                 ];
             }
-            isProbeUpdated = true;
         }
 
-        internal float? GetBeam(float[] beamWidths, float rigidBodyZ)
+        internal float GetBeam(float[] beamWidths, float rigidBodyZ)
         {
-            if (!this.isRayCast)
-            {
-#if DEBUG
-                BetterDragDebug.LogLineBuffered(
-                    "Trying to get beam values before finding hull, aborting."
-                );
-#endif
-                return null;
-            }
             var lengthSegmentFloat =
                 Mathf.Clamp01((rigidBodyZ - minLength) / (maxLength - minLength))
                 * lengthSegmentCount;
@@ -153,52 +150,41 @@ namespace BetterDrag
             }
         }
 
-        internal (Vector3[,] hullPoints, float[] beamWidths) CastHullRays(
+        internal bool CastHullRays(
             Rigidbody rigidbody,
-            Vector3 bowPoint,
-            Vector3 sternPoint,
-            Vector3 keelPoint
+            out Vector3[,] hullPoints,
+            out float[] beamWidths
         )
         {
             if (
                 CastHullRaysOnLayer(
                     rigidbody,
-                    bowPoint,
-                    sternPoint,
-                    keelPoint,
                     LayerMask.GetMask("OnlyPlayerCol+Paintable"),
-                    out var hullPoints,
-                    out var beamWidths
+                    out hullPoints,
+                    out beamWidths
                 )
             )
             {
-                isRayCast = true;
-                return (hullPoints, beamWidths);
+                return true;
             }
-
+            else
+            {
 #if DEBUG
-            BetterDragDebug.LogLineBuffered(
-                $"{shipName}: no hits on hull, falling back to capsule."
-            );
+                BetterDragDebug.LogLineBuffered(
+                    $"{shipName}: no hits on hull, falling back to capsule."
+                );
 #endif
-            var hitsOnCapsule = CastHullRaysOnLayer(
-                rigidbody,
-                bowPoint,
-                sternPoint,
-                keelPoint,
-                LayerMask.GetMask("Ignore Raycast"),
-                out hullPoints,
-                out beamWidths
-            );
-            isRayCast = hitsOnCapsule;
-            return (hullPoints, beamWidths);
+                return CastHullRaysOnLayer(
+                    rigidbody,
+                    LayerMask.GetMask("Ignore Raycast"),
+                    out hullPoints,
+                    out beamWidths
+                );
+            }
         }
 
         private bool CastHullRaysOnLayer(
             Rigidbody rigidbody,
-            Vector3 bowPoint,
-            Vector3 sternPoint,
-            Vector3 keelPoint,
             int layerMask,
             out Vector3[,] hullPoints,
             out float[] beamWidths
@@ -206,10 +192,6 @@ namespace BetterDrag
         {
             hullPoints = new Vector3[heightSegmentCount + 1, lengthSegmentCount + 1];
             beamWidths = new float[lengthSegmentCount + 1];
-            var minHeight = keelPoint.y;
-            var maxHeight = Hydrostatics.maxHeight;
-            minLength = 1.3f * sternPoint.z;
-            maxLength = 1.3f * bowPoint.z;
             var isGettingHits = false;
 
             for (int heightIdx = 0; heightIdx < heightSegmentCount + 1; ++heightIdx)
@@ -253,16 +235,6 @@ namespace BetterDrag
 
         internal void BuildTables(BoatProbes boatProbes, Vector3[,] hullPoints)
         {
-            if (!this.isProbeUpdated)
-            {
-#if DEBUG
-                BetterDragDebug.LogLineBuffered(
-                    "Trying to build hydrostatic tables before updating boat probes, aborting."
-                );
-#endif
-                return;
-            }
-
             for (int heightIdx = 0; heightIdx < heightSegmentCount; ++heightIdx)
             {
                 for (int halfProbeIdx = 0; halfProbeIdx < probeLengthPositions; ++halfProbeIdx)
@@ -303,7 +275,6 @@ namespace BetterDrag
                     );
                 }
             }
-            isTableFilled = true;
         }
 
         static int FindNearestProbe(FloaterForcePoints[] forcePoints, Vector3 position)
