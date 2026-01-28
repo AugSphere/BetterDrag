@@ -19,8 +19,6 @@ namespace BetterDrag
         readonly float[,] displacements = new float[probeLengthPositions, heightSegmentCount + 1];
         readonly float[,] wettedAreas = new float[probeLengthPositions, heightSegmentCount + 1];
         readonly float[] beamLengths = new float[lengthSegmentCount + 1];
-        float lengthSegmentSize;
-        float heightSegmentSize;
         bool isRayCast;
         bool isProbeUpdated;
         bool isTableFilled;
@@ -245,8 +243,6 @@ namespace BetterDrag
                     }
                 }
             }
-            heightSegmentSize = Mathf.Abs(maxHeight - minHeight) / heightSegmentCount;
-            lengthSegmentSize = Mathf.Abs(maxLength - minLength) / lengthSegmentCount;
             return isGettingHits;
         }
 
