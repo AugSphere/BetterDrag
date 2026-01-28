@@ -133,6 +133,7 @@ namespace BetterDrag
                     shipData.GetHydrostaticValues(idx, draft)
                     ?? (fallbackWettedArea, fallbackDisplacement);
                 totalDisplacement += displacement;
+                wettedArea += area;
 
                 float force =
                     PhysicsCalculation.waterWeight
