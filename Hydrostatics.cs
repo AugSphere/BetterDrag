@@ -81,8 +81,8 @@ namespace BetterDrag
             if (heightSegmentFloor == heightSegmentCount)
             {
                 return (
-                    wettedAreas[halfProbeIdx, heightSegmentCount] * 2f,
-                    displacements[halfProbeIdx, heightSegmentCount] * 2f
+                    wettedAreas[halfProbeIdx, heightSegmentCount],
+                    displacements[halfProbeIdx, heightSegmentCount]
                 );
             }
             var area = Mathf.Lerp(
@@ -95,7 +95,7 @@ namespace BetterDrag
                 displacements[halfProbeIdx, heightSegmentFloor + 1],
                 heightSegmentFraction
             );
-            return (area * 2f, displacement * 2f);
+            return (area, displacement);
         }
 
         internal void UpdateProbePositions(
