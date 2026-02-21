@@ -137,6 +137,7 @@ namespace BetterDrag
 #if DEBUG
                 BetterDragDebug.LogLineBuffered($"{rigidbody.name}: keel cast failed");
 #endif
+                this.draftSpanRatio = 1;
                 return;
             }
             var keelPoint = rigidbody.transform.InverseTransformPoint(hitInfo.point);

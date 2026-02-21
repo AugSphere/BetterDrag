@@ -162,6 +162,7 @@ namespace BetterDrag
                     ("area, m^2", wettedArea),
                     ("areaFb, m^2", averageFbArea),
                     ("baseBuoyancy", baseBuoyancy),
+                    ("draftSpanRatio", draftSpanRatio),
                 ]
             );
 #endif
