@@ -70,8 +70,8 @@ namespace BetterDrag
                 BetterDragDebug.LogLineBuffered(
                     "Trying to get a value from hydrostatic tables before they are built."
                 );
-                return null;
 #endif
+                return null;
             }
             var heightSegmentFloat =
                 Mathf.Clamp01(draft / Hydrostatics.maxHeight) * heightSegmentCount;
