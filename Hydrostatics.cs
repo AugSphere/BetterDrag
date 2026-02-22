@@ -171,7 +171,7 @@ namespace BetterDrag
             {
 #if DEBUG
                 BetterDragDebug.LogLineBuffered(
-                    $"{shipName}: no hits on hull, falling back to capsule."
+                    $"{shipName}: no hits on hull, falling back to embark."
                 );
 #endif
                 return CastHullRaysOnLayer(

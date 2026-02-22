@@ -333,7 +333,7 @@ namespace BetterDrag
                 "BOAT dhow medium (20)" => new(21.03f, 0.21f, 0.10f),
                 "BOAT medi small (40)" => new(12.39f, 0.24f, 0.07f),
                 "BOAT medi medium (50)" => new(24.83f, 0.19f, 0.17f),
-                "BOAT junk large (70)" => new(29.9f, 0.23f, 0.11f),
+                "BOAT junk large (70)" => new(29.9f, 0.23f, 0.15f),
                 "BOAT junk medium (80)" => new(21.8f, 0.22f, 0.09f),
                 "BOAT junk small singleroof(90)" => new(11.07f, 0.23f, 0.09f),
                 "BOAT Shroud Small" => new(14.77f, 0.8f, 0.16f, 0.9f, 0.95f),
