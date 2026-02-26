@@ -7,8 +7,9 @@ and size now affecting longitudinal drag.
 * A simple simulation of wave-making resistance: hull and hump speeds are
   modelled for each hull.
 * Heavily laden ships that sit lower in the water experience more drag.
-* An improved buoyancy simulation that uses the hull shape.
-* Configurable water drag and buoyancy settings for each ship and globally.
+* An improved buoyancy simulation that uses the hull shape and calculates
+the buoyancy forces for each hull section independently.
+* Configurable water drag, buoyancy, and mass settings for each ship and globally.
 
 # Installation
 The mod depends on [BepInEx 5](https://github.com/BepInEx/BepInEx).
