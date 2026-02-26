@@ -105,18 +105,27 @@ namespace BetterDrag
             Profiler.LogDurations();
 
 #if DEBUG
-            shipData.DrawAll(____rb.transform, drawHullPoints: false);
-            BetterDragDebug.FlushBuffer(BetterDragDebug.Mode.CSV);
+            BetterDragDebug.FlushBuffer(BetterDragDebug.Mode.Line);
             BetterDragDebug.FinishUpdate();
 #endif
+        }
+
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(BoatMass), nameof(BoatMass.UpdateMass))]
+        static void UpdateMass(Rigidbody ___body, float ___selfMass, float ___partsMass)
+        {
+            var shipData = ShipData.GetShipData(___body.gameObject);
+            ___body.mass +=
+                (___selfMass + ___partsMass)
+                * (Plugin.globalMassMultiplier!.Value * shipData.dragData.MassMultiplier - 1f);
         }
 
         [HarmonyPostfix]
         [HarmonyPatch(typeof(BoatProbes), "Start")]
         static void BoatProbesStart(BoatProbes __instance, Vector3 ____centerOfMass)
         {
-            var boatData = ShipData.GetShipData(__instance.gameObject);
-            boatData.SetCenterOfMassHeight(____centerOfMass.y);
+            var shipData = ShipData.GetShipData(__instance.gameObject);
+            shipData.SetCenterOfMass(____centerOfMass);
         }
 
         [HarmonyPostfix]
@@ -124,15 +133,17 @@ namespace BetterDrag
         static void BoatDamageStart(BoatDamage __instance, float ___baseBuoyancy)
         {
             __instance.waterDrag = 0f;
-            var boatData = ShipData.GetShipData(__instance.gameObject);
-            boatData.SetBaseBuoyancy(___baseBuoyancy);
+            var shipData = ShipData.GetShipData(__instance.gameObject);
+            shipData.SetBaseBuoyancy(___baseBuoyancy);
         }
 
         [HarmonyPostfix]
         [HarmonyPatch(typeof(WaveSplashZone), "Start")]
         static void WaveSplashZoneStart(WaveSplashZone __instance)
         {
-            ShipData.CalculateOverflowOffset(__instance);
+            var rigidbody = __instance.GetComponentInParent<Rigidbody>();
+            var shipData = ShipData.GetShipData(rigidbody.gameObject);
+            shipData.CalculateOverflowOffset(__instance);
         }
     }
 }

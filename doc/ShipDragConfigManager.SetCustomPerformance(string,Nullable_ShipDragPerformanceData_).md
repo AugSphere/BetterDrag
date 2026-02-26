@@ -21,8 +21,8 @@ The name of the ship object\. Can be found in a [community spreadsheet](https://
 
 `data` [System\.Nullable&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.nullable-1 'System\.Nullable\`1')[ShipDragPerformanceData](ShipDragPerformanceData.md 'BetterDrag\.ShipDragPerformanceData')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.nullable-1 'System\.Nullable\`1')
 
-Ship's peformance overrides\.
+Ship's performance overrides\.
 
 #### Returns
 [System\.Boolean](https://learn.microsoft.com/en-us/dotnet/api/system.boolean 'System\.Boolean')  
-`true` if custom performace was successfully set\.
+`true` if custom performance was successfully set\.

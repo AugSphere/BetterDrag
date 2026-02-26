@@ -1,11 +1,11 @@
 ### [BetterDrag](BetterDrag.md 'BetterDrag').[ShipDragPerformanceData](ShipDragPerformanceData.md 'BetterDrag\.ShipDragPerformanceData')
 
-## ShipDragPerformanceData\.LengthAtWaterline Property
+## ShipDragPerformanceData\.MassMultiplier Property
 
-Length of the hull at waterline in meters\.
+Ship\-specific mass multiplier\.
 
 ```csharp
-public float LengthAtWaterline { get; }
+public float MassMultiplier { get; }
 ```
 
 #### Property Value

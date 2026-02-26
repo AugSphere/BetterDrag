@@ -8,7 +8,7 @@ namespace BetterDrag
         internal const float defaultRadius = 0.1f;
         internal const float defaultOriginOffset = 100f;
         static readonly int layerMask = LayerMask.GetMask(
-            "Ignore Raycast", // CapsuleCollider layer
+            "Ignore Raycast", // embark and interior layer
             "OnlyPlayerCol+Paintable" // hull player collider layer
         );
 
@@ -33,22 +33,39 @@ namespace BetterDrag
                 layerMask: layerMask ?? GeometryQueries.layerMask
             );
 
-            var shipObject = rigidbody.gameObject;
-            var hullHit = GetFirstHit(
+            return GetFirstMatchingHit(
                 allHits,
-                (hit) => IsClenableColliderOfShip(hit.collider, shipObject),
-                out hitInfo
-            );
-            if (hullHit)
-                return true;
-            return GetFirstHit(
-                allHits,
-                (hit) => IsCapsuleColliderOfShip(hit.collider, shipObject),
-                out hitInfo
+                rigidbody.gameObject,
+                out hitInfo,
+                IsCleanableColliderOfShip,
+                IsInnerEmbarkColliderOfShip,
+                IsInteriorTriggerColliderOfShip
             );
         }
 
-        static bool GetFirstHit(
+        static bool GetFirstMatchingHit(
+            RaycastHit[] allHits,
+            GameObject shipObject,
+            out RaycastHit hitInfo,
+            params Func<Collider, GameObject, bool>[] filters
+        )
+        {
+            foreach (var filter in filters)
+            {
+                if (
+                    GetFirstHitWithFilter(
+                        allHits,
+                        (hit) => filter(hit.collider, shipObject),
+                        out hitInfo
+                    )
+                )
+                    return true;
+            }
+            hitInfo = new();
+            return false;
+        }
+
+        static bool GetFirstHitWithFilter(
             RaycastHit[] hits,
             Func<RaycastHit, bool> filter,
             out RaycastHit hitInfo
@@ -79,7 +96,7 @@ namespace BetterDrag
             return isHit;
         }
 
-        static bool IsClenableColliderOfShip(Collider collider, GameObject shipObject)
+        static bool IsCleanableColliderOfShip(Collider collider, GameObject shipObject)
         {
             var cleanable = collider.gameObject.GetComponent<CleanableObjectCollider>();
             if (cleanable is null)
@@ -94,9 +111,24 @@ namespace BetterDrag
             return false;
         }
 
-        static bool IsCapsuleColliderOfShip(Collider collider, GameObject shipObject)
+        static bool IsInnerEmbarkColliderOfShip(Collider collider, GameObject shipObject)
         {
-            if (!typeof(CapsuleCollider).IsInstanceOfType(collider))
+            if (!typeof(MeshCollider).IsInstanceOfType(collider))
+                return false;
+            if (collider.attachedRigidbody is null)
+                return false;
+            if (!collider.name.Equals("embark_col (this)", StringComparison.OrdinalIgnoreCase))
+                return false;
+            return ReferenceEquals(collider.attachedRigidbody.gameObject, shipObject);
+        }
+
+        static bool IsInteriorTriggerColliderOfShip(Collider collider, GameObject shipObject)
+        {
+            if (!typeof(MeshCollider).IsInstanceOfType(collider))
+                return false;
+            if (collider.attachedRigidbody is null)
+                return false;
+            if (!collider.name.Contains("interior"))
                 return false;
             return ReferenceEquals(collider.attachedRigidbody.gameObject, shipObject);
         }

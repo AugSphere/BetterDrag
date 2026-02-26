@@ -2,7 +2,7 @@
 
 ## ShipDragPerformanceData\.BuoyancyMultiplier Property
 
-Ship\-specific buoyancy multippier\.
+Ship\-specific buoyancy multiplier\.
 
 ```csharp
 public float BuoyancyMultiplier { get; }

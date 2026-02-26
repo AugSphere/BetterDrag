@@ -105,12 +105,12 @@ namespace BetterDrag
             wettedArea = 0.0f;
 #if DEBUG
             float averageDraft = 0.0f;
-            var totalFbDispalcement = 0.0f;
+            var totalFbDisplacement = 0.0f;
             var averageFbArea = 0.0f;
 #endif
 
             var (baseBuoyancy, overflowOffset, draftOffset, keelDepth, _, draftSpanRatio) =
-                shipData.GetValues(boatProbes, rigidbody);
+                shipData.GetValues(boatProbes);
             var lengthAtWaterline = shipData.dragData.LengthAtWaterline;
             var buoyancyMultiplier = shipData.dragData.BuoyancyMultiplier;
 
@@ -126,19 +126,14 @@ namespace BetterDrag
                     * baseBuoyancy
                     * boatProbes._forcePoints[idx]._weight
                     * draftSpanRatio
-                    / buoyancyMultiplier;
-                var fallbackWettedArea = 3f * lengthAtWaterline * draft;
+                    / buoyancyMultiplier
+                    / totalWeight;
+                var fallbackWettedArea = 3f * lengthAtWaterline * draft / totalWeight;
                 var (area, displacement) =
-                    shipData.GetHydrostaticValues(draft)
+                    shipData.GetHydrostaticValues(idx, draft)
                     ?? (fallbackWettedArea, fallbackDisplacement);
-                displacement /= totalWeight;
                 totalDisplacement += displacement;
-                wettedArea += area / totalWeight;
-#if DEBUG
-                averageDraft += draft / totalWeight;
-                totalFbDispalcement += fallbackDisplacement / totalWeight;
-                averageFbArea += fallbackWettedArea / totalWeight;
-#endif
+                wettedArea += area;
 
                 float force =
                     PhysicsCalculation.waterWeight
@@ -149,6 +144,13 @@ namespace BetterDrag
                     * Plugin.globalBuoyancyMultiplier!.Value;
                 rigidbody.AddForceAtPosition(Vector3.up * force, queryPoints[idx]);
                 boatProbes.appliedBuoyancyForces[idx] = force;
+
+#if DEBUG
+                averageDraft += draft / totalWeight;
+                totalFbDisplacement += fallbackDisplacement;
+                averageFbArea += fallbackWettedArea;
+                shipData.depthProbeRenderers[idx].SetMagnitude(force / 1000f);
+#endif
             }
 
 #if DEBUG
@@ -156,26 +158,14 @@ namespace BetterDrag
                 [
                     ("draft, m", averageDraft),
                     ("displacement, m^3", totalDisplacement),
-                    ("displacementFb, m^3", totalFbDispalcement),
+                    ("displacementFb, m^3", totalFbDisplacement),
                     ("area, m^2", wettedArea),
                     ("areaFb, m^2", averageFbArea),
                     ("baseBuoyancy", baseBuoyancy),
+                    ("draftSpanRatio", draftSpanRatio),
                 ]
             );
 #endif
-        }
-
-        private static float CalculateDisplacementScale(
-            float draft,
-            float fullSpan,
-            ShipDragPerformanceData shipDragPerformanceData
-        )
-        {
-            var relativeToOverflow = draft / fullSpan;
-            if (relativeToOverflow > 1)
-                return 1f;
-            var factor = Mathf.Clamp(2.5f - 4.8f * shipDragPerformanceData.FormFactor, 1f, 3f);
-            return Mathf.Pow(relativeToOverflow, factor);
         }
     }
 }

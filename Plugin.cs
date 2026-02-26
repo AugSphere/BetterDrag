@@ -5,6 +5,7 @@ using System.Reflection;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Json;
 using System.Text;
+using System.Xml;
 using BepInEx;
 using BepInEx.Configuration;
 using BepInEx.Logging;
@@ -18,7 +19,7 @@ internal class Plugin : BaseUnityPlugin
 {
     private const string PLUGIN_GUID = "com.AugSphere.BetterDrag";
     private const string PLUGIN_NAME = "BetterDrag";
-    private const string PLUGIN_VERSION = "1.1.0";
+    private const string PLUGIN_VERSION = "1.2.0";
 
     internal static new ManualLogSource? Logger;
 
@@ -26,6 +27,7 @@ internal class Plugin : BaseUnityPlugin
     internal static ConfigEntry<float>? globalWaveMakingDragMultiplier;
     internal static ConfigEntry<float>? globalShipLengthMultiplier;
     internal static ConfigEntry<float>? globalBuoyancyMultiplier;
+    internal static ConfigEntry<float>? globalMassMultiplier;
     internal static Dictionary<string, ShipDragPerformanceData> shipOverrides = [];
 #if DEBUG
     internal static ConfigEntry<int>? debugPrintPeriod;
@@ -77,6 +79,13 @@ internal class Plugin : BaseUnityPlugin
             )
         );
 
+        globalMassMultiplier = Config.Bind(
+            "--------- Global Multipliers ---------",
+            nameof(globalMassMultiplier),
+            1.0f,
+            new ConfigDescription("Mass multiplier", new AcceptableValueRange<float>(0.1f, 5.0f))
+        );
+
 #if DEBUG
         debugPrintPeriod = Config.Bind(
             "--------Ω Debug Ω--------",
@@ -115,8 +124,17 @@ internal class Plugin : BaseUnityPlugin
 
             Logger!.LogInfo($"Read user ship configurations from {PLUGIN_GUID}.shipdata.json");
         }
-        catch (Exception e) when (e is FileNotFoundException || e is SerializationException)
+        catch (Exception e)
+            when (e is FileNotFoundException
+                || e is SerializationException
+                || e.InnerException is XmlException
+            )
         {
+            if (e is FileNotFoundException)
+                Logger!.LogWarning($"No configuration file found at {filePath}");
+            else
+                Logger!.LogError($"Invalid JSON formatting of {filePath}");
+
             shipOverrides["BOAT Example 1"] = new ShipDragPerformanceData(lengthAtWaterline: 5f);
             shipOverrides["BOAT Example 2"] = new ShipDragPerformanceData(
                 formFactor: 1.23f,

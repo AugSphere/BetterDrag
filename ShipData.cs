@@ -15,13 +15,14 @@ namespace BetterDrag
             static (gameObject) => new(gameObject)
         );
 
-        public readonly string shipName = shipGameObject.name;
+        private readonly string shipName = shipGameObject.name;
+        private readonly Rigidbody rigidbody = shipGameObject.GetComponent<Rigidbody>();
         public readonly ShipDragPerformanceData dragData = ShipDragConfigManager.GetPerformanceData(
             shipGameObject
         );
-        private readonly Hydrostatics hydrostatics = new(shipGameObject.name);
+        private Hydrostatics? hydrostatics;
         private float baseBuoyancy = 25f;
-        private float overflowOffset = 5f;
+        private float overflowOffset = 10f;
         private float centerOfMassHeight;
         private float draftOffset;
         private float keelOffset = 1f;
@@ -33,21 +34,13 @@ namespace BetterDrag
         private bool valuesSet;
 
 #if DEBUG
-        public DebugSphereRenderer keelRenderer = new(color: Color.red);
-        public DebugSphereRenderer overflowRenderer = new(color: Color.blue);
-        public DebugSphereRenderer bowRenderer = new(color: Color.green);
-        public DebugSphereRenderer sternRenderer = new(color: Color.green);
-        public List<(DebugSphereRenderer renderer, Vector3 position)> sideRenderers = [];
-
-        public void DrawAll(Transform transform, bool drawHullPoints = false)
-        {
-            keelRenderer.DrawSphere(transform.TransformPoint(this.keelPointPosition));
-            overflowRenderer.DrawSphere(transform.TransformPoint(overflowOffset * Vector3.up));
-            bowRenderer.DrawSphere(transform.TransformPoint(this.bowPointPosition));
-            sternRenderer.DrawSphere(transform.TransformPoint(this.sternPointPosition));
-            if (drawHullPoints)
-                hydrostatics.DrawHullPoints(transform);
-        }
+        public DebugSphereRenderer? keelRenderer;
+        public DebugSphereRenderer? overflowRenderer;
+        public DebugSphereRenderer? bowRenderer;
+        public DebugSphereRenderer? sternRenderer;
+        public DebugSphereRenderer? comRenderer;
+        public DebugSphereRenderer? rbComRenderer;
+        public List<DebugVectorRenderer> depthProbeRenderers = [];
 #endif
 
         public static ShipData GetShipData(GameObject shipGameObject)
@@ -62,19 +55,24 @@ namespace BetterDrag
             float keelDepth,
             float lengthAtWaterline,
             float draftSpanRatio
-        ) GetValues(BoatProbes boatProbes, Rigidbody rigidbody)
+        ) GetValues(BoatProbes boatProbes)
         {
             if (!this.valuesSet)
             {
-                this.CalculateDraftOffset(boatProbes, rigidbody);
-                this.CalculateLWL(rigidbody);
-                this.hydrostatics.CastHullRays(
+                this.CalculateDraftOffset(boatProbes);
+                this.CalculateLWL();
+                this.hydrostatics = new(
+                    shipName,
                     rigidbody,
+                    boatProbes,
                     this.bowPointPosition,
                     this.sternPointPosition,
                     this.keelPointPosition
                 );
-                this.hydrostatics.BuildTables();
+#if DEBUG
+                this.SetupProbeRenderers(boatProbes);
+                BetterDragDebug.LogLineBuffered($"{shipName}: ship data filled");
+#endif
                 valuesSet = true;
             }
             return (
@@ -87,14 +85,25 @@ namespace BetterDrag
             );
         }
 
-        internal (float area, float displacement)? GetHydrostaticValues(float draft)
+        internal (float area, float displacement)? GetHydrostaticValues(int probeIdx, float draft)
         {
-            return this.hydrostatics.GetValues(draft);
+            return this.hydrostatics?.GetValues(probeIdx, draft);
         }
 
-        internal void SetCenterOfMassHeight(float centerOfMassHeight)
+        internal void SetCenterOfMass(Vector3 centerOfMass)
         {
-            this.centerOfMassHeight = centerOfMassHeight;
+            this.centerOfMassHeight = centerOfMass.y;
+#if DEBUG
+            this.comRenderer = new(this.rigidbody, centerOfMass, Color.cyan, 0.6f);
+            this.rbComRenderer = new(
+                this.rigidbody,
+                Vector3.zero,
+                Color.white,
+                2f,
+                0.4f,
+                relativeToCoM: true
+            );
+#endif
         }
 
         internal void SetBaseBuoyancy(float baseBuoyancy)
@@ -112,12 +121,13 @@ namespace BetterDrag
                 $"overflowOffset={this.overflowOffset}",
                 $"draftOffset={this.draftOffset}",
                 $"keelOffset={this.keelOffset}",
+                $"lengthAtWaterline={this.lengthAtWaterline}",
                 $"draftSpanRatio={this.draftSpanRatio}"
             );
             return name + "(" + fields + ")";
         }
 
-        private void CalculateDraftOffset(BoatProbes boatProbes, Rigidbody rigidbody)
+        private void CalculateDraftOffset(BoatProbes boatProbes)
         {
             var originPoint = Vector3.down * GeometryQueries.defaultOriginOffset;
             var targetPoint = Vector3.zero;
@@ -127,6 +137,7 @@ namespace BetterDrag
 #if DEBUG
                 BetterDragDebug.LogLineBuffered($"{rigidbody.name}: keel cast failed");
 #endif
+                this.draftSpanRatio = 1;
                 return;
             }
             var keelPoint = rigidbody.transform.InverseTransformPoint(hitInfo.point);
@@ -149,10 +160,11 @@ namespace BetterDrag
                     $"{rigidbody.name}: set draft offset to {this.draftOffset} from {hitInfo.collider.name}",
                 ]
             );
+            this.keelRenderer = new(rigidbody, keelPoint, Color.red);
 #endif
         }
 
-        private void CalculateLWL(Rigidbody rigidbody)
+        private void CalculateLWL()
         {
             var fullSpan = this.keelOffset + this.overflowOffset;
             var lwlHeight = -this.keelOffset + 0.5f * fullSpan;
@@ -186,25 +198,43 @@ namespace BetterDrag
             BetterDragDebug.LogLineBuffered(
                 $"{rigidbody.name}: calculated LWL {this.lengthAtWaterline}"
             );
+            this.bowRenderer = new(rigidbody, bowPointPosition, Color.green);
+            this.sternRenderer = new(rigidbody, sternPointPosition, Color.green);
 #endif
         }
 
-        internal static void CalculateOverflowOffset(WaveSplashZone splashZone)
+        internal void CalculateOverflowOffset(WaveSplashZone splashZone)
         {
-            var rigidbody = splashZone.GetComponentInParent<Rigidbody>();
-            var shipData = ShipData.GetShipData(rigidbody.gameObject);
             var worldOverflowPoint =
                 splashZone.transform.position
                 + splashZone.transform.TransformDirection(Vector3.up) * splashZone.verticalOffset;
-            var bodyOffset = rigidbody.transform.InverseTransformPoint(worldOverflowPoint).y;
+            var bodyOffset = this.rigidbody.transform.InverseTransformPoint(worldOverflowPoint).y;
 
-            shipData.overflowOffset = Mathf.Min(shipData.overflowOffset, bodyOffset);
+            this.overflowOffset = Mathf.Min(this.overflowOffset, bodyOffset);
 
 #if DEBUG
             BetterDragDebug.LogLineBuffered(
-                $"{rigidbody.name}: set overflow offset to {shipData.overflowOffset}"
+                $"{this.rigidbody.name}: set overflow offset to {this.overflowOffset}"
             );
+            this.overflowRenderer = new(this.rigidbody, new(0, bodyOffset, 0), Color.blue);
 #endif
         }
+
+#if DEBUG
+        private void SetupProbeRenderers(BoatProbes boatProbes)
+        {
+            for (int idx = 0; idx < boatProbes._forcePoints.Length; ++idx)
+            {
+                this.depthProbeRenderers.Add(
+                    new(
+                        this.rigidbody,
+                        boatProbes._forcePoints[idx]._offsetPosition
+                            + new Vector3(0f, this.centerOfMassHeight, 0f),
+                        Vector3.up
+                    )
+                );
+            }
+        }
+#endif
     }
 }
