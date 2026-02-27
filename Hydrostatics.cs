@@ -7,7 +7,7 @@ namespace BetterDrag
     {
         const uint lengthSegmentCount = 100;
         const uint heightSegmentCount = 50;
-        const uint probeLengthPositions = 6;
+        public const uint probeLengthPositions = 6;
         readonly float minHeight;
         const float maxHeight = 10f;
         readonly float minLength;
@@ -40,13 +40,15 @@ namespace BetterDrag
             BoatProbes boatProbes,
             Vector3 bowPointPosition,
             Vector3 sternPointPosition,
-            Vector3 keelPointPosition
+            Vector3 keelPointPosition,
+            out float maxProbeBeam
         )
         {
             this.shipName = shipName;
             this.minHeight = keelPointPosition.y;
             this.minLength = 1.3f * sternPointPosition.z;
             this.maxLength = 1.3f * bowPointPosition.z;
+            maxProbeBeam = 2f;
             if (!CastHullRays(rigidbody, out var hullPoints, out var beamWidths))
             {
 #if DEBUG
@@ -56,7 +58,13 @@ namespace BetterDrag
 #endif
                 return;
             }
-            UpdateProbePositions(boatProbes, bowPointPosition, sternPointPosition, beamWidths);
+            UpdateProbePositions(
+                boatProbes,
+                bowPointPosition,
+                sternPointPosition,
+                beamWidths,
+                out maxProbeBeam
+            );
             BuildTables(boatProbes, hullPoints);
             isTableFilled = true;
         }
@@ -66,7 +74,6 @@ namespace BetterDrag
             if (!isTableFilled)
             {
 #if DEBUG
-
                 BetterDragDebug.LogLineBuffered(
                     "Trying to get a value from hydrostatic tables before they are built."
                 );
@@ -102,11 +109,13 @@ namespace BetterDrag
             BoatProbes boatProbes,
             Vector3 bowPoint,
             Vector3 sternPoint,
-            float[] beamWidths
+            float[] beamWidths,
+            out float maxProbeBeam
         )
         {
             var maxProbeZ = bowPoint.z * 0.9f;
             var minProbeZ = sternPoint.z * 0.9f;
+            maxProbeBeam = 0f;
             Vector3[] newPositions = new Vector3[boatProbes._forcePoints.Length];
             for (var lengthIdx = 0; lengthIdx < probeLengthPositions; ++lengthIdx)
             {
@@ -114,6 +123,7 @@ namespace BetterDrag
                     (maxProbeZ - minProbeZ) / (float)(probeLengthPositions - 1) * lengthIdx
                     + minProbeZ;
                 var beam = this.GetBeam(beamWidths, probeZ);
+                maxProbeBeam = Mathf.Max(maxProbeBeam, beam * 0.8f);
                 newPositions[lengthIdx * 2] = new(-beam / 2.5f, 0f, probeZ);
                 newPositions[lengthIdx * 2 + 1] = new(beam / 2.5f, 0f, probeZ);
             }

@@ -87,3 +87,17 @@ using System.Diagnostics.CodeAnalysis;
     Scope = "member",
     Target = "~F:BetterDrag.Hydrostatics.shipName"
 )]
+[assembly: SuppressMessage(
+    "Performance",
+    "CA1823:Avoid unused private fields",
+    Justification = "Conditional compilation",
+    Scope = "member",
+    Target = "~F:BetterDrag.OutlierFilter.filterName"
+)]
+[assembly: SuppressMessage(
+    "Performance",
+    "CA1823:Avoid unused private fields",
+    Justification = "Conditional compilation",
+    Scope = "member",
+    Target = "~F:BetterDrag.OutlierFilter.shipName"
+)]

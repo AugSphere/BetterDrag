@@ -4,23 +4,26 @@ using UnityEngine;
 
 namespace BetterDrag
 {
-    internal class OutlierFilter(string name, float rateLimit, float noFilterCutoff)
+    internal class OutlierFilter(
+        string filterName,
+        string shipName,
+        float rateLimit,
+        float noFilterCutoff
+    )
     {
         const uint sampleCount = 16;
         readonly float rateLimit = rateLimit;
         readonly float noFilterCutoff = noFilterCutoff;
-        readonly Cache<MemoryBuffer> cache = new(name, static (shipObject) => new());
-#if DEBUG && VERBOSE
-        readonly string name = name;
-#endif
+        readonly MemoryBuffer buffer = new();
+        readonly string filterName = filterName;
+        readonly string shipName = shipName;
 
-        public float ClampValue(float value, Rigidbody rigidbody)
+        public bool IsOutlier(float value)
         {
-            var buffer = this.cache.GetValue(rigidbody.gameObject);
-            return ClampValueWithBuffer(value, buffer);
+            return CheckOutlierWithBuffer(value, this.buffer);
         }
 
-        float ClampValueWithBuffer(float value, MemoryBuffer buffer)
+        bool CheckOutlierWithBuffer(float value, MemoryBuffer buffer)
         {
             float min = float.MaxValue,
                 max = float.MinValue;
@@ -50,17 +53,17 @@ namespace BetterDrag
             )
             {
                 buffer.Insert(value);
-                return value;
+                return false;
             }
             else
             {
 #if DEBUG && VERBOSE
-                Debug.LogBuffered(
-                    $"{this.name}: clipped {value, 10:F02} to {clampedValue, 10:F02}; samples: {buffer}"
+                BetterDragDebug.LogLineBuffered(
+                    $"{this.shipName}: {filterName} outlier {value, 10:F02} clamped to {clampedValue, 10:F02}; samples: {buffer}"
                 );
 #endif
                 buffer.Insert(clampedValue);
-                return clampedValue;
+                return true;
             }
         }
 

@@ -182,14 +182,14 @@ namespace BetterDrag
         private readonly PositionUpdater positionUpdater;
 
         internal DebugVectorRenderer(
-            Rigidbody rigidbody,
-            Vector3 origin,
-            Vector3 direction,
+            Rigidbody rigidBody,
+            Vector3 localOrigin,
+            Vector3 worldDirection,
             float? debugLineSize = null
         )
         {
             this.gameObject = new GameObject(
-                nameof(DebugSphereRenderer) + "(" + rigidbody.name + ")"
+                nameof(DebugSphereRenderer) + "(" + rigidBody.name + ")"
             );
             lineRenderer = this.gameObject.AddComponent<LineRenderer>();
             lineRenderer.material = new Material(Shader.Find("Sprites/Default"));
@@ -198,9 +198,9 @@ namespace BetterDrag
             lineRenderer.positionCount = 2;
             positionUpdater = this.gameObject.AddComponent<PositionUpdater>();
             positionUpdater.lineRenderer = lineRenderer;
-            positionUpdater.rigidbody = rigidbody;
-            positionUpdater.origin = origin;
-            positionUpdater.direction = direction;
+            positionUpdater.rigidBody = rigidBody;
+            positionUpdater.localOrigin = localOrigin;
+            positionUpdater.worldDirection = worldDirection;
         }
 
         internal void SetMagnitude(float magnitude)
@@ -208,12 +208,17 @@ namespace BetterDrag
             this.positionUpdater.magnitude = magnitude;
         }
 
+        internal void SetDirection(Vector3 worldDirection)
+        {
+            this.positionUpdater.worldDirection = worldDirection;
+        }
+
         private class PositionUpdater : MonoBehaviour
         {
-            public Rigidbody? rigidbody;
+            public Rigidbody? rigidBody;
             public LineRenderer? lineRenderer;
-            public Vector3 origin;
-            public Vector3 direction;
+            public Vector3 localOrigin;
+            public Vector3 worldDirection;
             public float magnitude;
 
             void Awake()
@@ -223,15 +228,14 @@ namespace BetterDrag
 
             void Update()
             {
-                if (rigidbody is null || lineRenderer is null)
+                if (rigidBody is null || lineRenderer is null)
                     return;
-                var originInWorld = rigidbody.transform.TransformPoint(origin);
-                var directionInWorld = rigidbody.transform.TransformDirection(direction);
+                var originInWorld = rigidBody.transform.TransformPoint(localOrigin);
                 var color = magnitude < 0 ? UnityEngine.Color.red : UnityEngine.Color.green;
                 lineRenderer.startColor = color;
                 lineRenderer.endColor = color;
                 lineRenderer.SetPositions(
-                    [originInWorld, originInWorld + directionInWorld * magnitude]
+                    [originInWorld, originInWorld + worldDirection * magnitude]
                 );
             }
         }

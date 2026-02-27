@@ -20,6 +20,13 @@ namespace BetterDrag
         public readonly ShipDragPerformanceData dragData = ShipDragConfigManager.GetPerformanceData(
             shipGameObject
         );
+        public readonly OutlierFilter velocityFitler = new(
+            "velocity filter",
+            shipGameObject.name,
+            rateLimit: 1.1f,
+            noFilterCutoff: 0.1f
+        );
+        public Vector3[] lastValidVelocities = new Vector3[Hydrostatics.probeLengthPositions * 2];
         private Hydrostatics? hydrostatics;
         private float baseBuoyancy = 25f;
         private float overflowOffset = 10f;
@@ -28,6 +35,7 @@ namespace BetterDrag
         private float keelOffset = 1f;
         private float lengthAtWaterline = 15f;
         private float draftSpanRatio;
+        private float maxProbeBeam;
         private Vector3 keelPointPosition;
         private Vector3 bowPointPosition;
         private Vector3 sternPointPosition;
@@ -40,7 +48,8 @@ namespace BetterDrag
         public DebugSphereRenderer? sternRenderer;
         public DebugSphereRenderer? comRenderer;
         public DebugSphereRenderer? rbComRenderer;
-        public List<DebugVectorRenderer> depthProbeRenderers = [];
+        public List<DebugVectorRenderer> buoyancyForceRenderers = [];
+        public List<DebugVectorRenderer> dragForceRenderers = [];
 #endif
 
         public static ShipData GetShipData(GameObject shipGameObject)
@@ -54,6 +63,7 @@ namespace BetterDrag
             float draftOffset,
             float keelDepth,
             float lengthAtWaterline,
+            float maxProbeBeam,
             float draftSpanRatio
         ) GetValues(BoatProbes boatProbes)
         {
@@ -67,10 +77,11 @@ namespace BetterDrag
                     boatProbes,
                     this.bowPointPosition,
                     this.sternPointPosition,
-                    this.keelPointPosition
+                    this.keelPointPosition,
+                    out this.maxProbeBeam
                 );
 #if DEBUG
-                this.SetupProbeRenderers(boatProbes);
+                this.SetupVectorRenderers(boatProbes);
                 BetterDragDebug.LogLineBuffered($"{shipName}: ship data filled");
 #endif
                 valuesSet = true;
@@ -81,6 +92,7 @@ namespace BetterDrag
                 this.draftOffset,
                 this.keelOffset,
                 this.lengthAtWaterline,
+                this.maxProbeBeam,
                 this.draftSpanRatio
             );
         }
@@ -221,18 +233,15 @@ namespace BetterDrag
         }
 
 #if DEBUG
-        private void SetupProbeRenderers(BoatProbes boatProbes)
+        private void SetupVectorRenderers(BoatProbes boatProbes)
         {
             for (int idx = 0; idx < boatProbes._forcePoints.Length; ++idx)
             {
-                this.depthProbeRenderers.Add(
-                    new(
-                        this.rigidbody,
-                        boatProbes._forcePoints[idx]._offsetPosition
-                            + new Vector3(0f, this.centerOfMassHeight, 0f),
-                        Vector3.up
-                    )
-                );
+                var position =
+                    boatProbes._forcePoints[idx]._offsetPosition
+                    + new Vector3(0f, this.centerOfMassHeight, 0f);
+                this.buoyancyForceRenderers.Add(new(this.rigidbody, position, Vector3.up));
+                this.dragForceRenderers.Add(new(this.rigidbody, position, Vector3.zero));
             }
         }
 #endif

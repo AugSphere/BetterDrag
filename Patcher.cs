@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Reflection;
-using Crest;
+﻿using Crest;
 using HarmonyLib;
 using UnityEngine;
 
@@ -9,98 +7,47 @@ namespace BetterDrag
     [HarmonyPatch]
     static class BoatProbesFixedUpdateDragPatch
     {
-        static readonly MethodInfo m_AddForceAtPosition = AccessTools.Method(
-            typeof(Rigidbody),
-            nameof(Rigidbody.AddForceAtPosition),
-            [typeof(Vector3), typeof(Vector3), typeof(ForceMode)]
-        );
-
-        [HarmonyTranspiler]
+        [HarmonyPrefix]
         [HarmonyPatch(typeof(BoatProbes), "FixedUpdateDrag")]
-        static IEnumerable<CodeInstruction> DropOriginalLongitudinalDrag(
-            IEnumerable<CodeInstruction> instructions
-        )
-        {
-            var addForceCount = 0;
-            var enumerator = instructions.GetEnumerator();
-
-            enumerator.MoveNext();
-            while (addForceCount < 2)
-            {
-                if (enumerator.Current.Calls(m_AddForceAtPosition))
-                    ++addForceCount;
-                yield return enumerator.Current;
-                enumerator.MoveNext();
-            }
-
-            while (addForceCount < 3)
-            {
-                if (enumerator.Current.Calls(m_AddForceAtPosition))
-                    ++addForceCount;
-                enumerator.MoveNext();
-            }
-
-            while (true)
-            {
-                yield return enumerator.Current;
-                if (!enumerator.MoveNext())
-                    break;
-            }
-        }
+        static bool IsUnpatchedDragUsed() => false;
 
         [HarmonyPrefix]
         [HarmonyPatch(typeof(BoatProbes), "FixedUpdateBuoyancy")]
-        static bool DropOriginalBuoyancy() => false;
+        static bool IsUnpatchedBuoyancyUsed() => false;
 
         [HarmonyPostfix]
         [HarmonyPatch(typeof(BoatProbes), "FixedUpdateDrag")]
         static void AddCustomPhysics(
-            Vector3 waterSurfaceVel,
             BoatProbes __instance,
             Rigidbody ____rb,
-            float ____forceHeightOffset,
-            Vector3 ___lastVel,
-            Vector3[] ____queryResultDisps,
             Vector3[] ____queryPoints,
+            Vector3[] ____queryResultDisps,
+            Vector3[] ____queryResultVels,
             float ____totalWeight
         )
         {
             Profiler.RestartClock();
 
-            Vector3 bodyVelocity = __instance.dontUpdateVelocity ? ___lastVel : ____rb.velocity;
-            Vector3 velocityVector = bodyVelocity - waterSurfaceVel;
-            Vector3 dragPositionVector = ____rb.position + ____forceHeightOffset * Vector3.up;
-            var forwardVector = ____rb.transform.forward;
-            var forwardVelocity = Vector3.Dot(forwardVector, velocityVector);
-            Profiler.Profile("velocity");
-
             var shipData = ShipData.GetShipData(__instance.gameObject);
             Profiler.Profile("GetShipData");
 
-            PhysicsCalculation.UpdateBuoyancy(
+            var areVelocitiesValid =
+                !__instance.dontUpdateVelocity
+                && !shipData.velocityFitler.IsOutlier(____rb.velocity.magnitude);
+
+            PhysicsCalculation.UpdateForces(
                 __instance,
                 ____rb,
                 shipData,
-                ____queryResultDisps,
                 ____queryPoints,
-                ____totalWeight,
-                out var displacement,
-                out var wettedArea
+                ____queryResultDisps,
+                areVelocitiesValid ? ____queryResultVels : shipData.lastValidVelocities,
+                ____totalWeight
             );
-            Profiler.Profile("UpdateBuoyancy");
+            Profiler.Profile("UpdateForces");
 
-            var signedDragForceMagnitude = PhysicsCalculation.GetDragForceMagnitude(
-                ____rb,
-                shipData,
-                forwardVelocity,
-                displacement,
-                wettedArea
-            );
-            Profiler.Profile("GetDragForceMagnitude");
-
-            var dragForceVector = forwardVector * signedDragForceMagnitude;
-            ____rb.AddForceAtPosition(dragForceVector, dragPositionVector, ForceMode.Force);
-            Profiler.Profile("AddForceAtPosition");
+            if (areVelocitiesValid)
+                shipData.lastValidVelocities = (Vector3[])____queryResultVels.Clone();
 
             Profiler.LogDurations();
 

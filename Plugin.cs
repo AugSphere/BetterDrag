@@ -28,6 +28,7 @@ internal class Plugin : BaseUnityPlugin
     internal static ConfigEntry<float>? globalShipLengthMultiplier;
     internal static ConfigEntry<float>? globalBuoyancyMultiplier;
     internal static ConfigEntry<float>? globalMassMultiplier;
+    internal static ConfigEntry<float>? globalOffAxisDragMultiplier;
     internal static Dictionary<string, ShipDragPerformanceData> shipOverrides = [];
 #if DEBUG
     internal static ConfigEntry<int>? debugPrintPeriod;
@@ -84,6 +85,16 @@ internal class Plugin : BaseUnityPlugin
             nameof(globalMassMultiplier),
             1.0f,
             new ConfigDescription("Mass multiplier", new AcceptableValueRange<float>(0.1f, 5.0f))
+        );
+
+        globalOffAxisDragMultiplier = Config.Bind(
+            "--------- Global Multipliers ---------",
+            nameof(globalOffAxisDragMultiplier),
+            50f,
+            new ConfigDescription(
+                "Off-axis viscous drag multiplier",
+                new AcceptableValueRange<float>(20f, 150.0f)
+            )
         );
 
 #if DEBUG
