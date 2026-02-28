@@ -1,5 +1,8 @@
 ﻿using Crest;
 using UnityEngine;
+#if DEBUG
+using System.Collections.Generic;
+#endif
 
 namespace BetterDrag
 {
@@ -63,6 +66,7 @@ namespace BetterDrag
             var wettedArea = 0.0f;
 #if DEBUG
             float averageDraft = 0.0f;
+            List<(string, float)> csvItems = [];
             var totalFbDisplacement = 0.0f;
             var averageFbArea = 0.0f;
 #endif
@@ -138,6 +142,11 @@ namespace BetterDrag
                 averageDraft += draft / totalWeight;
                 totalFbDisplacement += fallbackDisplacement;
                 averageFbArea += fallbackWettedArea;
+                csvItems.Add(($"RB velocity {idx}", bodyPointVelocity.magnitude));
+                csvItems.Add(($"Water velocity {idx}", queryVelocities[idx].magnitude));
+                csvItems.Add(($"Relative velocity {idx}", queryVelocities[idx].magnitude));
+                csvItems.Add(($"forwardDrag {idx}", forwardDrag));
+                csvItems.Add(($"offAxisDrag {idx}", offAxisDrag));
                 shipData.buoyancyForceRenderers[idx].SetMagnitude(buoyantForceMagnitude / 1000f);
                 shipData.dragForceRenderers[idx].SetDirection(dragForce.normalized);
                 shipData.dragForceRenderers[idx].SetMagnitude(dragForce.magnitude / 100f);
@@ -152,10 +161,9 @@ namespace BetterDrag
                     ("displacementFb, m^3", totalFbDisplacement),
                     ("area, m^2", wettedArea),
                     ("areaFb, m^2", averageFbArea),
-                    ("baseBuoyancy", shipDataValues.baseBuoyancy),
-                    ("draftSpanRatio", shipDataValues.draftSpanRatio),
                 ]
             );
+            BetterDragDebug.LogCSVBuffered(csvItems);
 #endif
         }
     }

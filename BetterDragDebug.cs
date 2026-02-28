@@ -12,8 +12,7 @@ namespace BetterDrag
     {
         private static bool isOnFirstRun = true;
         private static uint counter = 1;
-        private static readonly List<string> textBuffer = [];
-        private static readonly List<float> valuesBuffer = [];
+        private static readonly Dictionary<string, float> csvBuffer = [];
 
         internal enum Mode
         {
@@ -25,8 +24,7 @@ namespace BetterDrag
         {
             ++counter;
             FileLog.SetBuffer([]);
-            textBuffer.Clear();
-            valuesBuffer.Clear();
+            csvBuffer.Clear();
         }
 
         public static bool IsAtPeriod
@@ -44,12 +42,11 @@ namespace BetterDrag
             FileLog.LogBuffered(lines);
         }
 
-        public static void LogCSVBuffered((string, float)[] entries)
+        public static void LogCSVBuffered(IEnumerable<(string, float)> entries)
         {
             foreach (var (text, value) in entries)
             {
-                textBuffer.Add(text);
-                valuesBuffer.Add(value);
+                csvBuffer[text] = value;
             }
         }
 
@@ -72,14 +69,16 @@ namespace BetterDrag
         {
             if (isOnFirstRun)
             {
-                FileLog.Log(textBuffer.Join(delimiter: ";"));
+                FileLog.Log(csvBuffer.Keys.Join(delimiter: ";"));
                 isOnFirstRun = false;
             }
             FileLog.Log(
-                valuesBuffer.Join((n) => n.ToString(CultureInfo.InvariantCulture), delimiter: ";")
+                csvBuffer.Values.Join(
+                    (n) => n.ToString(CultureInfo.InvariantCulture),
+                    delimiter: ";"
+                )
             );
-            textBuffer.Clear();
-            valuesBuffer.Clear();
+            csvBuffer.Clear();
         }
     }
 
