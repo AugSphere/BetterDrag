@@ -33,7 +33,8 @@ namespace BetterDrag
 
             var areVelocitiesValid =
                 !__instance.dontUpdateVelocity
-                && !shipData.velocityFitler.IsOutlier(____rb.velocity.magnitude);
+                && !shipData.bodyVelocityFilter.IsOutlier(____rb.velocity.magnitude)
+                && !shipData.waterVelocityFilter.IsAnyMagnitudeOutlier(____queryResultVels);
 
             PhysicsCalculation.UpdateForces(
                 __instance,
@@ -41,18 +42,18 @@ namespace BetterDrag
                 shipData,
                 ____queryPoints,
                 ____queryResultDisps,
-                areVelocitiesValid ? ____queryResultVels : shipData.lastValidVelocities,
+                areVelocitiesValid ? ____queryResultVels : shipData.lastValidWaterVelocities,
                 ____totalWeight
             );
             Profiler.Profile("UpdateForces");
 
             if (areVelocitiesValid)
-                shipData.lastValidVelocities = (Vector3[])____queryResultVels.Clone();
+                shipData.lastValidWaterVelocities = (Vector3[])____queryResultVels.Clone();
 
             Profiler.LogDurations();
 
 #if DEBUG
-            BetterDragDebug.FlushBuffer(BetterDragDebug.Mode.Line);
+            BetterDragDebug.FlushBuffer(BetterDragDebug.Mode.CSV);
             BetterDragDebug.FinishUpdate();
 #endif
         }

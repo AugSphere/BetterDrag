@@ -20,13 +20,21 @@ namespace BetterDrag
         public readonly ShipDragPerformanceData dragData = ShipDragConfigManager.GetPerformanceData(
             shipGameObject
         );
-        public readonly OutlierFilter velocityFitler = new(
-            "velocity filter",
+        public readonly OutlierFilter bodyVelocityFilter = new(
+            "body velocity filter",
             shipGameObject.name,
             rateLimit: 1.1f,
             noFilterCutoff: 0.1f
         );
-        public Vector3[] lastValidVelocities = new Vector3[Hydrostatics.probeLengthPositions * 2];
+        public readonly OutlierFilter waterVelocityFilter = new(
+            "water velocity filter",
+            shipGameObject.name,
+            rateLimit: 1.1f,
+            noFilterCutoff: 0.1f
+        );
+        public Vector3[] lastValidWaterVelocities = new Vector3[
+            Hydrostatics.probeLengthPositions * 2
+        ];
         private Hydrostatics? hydrostatics;
         private float baseBuoyancy = 25f;
         private float overflowOffset = 10f;

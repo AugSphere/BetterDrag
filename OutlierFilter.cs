@@ -23,6 +23,18 @@ namespace BetterDrag
             return CheckOutlierWithBuffer(value, this.buffer);
         }
 
+        public bool IsAnyMagnitudeOutlier(Vector3[] values)
+        {
+            float max = values[0].magnitude;
+            for (var idx = 1; idx < values.Length; ++idx)
+            {
+                var magnitude = values[idx].magnitude;
+                if (magnitude > max)
+                    max = magnitude;
+            }
+            return CheckOutlierWithBuffer(max, this.buffer);
+        }
+
         bool CheckOutlierWithBuffer(float value, MemoryBuffer buffer)
         {
             float min = float.MaxValue,
