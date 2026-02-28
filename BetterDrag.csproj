@@ -3,7 +3,7 @@
     <TargetFramework>net47</TargetFramework>
     <AssemblyName>BetterDrag</AssemblyName>
     <Product>BetterDrag</Product>
-    <Version>1.2.0</Version>
+    <Version>1.3.0</Version>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <Nullable>enable</Nullable>
     <LangVersion>latest</LangVersion>
