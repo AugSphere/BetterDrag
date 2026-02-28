@@ -31,10 +31,11 @@ namespace BetterDrag
             var shipData = ShipData.GetShipData(__instance.gameObject);
             Profiler.Profile("GetShipData");
 
-            var areVelocitiesValid =
-                !__instance.dontUpdateVelocity
-                && !shipData.bodyVelocityFilter.IsOutlier(____rb.velocity.magnitude)
-                && !shipData.waterVelocityFilter.IsAnyMagnitudeOutlier(____queryResultVels);
+            var smoothedVelocities = shipData.GetSmoothedVelocities(
+                __instance.dontUpdateVelocity,
+                ____queryPoints,
+                ____queryResultVels
+            );
 
             PhysicsCalculation.UpdateForces(
                 __instance,
@@ -42,14 +43,11 @@ namespace BetterDrag
                 shipData,
                 ____queryPoints,
                 ____queryResultDisps,
-                areVelocitiesValid ? ____queryResultVels : shipData.lastValidWaterVelocities,
+                smoothedVelocities.smoothedWaterVelocities,
+                smoothedVelocities.smoothedBodyVelocities,
                 ____totalWeight
             );
             Profiler.Profile("UpdateForces");
-
-            if (areVelocitiesValid)
-                shipData.lastValidWaterVelocities = (Vector3[])____queryResultVels.Clone();
-
             Profiler.LogDurations();
 
 #if DEBUG

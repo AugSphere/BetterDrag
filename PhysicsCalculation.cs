@@ -59,6 +59,7 @@ namespace BetterDrag
             Vector3[] queryPoints,
             Vector3[] queryDisplacements,
             Vector3[] queryVelocities,
+            Vector3[] bodyVelocities,
             float totalWeight
         )
         {
@@ -109,7 +110,7 @@ namespace BetterDrag
                     * buoyancyMultiplier
                     * Plugin.globalBuoyancyMultiplier!.Value;
 
-                Vector3 bodyPointVelocity = rigidBody.GetPointVelocity(queryPoints[idx]);
+                Vector3 bodyPointVelocity = bodyVelocities[idx];
                 Vector3 relativeVelocity = bodyPointVelocity - queryVelocities[idx];
                 Vector3 forwardVelocity = Vector3.Project(relativeVelocity, bodyForward);
                 Vector3 offAxisVelocity = relativeVelocity - forwardVelocity;
@@ -149,7 +150,7 @@ namespace BetterDrag
                 csvItems.Add(($"offAxisDrag {idx}", offAxisDrag));
                 shipData.buoyancyForceRenderers[idx].SetMagnitude(buoyantForceMagnitude / 1000f);
                 shipData.dragForceRenderers[idx].SetDirection(dragForce.normalized);
-                shipData.dragForceRenderers[idx].SetMagnitude(dragForce.magnitude / 100f);
+                shipData.dragForceRenderers[idx].SetMagnitude(dragForce.magnitude / 1000f);
 #endif
             }
 
