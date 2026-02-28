@@ -236,8 +236,10 @@ namespace BetterDrag
                 var position =
                     boatProbes._forcePoints[idx]._offsetPosition
                     + new Vector3(0f, this.centerOfMassHeight, 0f);
-                this.buoyancyForceRenderers.Add(new(this.rigidbody, position, Vector3.up));
-                this.dragForceRenderers.Add(new(this.rigidbody, position, Vector3.zero));
+                this.buoyancyForceRenderers.Add(
+                    new(this.rigidbody, position, Vector3.up, Color.blue)
+                );
+                this.dragForceRenderers.Add(new(this.rigidbody, position, Vector3.zero, Color.red));
             }
         }
 #endif

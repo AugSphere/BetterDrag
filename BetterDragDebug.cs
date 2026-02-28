@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 namespace BetterDrag
 {
@@ -177,66 +178,72 @@ namespace BetterDrag
 
     internal class DebugVectorRenderer
     {
-        private GameObject gameObject;
-        private readonly LineRenderer lineRenderer;
-        private readonly PositionUpdater positionUpdater;
+        private readonly GLLineRenderer glRenderer;
 
         internal DebugVectorRenderer(
             Rigidbody rigidBody,
             Vector3 localOrigin,
             Vector3 worldDirection,
-            float? debugLineSize = null
+            Color color
         )
         {
-            this.gameObject = new GameObject(
-                nameof(DebugSphereRenderer) + "(" + rigidBody.name + ")"
-            );
-            lineRenderer = this.gameObject.AddComponent<LineRenderer>();
-            lineRenderer.material = new Material(Shader.Find("Sprites/Default"));
-            lineRenderer.startWidth = debugLineSize ?? 0.25f;
-            lineRenderer.endWidth = debugLineSize ?? 0.25f;
-            lineRenderer.positionCount = 2;
-            positionUpdater = this.gameObject.AddComponent<PositionUpdater>();
-            positionUpdater.lineRenderer = lineRenderer;
-            positionUpdater.rigidBody = rigidBody;
-            positionUpdater.localOrigin = localOrigin;
-            positionUpdater.worldDirection = worldDirection;
+            glRenderer = Camera.main.gameObject.AddComponent<GLLineRenderer>();
+            glRenderer.rigidBody = rigidBody;
+            glRenderer.localOrigin = localOrigin;
+            glRenderer.worldDirection = worldDirection;
+            glRenderer.color = color;
         }
 
         internal void SetMagnitude(float magnitude)
         {
-            this.positionUpdater.magnitude = magnitude;
+            this.glRenderer.magnitude = magnitude;
         }
 
         internal void SetDirection(Vector3 worldDirection)
         {
-            this.positionUpdater.worldDirection = worldDirection;
+            this.glRenderer.worldDirection = worldDirection;
         }
 
-        private class PositionUpdater : MonoBehaviour
+        private class GLLineRenderer : MonoBehaviour
         {
             public Rigidbody? rigidBody;
-            public LineRenderer? lineRenderer;
+            public Material? lineMaterial;
             public Vector3 localOrigin;
             public Vector3 worldDirection;
+            public Color color;
             public float magnitude;
 
-            void Awake()
+            private void OnPostRender()
             {
-                DontDestroyOnLoad(gameObject);
+                CreateLineMaterial();
+                if (rigidBody is null || lineMaterial is null)
+                    return;
+                lineMaterial.SetPass(0);
+
+                GL.PushMatrix();
+
+                var originInWorld = rigidBody.transform.TransformPoint(localOrigin);
+
+                GL.Begin(GL.LINES);
+                GL.Color(color);
+                GL.Vertex(originInWorld);
+                GL.Vertex(originInWorld + worldDirection * magnitude);
+                GL.End();
+
+                GL.PopMatrix();
             }
 
-            void Update()
+            private void CreateLineMaterial()
             {
-                if (rigidBody is null || lineRenderer is null)
+                if (lineMaterial is not null)
                     return;
-                var originInWorld = rigidBody.transform.TransformPoint(localOrigin);
-                var color = magnitude < 0 ? UnityEngine.Color.red : UnityEngine.Color.green;
-                lineRenderer.startColor = color;
-                lineRenderer.endColor = color;
-                lineRenderer.SetPositions(
-                    [originInWorld, originInWorld + worldDirection * magnitude]
-                );
+
+                lineMaterial = new(Shader.Find("Hidden/Internal-Colored"))
+                {
+                    hideFlags = HideFlags.HideAndDontSave,
+                };
+
+                lineMaterial.SetInt("_ZTest", (int)CompareFunction.Always);
             }
         }
     }
