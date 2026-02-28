@@ -11,16 +11,14 @@ namespace BetterDrag
             float velocity,
             float displacement,
             float wettedArea,
-            float maxProbeBeam,
             ShipData shipData,
             bool isLongitudinal
         )
         {
             var absVelocity = Mathf.Abs(velocity);
             var performanceData = shipData.dragData;
-            var lengthAtWaterline = isLongitudinal
-                ? Plugin.globalShipLengthMultiplier!.Value * performanceData.LengthAtWaterline
-                : maxProbeBeam;
+            var lengthAtWaterline =
+                Plugin.globalShipLengthMultiplier!.Value * performanceData.LengthAtWaterline;
             var formFactor = performanceData.FormFactor;
 
             var viscousDrag =
@@ -32,8 +30,10 @@ namespace BetterDrag
                     formFactor,
                     displacement,
                     wettedArea
-                )
-                * (isLongitudinal ? 1f : Plugin.globalOffAxisDragMultiplier!.Value);
+                );
+
+            if (!isLongitudinal)
+                return viscousDrag * Plugin.globalOffAxisDragMultiplier!.Value;
 
             var waveMakingDrag =
                 Plugin.globalWaveMakingDragMultiplier!.Value
@@ -114,7 +114,6 @@ namespace BetterDrag
                     forwardVelocity.magnitude,
                     displacement,
                     wettedArea,
-                    shipDataValues.maxProbeBeam,
                     shipData,
                     true
                 );
@@ -123,7 +122,6 @@ namespace BetterDrag
                     offAxisVelocity.magnitude,
                     displacement,
                     wettedArea,
-                    shipDataValues.maxProbeBeam,
                     shipData,
                     false
                 );
@@ -142,7 +140,7 @@ namespace BetterDrag
                 averageFbArea += fallbackWettedArea;
                 shipData.buoyancyForceRenderers[idx].SetMagnitude(buoyantForceMagnitude / 1000f);
                 shipData.dragForceRenderers[idx].SetDirection(dragForce.normalized);
-                shipData.dragForceRenderers[idx].SetMagnitude(dragForce.magnitude / 10f);
+                shipData.dragForceRenderers[idx].SetMagnitude(dragForce.magnitude / 100f);
 #endif
             }
 

@@ -35,7 +35,6 @@ namespace BetterDrag
         private float keelOffset = 1f;
         private float lengthAtWaterline = 15f;
         private float draftSpanRatio;
-        private float maxProbeBeam;
         private Vector3 keelPointPosition;
         private Vector3 bowPointPosition;
         private Vector3 sternPointPosition;
@@ -63,7 +62,6 @@ namespace BetterDrag
             float draftOffset,
             float keelDepth,
             float lengthAtWaterline,
-            float maxProbeBeam,
             float draftSpanRatio
         ) GetValues(BoatProbes boatProbes)
         {
@@ -77,8 +75,7 @@ namespace BetterDrag
                     boatProbes,
                     this.bowPointPosition,
                     this.sternPointPosition,
-                    this.keelPointPosition,
-                    out this.maxProbeBeam
+                    this.keelPointPosition
                 );
 #if DEBUG
                 this.SetupVectorRenderers(boatProbes);
@@ -92,7 +89,6 @@ namespace BetterDrag
                 this.draftOffset,
                 this.keelOffset,
                 this.lengthAtWaterline,
-                this.maxProbeBeam,
                 this.draftSpanRatio
             );
         }

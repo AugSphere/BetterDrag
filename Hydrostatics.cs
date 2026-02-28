@@ -40,15 +40,13 @@ namespace BetterDrag
             BoatProbes boatProbes,
             Vector3 bowPointPosition,
             Vector3 sternPointPosition,
-            Vector3 keelPointPosition,
-            out float maxProbeBeam
+            Vector3 keelPointPosition
         )
         {
             this.shipName = shipName;
             this.minHeight = keelPointPosition.y;
             this.minLength = 1.3f * sternPointPosition.z;
             this.maxLength = 1.3f * bowPointPosition.z;
-            maxProbeBeam = 2f;
             if (!CastHullRays(rigidbody, out var hullPoints, out var beamWidths))
             {
 #if DEBUG
@@ -58,13 +56,7 @@ namespace BetterDrag
 #endif
                 return;
             }
-            UpdateProbePositions(
-                boatProbes,
-                bowPointPosition,
-                sternPointPosition,
-                beamWidths,
-                out maxProbeBeam
-            );
+            UpdateProbePositions(boatProbes, bowPointPosition, sternPointPosition, beamWidths);
             BuildTables(boatProbes, hullPoints);
             isTableFilled = true;
         }
@@ -109,13 +101,11 @@ namespace BetterDrag
             BoatProbes boatProbes,
             Vector3 bowPoint,
             Vector3 sternPoint,
-            float[] beamWidths,
-            out float maxProbeBeam
+            float[] beamWidths
         )
         {
             var maxProbeZ = bowPoint.z * 0.9f;
             var minProbeZ = sternPoint.z * 0.9f;
-            maxProbeBeam = 0f;
             Vector3[] newPositions = new Vector3[boatProbes._forcePoints.Length];
             for (var lengthIdx = 0; lengthIdx < probeLengthPositions; ++lengthIdx)
             {
@@ -123,7 +113,6 @@ namespace BetterDrag
                     (maxProbeZ - minProbeZ) / (float)(probeLengthPositions - 1) * lengthIdx
                     + minProbeZ;
                 var beam = this.GetBeam(beamWidths, probeZ);
-                maxProbeBeam = Mathf.Max(maxProbeBeam, beam * 0.8f);
                 newPositions[lengthIdx * 2] = new(-beam / 2.5f, 0f, probeZ);
                 newPositions[lengthIdx * 2 + 1] = new(beam / 2.5f, 0f, probeZ);
             }
