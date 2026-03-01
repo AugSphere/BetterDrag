@@ -144,10 +144,14 @@ namespace BetterDrag
                 totalFbDisplacement += fallbackDisplacement;
                 averageFbArea += fallbackWettedArea;
                 csvItems.Add(($"RB velocity {idx}", bodyPointVelocity.magnitude));
-                csvItems.Add(($"Water velocity {idx}", queryVelocities[idx].magnitude));
-                csvItems.Add(($"Relative velocity {idx}", queryVelocities[idx].magnitude));
-                csvItems.Add(($"forwardDrag {idx}", forwardDrag));
-                csvItems.Add(($"offAxisDrag {idx}", offAxisDrag));
+                csvItems.Add(($"water velocity {idx}", queryVelocities[idx].magnitude));
+                csvItems.Add(($"relative velocity {idx}", relativeVelocity.magnitude));
+                csvItems.Add(($"forward velocity {idx}", forwardVelocity.magnitude));
+                csvItems.Add(($"off-axis velocity {idx}", offAxisVelocity.magnitude));
+                csvItems.Add(($"displacement {idx}", displacement));
+                csvItems.Add(($"wettedArea {idx}", wettedArea));
+                csvItems.Add(($"forward drag {idx}", forwardDrag));
+                csvItems.Add(($"off-axis drag {idx}", offAxisDrag));
                 shipData.buoyancyForceRenderers[idx].SetMagnitude(buoyantForceMagnitude / 1000f);
                 shipData.dragForceRenderers[idx].SetDirection(dragForce.normalized);
                 shipData.dragForceRenderers[idx].SetMagnitude(dragForce.magnitude / 1000f);

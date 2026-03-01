@@ -20,25 +20,7 @@ namespace BetterDrag
         public readonly ShipDragPerformanceData dragData = ShipDragConfigManager.GetPerformanceData(
             shipGameObject
         );
-        private readonly OutlierFilter bodyVelocityFilter = new(
-            "body velocity filter",
-            shipGameObject.name,
-            rateLimit: 1.2f,
-            noFilterCutoff: 0.1f
-        );
-        private readonly OutlierFilter waterVelocityFilter = new(
-            "water velocity filter",
-            shipGameObject.name,
-            rateLimit: 1.2f,
-            noFilterCutoff: 0.1f
-        );
-        private Vector3[] smoothedWaterVelocities = new Vector3[
-            Hydrostatics.probeLengthPositions * 2
-        ];
-        private Vector3[] smoothedBodyVelocities = new Vector3[
-            Hydrostatics.probeLengthPositions * 2
-        ];
-        private const float smoothingFactor = 0.1875f;
+        public readonly InputFilter inputFilter = new(shipGameObject.GetComponent<Rigidbody>());
         private Hydrostatics? hydrostatics;
         private float baseBuoyancy = 25f;
         private float overflowOffset = 10f;
@@ -124,34 +106,6 @@ namespace BetterDrag
                 relativeToCoM: true
             );
 #endif
-        }
-
-        internal (
-            Vector3[] smoothedBodyVelocities,
-            Vector3[] smoothedWaterVelocities
-        ) GetSmoothedVelocities(
-            bool dontUpdateVelocity,
-            Vector3[] queryPoints,
-            Vector3[] queryVelocities
-        )
-        {
-            var areVelocitiesValid =
-                !dontUpdateVelocity
-                && !bodyVelocityFilter.IsOutlier(rigidBody.velocity.magnitude)
-                && !waterVelocityFilter.IsAnyMagnitudeOutlier(queryVelocities);
-
-            if (areVelocitiesValid)
-            {
-                for (var idx = 0; idx < Hydrostatics.probeLengthPositions * 2; ++idx)
-                {
-                    smoothedWaterVelocities[idx] *= (1f - smoothingFactor);
-                    smoothedWaterVelocities[idx] += smoothingFactor * queryVelocities[idx];
-                    smoothedBodyVelocities[idx] *= (1f - smoothingFactor);
-                    smoothedBodyVelocities[idx] +=
-                        smoothingFactor * rigidBody.GetPointVelocity(queryPoints[idx]);
-                }
-            }
-            return (smoothedBodyVelocities, smoothedWaterVelocities);
         }
 
         internal void SetBaseBuoyancy(float baseBuoyancy)
