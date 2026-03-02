@@ -155,6 +155,10 @@ namespace BetterDrag
                 shipData.buoyancyForceRenderers[idx].SetMagnitude(buoyantForceMagnitude / 1000f);
                 shipData.dragForceRenderers[idx].SetDirection(dragForce.normalized);
                 shipData.dragForceRenderers[idx].SetMagnitude(dragForce.magnitude / 1000f);
+                shipData.waterVelocityRenders[idx].SetDirection(queryVelocities[idx].normalized);
+                shipData.waterVelocityRenders[idx].SetMagnitude(queryVelocities[idx].magnitude);
+                shipData.relativeVelocityRenders[idx].SetDirection(relativeVelocity.normalized);
+                shipData.relativeVelocityRenders[idx].SetMagnitude(relativeVelocity.magnitude);
 #endif
             }
 

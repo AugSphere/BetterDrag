@@ -43,6 +43,8 @@ namespace BetterDrag
         public DebugSphereRenderer? rbComRenderer;
         public List<DebugVectorRenderer> buoyancyForceRenderers = [];
         public List<DebugVectorRenderer> dragForceRenderers = [];
+        public List<DebugVectorRenderer> waterVelocityRenders = [];
+        public List<DebugVectorRenderer> relativeVelocityRenders = [];
 #endif
 
         public static ShipData GetShipData(GameObject shipGameObject)
@@ -234,6 +236,12 @@ namespace BetterDrag
                     new(this.rigidBody, position, Vector3.up, Color.blue)
                 );
                 this.dragForceRenderers.Add(new(this.rigidBody, position, Vector3.zero, Color.red));
+                this.waterVelocityRenders.Add(
+                    new(this.rigidBody, position, Vector3.zero, Color.green)
+                );
+                this.relativeVelocityRenders.Add(
+                    new(this.rigidBody, position, Vector3.zero, Color.magenta)
+                );
             }
         }
 #endif
