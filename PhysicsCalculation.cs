@@ -73,9 +73,9 @@ namespace BetterDrag
             var totalWettedArea = 0.0f;
 #if DEBUG
             float averageDraft = 0.0f;
-            List<(string, float)> csvItems = [];
             var totalFbDisplacement = 0.0f;
             var totalFbWettedArea = 0.0f;
+            List<(string, float)> csvItems = [];
 #endif
 
             var shipDataValues = shipData.GetValues(boatProbes);
