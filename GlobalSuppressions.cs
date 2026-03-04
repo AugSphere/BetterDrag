@@ -101,3 +101,10 @@ using System.Diagnostics.CodeAnalysis;
     Scope = "member",
     Target = "~F:BetterDrag.OutlierFilter.shipName"
 )]
+[assembly: SuppressMessage(
+    "Cleaning",
+    "UnusedVariable:Unused variable is declared.",
+    Justification = "Debug print support",
+    Scope = "member",
+    Target = "~M:BetterDrag.PhysicsCalculation.CalculateDragForce(System.Single,System.Single,System.Single,BetterDrag.ShipData,System.Boolean,System.Int32)~System.Single"
+)]

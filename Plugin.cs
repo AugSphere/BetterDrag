@@ -90,10 +90,10 @@ internal class Plugin : BaseUnityPlugin
         globalOffAxisDragMultiplier = Config.Bind(
             "--------- Global Multipliers ---------",
             nameof(globalOffAxisDragMultiplier),
-            50f,
+            100f,
             new ConfigDescription(
                 "Off-axis viscous drag multiplier",
-                new AcceptableValueRange<float>(20f, 150.0f)
+                new AcceptableValueRange<float>(25f, 250.0f)
             )
         );
 

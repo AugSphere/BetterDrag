@@ -15,7 +15,8 @@ namespace BetterDrag
             float displacement,
             float wettedArea,
             ShipData shipData,
-            bool isLongitudinal
+            bool isLongitudinal,
+            int probeIdx
         )
         {
             var absVelocity = Mathf.Abs(velocity);
@@ -49,6 +50,11 @@ namespace BetterDrag
                     wettedArea
                 );
 
+#if DEBUG
+            BetterDragDebug.LogCSVBuffered(
+                [($"drag_vs_p{probeIdx}", viscousDrag), ($"drag_wm_p{probeIdx}", waveMakingDrag)]
+            );
+#endif
             return viscousDrag + waveMakingDrag;
         }
 
@@ -64,12 +70,12 @@ namespace BetterDrag
         )
         {
             var totalDisplacement = 0.0f;
-            var wettedArea = 0.0f;
+            var totalWettedArea = 0.0f;
 #if DEBUG
             float averageDraft = 0.0f;
             List<(string, float)> csvItems = [];
             var totalFbDisplacement = 0.0f;
-            var averageFbArea = 0.0f;
+            var totalFbWettedArea = 0.0f;
 #endif
 
             var shipDataValues = shipData.GetValues(boatProbes);
@@ -100,7 +106,7 @@ namespace BetterDrag
                     shipData.GetHydrostaticValues(idx, draft)
                     ?? (fallbackWettedArea, fallbackDisplacement);
                 totalDisplacement += displacement;
-                wettedArea += area;
+                totalWettedArea += area;
 
                 float buoyantForceMagnitude =
                     PhysicsCalculation.waterWeight
@@ -118,17 +124,19 @@ namespace BetterDrag
                 float forwardDrag = CalculateDragForce(
                     forwardVelocity.magnitude,
                     displacement,
-                    wettedArea,
+                    area,
                     shipData,
-                    true
+                    true,
+                    idx
                 );
 
                 float offAxisDrag = CalculateDragForce(
                     offAxisVelocity.magnitude,
                     displacement,
-                    wettedArea,
+                    area,
                     shipData,
-                    false
+                    false,
+                    idx
                 );
 
                 Vector3 buoyantForce = Vector3.up * buoyantForceMagnitude;
@@ -142,16 +150,17 @@ namespace BetterDrag
 #if DEBUG
                 averageDraft += draft / totalWeight;
                 totalFbDisplacement += fallbackDisplacement;
-                averageFbArea += fallbackWettedArea;
-                csvItems.Add(($"RB velocity {idx}", bodyPointVelocity.magnitude));
-                csvItems.Add(($"water velocity {idx}", queryVelocities[idx].magnitude));
-                csvItems.Add(($"relative velocity {idx}", relativeVelocity.magnitude));
-                csvItems.Add(($"forward velocity {idx}", forwardVelocity.magnitude));
-                csvItems.Add(($"off-axis velocity {idx}", offAxisVelocity.magnitude));
-                csvItems.Add(($"displacement {idx}", displacement));
-                csvItems.Add(($"wettedArea {idx}", wettedArea));
-                csvItems.Add(($"forward drag {idx}", forwardDrag));
-                csvItems.Add(($"off-axis drag {idx}", offAxisDrag));
+                totalFbWettedArea += fallbackWettedArea;
+                csvItems.Add(($"draft_p{idx}", draft));
+                csvItems.Add(($"velocity_rb_p{idx}", bodyPointVelocity.magnitude));
+                csvItems.Add(($"velocity_w_p{idx}", queryVelocities[idx].magnitude));
+                csvItems.Add(($"velocity_r_p{idx}", relativeVelocity.magnitude));
+                csvItems.Add(($"velocity_fw_p{idx}", forwardVelocity.magnitude));
+                csvItems.Add(($"velocity_tr_p{idx}", offAxisVelocity.magnitude));
+                csvItems.Add(($"displacement_p{idx}", displacement));
+                csvItems.Add(($"area_p{idx}", area));
+                csvItems.Add(($"drag_fw_p{idx}", forwardDrag));
+                csvItems.Add(($"drag_tr_p{idx}", offAxisDrag));
                 shipData.buoyancyForceRenderers[idx].SetMagnitude(buoyantForceMagnitude / 1000f);
                 shipData.dragForceRenderers[idx].SetDirection(dragForce.normalized);
                 shipData.dragForceRenderers[idx].SetMagnitude(dragForce.magnitude / 1000f);
@@ -165,11 +174,11 @@ namespace BetterDrag
 #if DEBUG
             BetterDragDebug.LogCSVBuffered(
                 [
-                    ("draft, m", averageDraft),
-                    ("displacement, m^3", totalDisplacement),
-                    ("displacementFb, m^3", totalFbDisplacement),
-                    ("area, m^2", wettedArea),
-                    ("areaFb, m^2", averageFbArea),
+                    ("draft_avg", averageDraft),
+                    ("displacement", totalDisplacement),
+                    ("displacement_fb", totalFbDisplacement),
+                    ("area", totalWettedArea),
+                    ("area_fb", totalFbWettedArea),
                 ]
             );
             BetterDragDebug.LogCSVBuffered(csvItems);
