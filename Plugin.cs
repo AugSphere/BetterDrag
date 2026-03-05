@@ -19,7 +19,7 @@ internal class Plugin : BaseUnityPlugin
 {
     private const string PLUGIN_GUID = "com.AugSphere.BetterDrag";
     private const string PLUGIN_NAME = "BetterDrag";
-    private const string PLUGIN_VERSION = "1.3.0";
+    private const string PLUGIN_VERSION = "1.3.1";
 
     internal static new ManualLogSource? Logger;
 
@@ -42,30 +42,30 @@ internal class Plugin : BaseUnityPlugin
 
         globalViscousDragMultiplier = Config.Bind(
             "--------- Global Multipliers ---------",
-            "globalViscousDragMultiplier",
+            nameof(globalViscousDragMultiplier),
             1.0f,
             new ConfigDescription(
-                "Viscous drag multiplier for all ships",
+                "Viscous drag multiplier for all ships, relevant at all speeds, higher values make ships slower.",
                 new AcceptableValueRange<float>(0.0f, 5.0f)
             )
         );
 
         globalWaveMakingDragMultiplier = Config.Bind(
             "--------- Global Multipliers ---------",
-            "globalWaveMakingDragMultiplier",
+            nameof(globalWaveMakingDragMultiplier),
             1.0f,
             new ConfigDescription(
-                "Wave-making drag multiplier for all ships",
+                "Wave-making drag multiplier for all ships, mostly matters at high speeds, higher values make ships slower.",
                 new AcceptableValueRange<float>(0.0f, 5.0f)
             )
         );
 
         globalShipLengthMultiplier = Config.Bind(
             "--------- Global Multipliers ---------",
-            "globalShipLengthMultiplier",
+            nameof(globalShipLengthMultiplier),
             1.0f,
             new ConfigDescription(
-                "Ship length multiplier, higher values raise the maximum speed",
+                "Ship length multiplier, higher values raise the maximum speed.",
                 new AcceptableValueRange<float>(0.1f, 5.0f)
             )
         );
@@ -75,7 +75,7 @@ internal class Plugin : BaseUnityPlugin
             nameof(globalBuoyancyMultiplier),
             1.0f,
             new ConfigDescription(
-                "Buoyancy multiplier",
+                "Buoyancy multiplier, higher values make ships sit higher in the water.",
                 new AcceptableValueRange<float>(0.1f, 5.0f)
             )
         );
@@ -84,7 +84,10 @@ internal class Plugin : BaseUnityPlugin
             "--------- Global Multipliers ---------",
             nameof(globalMassMultiplier),
             1.0f,
-            new ConfigDescription("Mass multiplier", new AcceptableValueRange<float>(0.1f, 5.0f))
+            new ConfigDescription(
+                "Mass multiplier, higher values result in heavier ship hulls.",
+                new AcceptableValueRange<float>(0.1f, 5.0f)
+            )
         );
 
         globalOffAxisDragMultiplier = Config.Bind(
@@ -92,7 +95,7 @@ internal class Plugin : BaseUnityPlugin
             nameof(globalOffAxisDragMultiplier),
             100f,
             new ConfigDescription(
-                "Off-axis viscous drag multiplier",
+                "Viscous drag multiplier for vertical and lateral movement, higher values make ships less drifty.",
                 new AcceptableValueRange<float>(25f, 250.0f)
             )
         );
@@ -103,7 +106,7 @@ internal class Plugin : BaseUnityPlugin
             "debugPrintPeriod",
             500,
             new ConfigDescription(
-                "How frequently debug data is printed to harmony.log.txt",
+                "How frequently debug data is printed to harmony.log.txt.",
                 new AcceptableValueRange<int>(1, 500)
             )
         );
