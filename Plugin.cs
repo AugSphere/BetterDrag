@@ -45,7 +45,7 @@ internal class Plugin : BaseUnityPlugin
             nameof(globalViscousDragMultiplier),
             1.0f,
             new ConfigDescription(
-                "Viscous drag multiplier for all ships, relevant at all speeds, higher values make ships slower.",
+                "Viscous drag multiplier. Relevant at all speeds. Higher values make ships slower.",
                 new AcceptableValueRange<float>(0.0f, 5.0f)
             )
         );
@@ -55,7 +55,7 @@ internal class Plugin : BaseUnityPlugin
             nameof(globalWaveMakingDragMultiplier),
             1.0f,
             new ConfigDescription(
-                "Wave-making drag multiplier for all ships, mostly matters at high speeds, higher values make ships slower.",
+                "Wave-making drag multiplier. Mostly matters at high speeds. Higher values make ships slower.",
                 new AcceptableValueRange<float>(0.0f, 5.0f)
             )
         );
@@ -65,7 +65,7 @@ internal class Plugin : BaseUnityPlugin
             nameof(globalShipLengthMultiplier),
             1.0f,
             new ConfigDescription(
-                "Ship length multiplier, higher values raise the maximum speed.",
+                "Ship length multiplier. Higher values raise the maximum speed.",
                 new AcceptableValueRange<float>(0.1f, 5.0f)
             )
         );
@@ -75,7 +75,7 @@ internal class Plugin : BaseUnityPlugin
             nameof(globalBuoyancyMultiplier),
             1.0f,
             new ConfigDescription(
-                "Buoyancy multiplier, higher values make ships sit higher in the water.",
+                "Buoyancy multiplier. Higher values make ships sit higher in the water.",
                 new AcceptableValueRange<float>(0.1f, 5.0f)
             )
         );
@@ -85,7 +85,7 @@ internal class Plugin : BaseUnityPlugin
             nameof(globalMassMultiplier),
             1.0f,
             new ConfigDescription(
-                "Mass multiplier, higher values result in heavier ship hulls.",
+                "Mass multiplier. Higher values result in heavier ship hulls.",
                 new AcceptableValueRange<float>(0.1f, 5.0f)
             )
         );
@@ -95,7 +95,7 @@ internal class Plugin : BaseUnityPlugin
             nameof(globalOffAxisDragMultiplier),
             100f,
             new ConfigDescription(
-                "Viscous drag multiplier for vertical and lateral movement, higher values make ships less drifty.",
+                "Viscous drag multiplier for vertical and lateral movement. Higher values make ships less prone to drifting sideways.",
                 new AcceptableValueRange<float>(25f, 250.0f)
             )
         );
