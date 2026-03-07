@@ -46,13 +46,6 @@ using System.Diagnostics.CodeAnalysis;
     Target = "~T:BetterDrag.Profiler"
 )]
 [assembly: SuppressMessage(
-    "Refactoring",
-    "UninitializedLocalVariable:The local variable is not initialized at declaration.",
-    Justification = "No cleaner way to branch",
-    Scope = "type",
-    Target = "~T:BetterDrag.DragModel"
-)]
-[assembly: SuppressMessage(
     "Performance",
     "CA1814:Prefer jagged arrays over multidimensional",
     Justification = "Wastes no space",

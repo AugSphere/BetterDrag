@@ -21,8 +21,6 @@ namespace BetterDrag
         )
         {
             float froudeNumber = absVelocity / Mathf.Sqrt(lengthAtWaterline * g);
-            float force;
-
 #if DEBUG
             BetterDragDebug.LogCSVBuffered([("Fr", froudeNumber)]);
 #endif
@@ -31,7 +29,7 @@ namespace BetterDrag
 
             float forceScaling = (Mathf.Exp(froudeNumber * 10f) - 1f) / 500f;
             float forceOscillation = 2f + Mathf.Cos(2f * Mathf.PI / froudeNumber);
-            force = forceScaling * forceOscillation;
+            float force = forceScaling * forceOscillation;
 
             force *= displacement * tuningWaveMakingDragMult;
             return force;
@@ -46,19 +44,15 @@ namespace BetterDrag
         )
         {
             float reynoldsNumber = absVelocity * lengthAtWaterline * 1e6f;
-            float force;
+            float force = 0.0f;
 
             if (reynoldsNumber < 0.01)
-            {
-                force = 0.0f;
-            }
-            else
-            {
-                float speedOrder = Mathf.Log10(reynoldsNumber) - 2.0f;
-                float coefficient = 0.075f / (speedOrder * speedOrder);
-                force = coefficient * wettedArea * (1.0f + formFactor) * absVelocity * absVelocity;
-                force *= tuningViscousDragMult;
-            }
+                return force;
+
+            float speedOrder = Mathf.Log10(reynoldsNumber) - 2.0f;
+            float coefficient = 0.075f / (speedOrder * speedOrder);
+            force = coefficient * wettedArea * (1.0f + formFactor) * absVelocity * absVelocity;
+            force *= tuningViscousDragMult;
 
             return force;
         }
