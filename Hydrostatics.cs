@@ -18,7 +18,7 @@ namespace BetterDrag
         readonly bool isTableFilled;
         readonly string shipName;
 
-#if DEBUG
+#if DEBUG && DRAW_HULL
         static readonly Color[] colorList =
         [
             Color.white,
@@ -219,7 +219,7 @@ namespace BetterDrag
                         var hitPoint = rigidbody.transform.InverseTransformPoint(hitInfo.point);
                         hullPoints[heightIdx, lengthIdx] = hitPoint;
                         beamWidths[lengthIdx] = Mathf.Max(beamWidths[lengthIdx], hitPoint.x);
-#if DEBUG
+#if DEBUG && DRAW_HULL
                         renderers[heightIdx, lengthIdx] = new(rigidbody, hitPoint, radius: 0.1f);
 #endif
                     }
@@ -252,7 +252,7 @@ namespace BetterDrag
                     var aheadPointHigh = hullPoints[heightIdx + 1, lengthIdx + 1];
                     var halfProbeIdx =
                         FindNearestProbe(boatProbes._forcePoints, asternPointLow) / 2;
-#if DEBUG
+#if DEBUG && DRAW_HULL
                     if (renderers[heightIdx, lengthIdx] is not null)
                         renderers[heightIdx, lengthIdx]!.SetColor(colorList[halfProbeIdx]);
 #endif
