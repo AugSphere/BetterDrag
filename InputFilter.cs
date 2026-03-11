@@ -4,23 +4,22 @@ namespace BetterDrag
 {
     internal class InputFilter(Rigidbody rigidBody)
     {
-        private const float smoothingFactor = 0.25f;
         private readonly Rigidbody rigidBody = rigidBody;
 
         private readonly VectorArrayFilter bodyVelocityFilter = new(
             "body velocity",
             rigidBody,
-            0.75f
+            0.25f
         );
         private readonly VectorArrayFilter queryVelocityFilter = new(
             "water velocity",
             rigidBody,
-            0.25f
+            0.03125f
         );
         private readonly VectorArrayFilter queryDisplacementFilter = new(
             "displacement",
             rigidBody,
-            0.75f
+            0.25f
         );
 
         internal (
@@ -63,12 +62,6 @@ namespace BetterDrag
                 queryVelocityFilter.smoothedValues,
                 queryDisplacementFilter.smoothedValues
             );
-        }
-
-        private static void SmoothValue(Vector3[] smoothedValues, int idx, Vector3 value)
-        {
-            smoothedValues[idx] *= (1f - smoothingFactor);
-            smoothedValues[idx] += smoothingFactor * value;
         }
 
         private class VectorArrayFilter(string name, Rigidbody rigidBody, float smoothingFactor)

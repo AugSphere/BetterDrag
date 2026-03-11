@@ -93,10 +93,10 @@ internal class Plugin : BaseUnityPlugin
         globalOffAxisDragMultiplier = Config.Bind(
             "--------- Global Multipliers ---------",
             nameof(globalOffAxisDragMultiplier),
-            100f,
+            150f,
             new ConfigDescription(
                 "Viscous drag multiplier for vertical and lateral movement. Higher values make ships less prone to drifting sideways.",
-                new AcceptableValueRange<float>(25f, 250.0f)
+                new AcceptableValueRange<float>(50f, 250.0f)
             )
         );
 
