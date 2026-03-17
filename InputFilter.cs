@@ -67,7 +67,7 @@ namespace BetterDrag
         private class VectorArrayFilter(string name, Rigidbody rigidBody, float smoothingFactor)
         {
             public Vector3[] smoothedValues = new Vector3[Hydrostatics.probeLengthPositions * 2];
-            public readonly OutlierFilter magnitudeFilter = new(
+            public readonly OutlierDetector magnitudeFilter = new(
                 $"{name} filter",
                 rigidBody.gameObject.name,
                 rateLimit: 1.2f,

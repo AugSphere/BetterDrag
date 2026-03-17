@@ -85,14 +85,14 @@ using System.Diagnostics.CodeAnalysis;
     "CA1823:Avoid unused private fields",
     Justification = "Conditional compilation",
     Scope = "member",
-    Target = "~F:BetterDrag.OutlierFilter.filterName"
+    Target = "~F:BetterDrag.OutlierDetector.name"
 )]
 [assembly: SuppressMessage(
     "Performance",
     "CA1823:Avoid unused private fields",
     Justification = "Conditional compilation",
     Scope = "member",
-    Target = "~F:BetterDrag.OutlierFilter.shipName"
+    Target = "~F:BetterDrag.OutlierDetector.shipName"
 )]
 [assembly: SuppressMessage(
     "Cleaning",

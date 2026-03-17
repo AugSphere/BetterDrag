@@ -1,21 +1,19 @@
-﻿using System.Globalization;
-using System.Text;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace BetterDrag
 {
-    internal class OutlierFilter(
-        string filterName,
+    internal partial class OutlierDetector(
+        string name,
         string shipName,
-        float rateLimit,
-        float noFilterCutoff
+        float rateLimit = 1.2f,
+        float noFilterCutoff = 0.1f
     )
     {
-        const uint sampleCount = 16;
+        const int sampleCount = 16;
         readonly float rateLimit = rateLimit;
         readonly float noFilterCutoff = noFilterCutoff;
-        readonly MemoryBuffer buffer = new();
-        readonly string filterName = filterName;
+        readonly CircularBuffer<float> buffer = new(sampleCount);
+        readonly string name = name;
         readonly string shipName = shipName;
 
         public bool IsOutlier(float value)
@@ -35,13 +33,12 @@ namespace BetterDrag
             return CheckOutlierWithBuffer(max, this.buffer);
         }
 
-        bool CheckOutlierWithBuffer(float value, MemoryBuffer buffer)
+        bool CheckOutlierWithBuffer(float value, CircularBuffer<float> buffer)
         {
             float min = float.MaxValue,
                 max = float.MinValue;
-            for (int idx = 0; idx < sampleCount; ++idx)
+            foreach (var sample in buffer)
             {
-                var sample = buffer[idx];
                 min = Mathf.Min(min, sample);
                 max = Mathf.Max(max, sample);
             }
@@ -76,40 +73,6 @@ namespace BetterDrag
 #endif
                 buffer.Insert(clampedValue);
                 return true;
-            }
-        }
-
-        class MemoryBuffer
-        {
-            readonly float[] buffer = new float[sampleCount];
-            private uint insertionIndex;
-
-            public float this[int idx]
-            {
-                get { return this.buffer[idx]; }
-            }
-
-            public void Insert(float value)
-            {
-                this.buffer[insertionIndex++ % sampleCount] = value;
-            }
-
-            public sealed override string ToString()
-            {
-                var stringBuilder = new StringBuilder();
-                stringBuilder.Append('[');
-                for (int idx = 0; idx < sampleCount; ++idx)
-                {
-                    stringBuilder.AppendFormat(
-                        CultureInfo.InvariantCulture,
-                        "{0:F2}",
-                        this.buffer[idx]
-                    );
-                    if (idx != sampleCount - 1)
-                        stringBuilder.Append(", ");
-                }
-                stringBuilder.Append(']');
-                return stringBuilder.ToString();
             }
         }
     }
