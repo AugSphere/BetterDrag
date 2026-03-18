@@ -8,6 +8,7 @@ namespace BetterDrag
         const uint lengthSegmentCount = 100;
         const uint heightSegmentCount = 50;
         public const uint probeLengthPositions = 6;
+        public const uint probeCount = probeLengthPositions * 2;
         readonly float minHeight;
         const float maxHeight = 10f;
         readonly float minLength;

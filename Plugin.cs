@@ -32,6 +32,7 @@ internal class Plugin : BaseUnityPlugin
     internal static Dictionary<string, ShipDragPerformanceData> shipOverrides = [];
 #if DEBUG
     internal static ConfigEntry<int>? debugPrintPeriod;
+    internal static ConfigEntry<ushort>? debugSmoothingPeriod;
 #endif
 
     private void Awake()
@@ -103,11 +104,21 @@ internal class Plugin : BaseUnityPlugin
 #if DEBUG
         debugPrintPeriod = Config.Bind(
             "--------Ω Debug Ω--------",
-            "debugPrintPeriod",
+            nameof(debugPrintPeriod),
             500,
             new ConfigDescription(
                 "How frequently debug data is printed to harmony.log.txt.",
                 new AcceptableValueRange<int>(1, 500)
+            )
+        );
+
+        debugSmoothingPeriod = Config.Bind(
+            "--------Ω Debug Ω--------",
+            nameof(debugSmoothingPeriod),
+            (ushort)MovingAverage.defaultPeriod,
+            new ConfigDescription(
+                "The number of samples inputs are averaged over.",
+                new AcceptableValueRange<ushort>(1, CircularBuffer.maxCapacity)
             )
         );
 #endif

@@ -5,22 +5,10 @@ namespace BetterDrag
     internal class InputFilter(Rigidbody rigidBody)
     {
         private readonly Rigidbody rigidBody = rigidBody;
-
-        private readonly VectorArrayFilter bodyVelocityFilter = new(
-            "body velocity",
-            rigidBody,
-            0.25f
-        );
-        private readonly VectorArrayFilter queryVelocityFilter = new(
-            "water velocity",
-            rigidBody,
-            0.03125f
-        );
-        private readonly VectorArrayFilter queryDisplacementFilter = new(
-            "displacement",
-            rigidBody,
-            0.25f
-        );
+        private readonly Vector3[] bodyVelocities = new Vector3[Hydrostatics.probeCount];
+        private readonly VectorArrayFilter bodyVelocityFilter = new();
+        private readonly VectorArrayFilter waterVelocityFilter = new();
+        private readonly VectorArrayFilter waterDisplacementFilter = new();
 
         internal (
             Vector3[] smoothedBodyVelocities,
@@ -33,13 +21,7 @@ namespace BetterDrag
             Vector3[] queryVelocities
         )
         {
-            var areInputsValid =
-                !dontUpdateVelocity
-                && !bodyVelocityFilter.magnitudeFilter.IsOutlier(rigidBody.velocity.magnitude)
-                && !queryVelocityFilter.magnitudeFilter.IsAnyMagnitudeOutlier(queryVelocities)
-                && !queryDisplacementFilter.magnitudeFilter.IsAnyMagnitudeOutlier(
-                    queryDisplacements
-                );
+            var areInputsValid = !dontUpdateVelocity;
 
 #if DEBUG
             BetterDragDebug.LogCSVBuffered([("valid_inputs", areInputsValid ? 1 : 0)]);
@@ -47,38 +29,39 @@ namespace BetterDrag
 
             if (areInputsValid)
             {
-                for (var idx = 0; idx < Hydrostatics.probeLengthPositions * 2; ++idx)
-                {
-                    bodyVelocityFilter.UpdateValueAtIndex(
-                        rigidBody.GetPointVelocity(queryPoints[idx]),
-                        idx
-                    );
-                    queryVelocityFilter.UpdateValueAtIndex(queryVelocities[idx], idx);
-                    queryDisplacementFilter.UpdateValueAtIndex(queryDisplacements[idx], idx);
-                }
+                for (var idx = 0; idx < Hydrostatics.probeCount; ++idx)
+                    bodyVelocities[idx] = rigidBody.GetPointVelocity(queryPoints[idx]);
+
+                bodyVelocityFilter.ProcessArray(bodyVelocities);
+                waterVelocityFilter.ProcessArray(queryVelocities);
+                waterDisplacementFilter.ProcessArray(queryDisplacements);
             }
             return (
-                bodyVelocityFilter.smoothedValues,
-                queryVelocityFilter.smoothedValues,
-                queryDisplacementFilter.smoothedValues
+                bodyVelocityFilter.filteredValues,
+                waterVelocityFilter.filteredValues,
+                waterDisplacementFilter.filteredValues
             );
         }
 
-        private class VectorArrayFilter(string name, Rigidbody rigidBody, float smoothingFactor)
+        private class VectorArrayFilter
         {
-            public Vector3[] smoothedValues = new Vector3[Hydrostatics.probeLengthPositions * 2];
-            public readonly OutlierDetector magnitudeFilter = new(
-                $"{name} filter",
-                rigidBody.gameObject.name,
-                rateLimit: 1.2f,
-                noFilterCutoff: 0.1f
-            );
-            private readonly float smoothingFactor = smoothingFactor;
+            private readonly MovingAverage[] filters;
+            internal readonly Vector3[] filteredValues;
 
-            public void UpdateValueAtIndex(Vector3 value, int idx)
+            internal VectorArrayFilter()
             {
-                smoothedValues[idx] *= (1f - smoothingFactor);
-                smoothedValues[idx] += smoothingFactor * value;
+                filteredValues = new Vector3[Hydrostatics.probeCount];
+                filters = new MovingAverage[Hydrostatics.probeCount];
+                for (int idx = 0; idx < Hydrostatics.probeCount; ++idx)
+                    filters[idx] = new();
+            }
+
+            internal void ProcessArray(Vector3[] values)
+            {
+                for (int idx = 0; idx < Hydrostatics.probeCount; ++idx)
+                {
+                    filteredValues[idx] = filters[idx].Process(values[idx]);
+                }
             }
         }
     }

@@ -1,88 +1,120 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System;
+using UnityEngine;
+#if DEBUG
 using System.Globalization;
 using System.Text;
+#endif
 
 namespace BetterDrag
 {
-    class CircularBuffer<T> : IEnumerable<T>
-        where T : struct
+    struct CircularBuffer
     {
+        public const int maxCapacity = 16;
+        private VectorBuffer buffer;
+        private int insertionIndex;
 #if DEBUG
         int period;
 #else
         readonly int period;
 #endif
-        readonly int capacity;
-        readonly T[] buffer;
-        private int insertionIndex;
 
-        public CircularBuffer(ushort period, ushort? capacity = null)
+        internal CircularBuffer(ushort period)
         {
             this.period = period;
-            this.capacity = capacity ?? period;
-            this.buffer = new T[this.capacity];
         }
 
-        public IEnumerator<T> GetEnumerator()
+        public Vector3 Insert(Vector3 value)
         {
-            int startIdx = insertionIndex - period;
-            for (int offset = 0; offset < period; ++offset)
-                yield return this.buffer[Mod(startIdx + offset, period)];
-        }
-
-        public T Insert(T value)
-        {
-            T previous = this.buffer[insertionIndex % capacity];
-            this.buffer[insertionIndex % period] = value;
-            insertionIndex = ++insertionIndex % period;
+            var vectorSpan = buffer.AsVectors;
+            Vector3 previous = vectorSpan[insertionIndex];
+            vectorSpan[insertionIndex] = value;
+            insertionIndex = (insertionIndex + 1) % period;
             return previous;
         }
 
-        public int Length
+        public readonly int Length
         {
-            get { return this.period; }
+            get { return period; }
         }
 
-        public sealed override string ToString()
+        private unsafe struct VectorBuffer
         {
-            var stringBuilder = new StringBuilder();
-            stringBuilder.Append('[');
-            for (int idx = 0; idx < capacity; ++idx)
+            fixed float componentBuffer[maxCapacity * 3];
+
+            internal Span<Vector3> AsVectors
             {
-                stringBuilder.AppendFormat(
-                    CultureInfo.InvariantCulture,
-                    "{0:F2}",
-                    this.buffer[idx]
-                );
-                if (idx != capacity - 1)
-                    stringBuilder.Append(", ");
+                get
+                {
+                    fixed (float* pointer = componentBuffer)
+                    {
+                        return new Span<Vector3>(pointer, maxCapacity);
+                    }
+                }
             }
-            stringBuilder.Append(']');
-            return stringBuilder.ToString();
         }
 
 #if DEBUG
-        public T this[int idx]
+        public VectorEnumerator GetEnumerator()
         {
-            get { return this.buffer[idx]; }
+            int startIdx = insertionIndex - period;
+            var vectorSpan = buffer.AsVectors;
+            return new(vectorSpan, period, startIdx);
         }
 
         internal void SetPeriod(ushort period)
         {
             this.period = period;
         }
+
+        public ref struct VectorEnumerator
+        {
+            private readonly Span<Vector3> span;
+            private readonly int startIdx;
+            private readonly int period;
+            private int offset;
+
+            public VectorEnumerator(Span<Vector3> span, int period, int startIdx)
+            {
+                this.span = span;
+                this.startIdx = startIdx;
+                this.period = period;
+                offset = -1;
+            }
+
+            public bool MoveNext()
+            {
+                var next = offset + 1;
+                if (next < period)
+                {
+                    offset = next;
+                    return true;
+                }
+                return false;
+            }
+
+            public readonly ref Vector3 Current => ref span[Mod(startIdx + offset, period)];
+
+            private static int Mod(int dividend, int divisor)
+            {
+                int remainder = dividend % divisor;
+                return remainder < 0 ? remainder + divisor : remainder;
+            }
+        }
+
+        public override readonly string ToString()
+        {
+            var vectorSpan = buffer.AsVectors;
+            var stringBuilder = new StringBuilder();
+            stringBuilder.Append('[');
+            for (int idx = 0; idx < maxCapacity; ++idx)
+            {
+                stringBuilder.AppendFormat(CultureInfo.InvariantCulture, "{0:F2}", vectorSpan[idx]);
+                if (idx != maxCapacity - 1)
+                    stringBuilder.Append(", ");
+            }
+            stringBuilder.Append(']');
+            return stringBuilder.ToString();
+        }
 #endif
-
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return GetEnumerator();
-        }
-
-        private static int Mod(int dividend, int divisor)
-        {
-            int remainder = dividend % divisor;
-            return remainder < 0 ? remainder + divisor : remainder;
-        }
     }
 }
