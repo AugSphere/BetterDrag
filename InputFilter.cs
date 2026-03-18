@@ -45,26 +45,15 @@ namespace BetterDrag
 
         private class VectorArrayFilter
         {
-            const float expSmoothing = 1f;
-            const float expSmoothingComplement = 1f - expSmoothing;
-            private readonly MovingAverage[] movingAverage;
-            internal readonly Vector3[] filteredValues;
-
-            internal VectorArrayFilter()
-            {
-                filteredValues = new Vector3[Hydrostatics.probeCount];
-                movingAverage = new MovingAverage[Hydrostatics.probeCount];
-                for (int idx = 0; idx < Hydrostatics.probeCount; ++idx)
-                    movingAverage[idx] = new();
-            }
+            const float maxSqrMagnitude = 20f * 20f;
+            internal readonly Vector3[] filteredValues = new Vector3[Hydrostatics.probeCount];
 
             internal void ProcessArray(Vector3[] values)
             {
                 for (int idx = 0; idx < Hydrostatics.probeCount; ++idx)
                 {
-                    filteredValues[idx] =
-                        expSmoothing * movingAverage[idx].Process(values[idx])
-                        + expSmoothingComplement * filteredValues[idx];
+                    if (values[idx].sqrMagnitude < maxSqrMagnitude)
+                        filteredValues[idx] = values[idx];
                 }
             }
         }

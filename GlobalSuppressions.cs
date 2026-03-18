@@ -87,17 +87,3 @@ using System.Diagnostics.CodeAnalysis;
     Scope = "member",
     Target = "~M:BetterDrag.PhysicsCalculation.CalculateDragForce(System.Single,System.Single,System.Single,BetterDrag.ShipData,System.Boolean,System.Int32)~System.Single"
 )]
-[assembly: SuppressMessage(
-    "Performance",
-    "CA1814:Prefer jagged arrays over multidimensional",
-    Justification = "Wastes no space",
-    Scope = "member",
-    Target = "~M:BetterDrag.InputFilter.VectorArrayFilter.#ctor()"
-)]
-[assembly: SuppressMessage(
-    "Performance",
-    "CA1814:Prefer jagged arrays over multidimensional",
-    Justification = "Wastes no space",
-    Scope = "member",
-    Target = "~F:BetterDrag.InputFilter.VectorArrayFilter.movingAverage"
-)]
