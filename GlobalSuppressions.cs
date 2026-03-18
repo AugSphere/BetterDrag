@@ -99,5 +99,5 @@ using System.Diagnostics.CodeAnalysis;
     "CA1814:Prefer jagged arrays over multidimensional",
     Justification = "Wastes no space",
     Scope = "member",
-    Target = "~F:BetterDrag.InputFilter.VectorArrayFilter.filters"
+    Target = "~F:BetterDrag.InputFilter.VectorArrayFilter.movingAverage"
 )]

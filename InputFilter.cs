@@ -21,6 +21,9 @@ namespace BetterDrag
             Vector3[] queryVelocities
         )
         {
+            for (var idx = 0; idx < Hydrostatics.probeCount; ++idx)
+                bodyVelocities[idx] = rigidBody.GetPointVelocity(queryPoints[idx]);
+
             var areInputsValid = !dontUpdateVelocity;
 
 #if DEBUG
@@ -29,9 +32,6 @@ namespace BetterDrag
 
             if (areInputsValid)
             {
-                for (var idx = 0; idx < Hydrostatics.probeCount; ++idx)
-                    bodyVelocities[idx] = rigidBody.GetPointVelocity(queryPoints[idx]);
-
                 bodyVelocityFilter.ProcessArray(bodyVelocities);
                 waterVelocityFilter.ProcessArray(queryVelocities);
                 waterDisplacementFilter.ProcessArray(queryDisplacements);
@@ -45,22 +45,26 @@ namespace BetterDrag
 
         private class VectorArrayFilter
         {
-            private readonly MovingAverage[] filters;
+            const float expSmoothing = 1f;
+            const float expSmoothingComplement = 1f - expSmoothing;
+            private readonly MovingAverage[] movingAverage;
             internal readonly Vector3[] filteredValues;
 
             internal VectorArrayFilter()
             {
                 filteredValues = new Vector3[Hydrostatics.probeCount];
-                filters = new MovingAverage[Hydrostatics.probeCount];
+                movingAverage = new MovingAverage[Hydrostatics.probeCount];
                 for (int idx = 0; idx < Hydrostatics.probeCount; ++idx)
-                    filters[idx] = new();
+                    movingAverage[idx] = new();
             }
 
             internal void ProcessArray(Vector3[] values)
             {
                 for (int idx = 0; idx < Hydrostatics.probeCount; ++idx)
                 {
-                    filteredValues[idx] = filters[idx].Process(values[idx]);
+                    filteredValues[idx] =
+                        expSmoothing * movingAverage[idx].Process(values[idx])
+                        + expSmoothingComplement * filteredValues[idx];
                 }
             }
         }

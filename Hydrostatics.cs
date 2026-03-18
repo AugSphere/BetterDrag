@@ -107,7 +107,7 @@ namespace BetterDrag
         {
             var maxProbeZ = bowPoint.z * 0.9f;
             var minProbeZ = sternPoint.z * 0.9f;
-            Vector3[] newPositions = new Vector3[boatProbes._forcePoints.Length];
+            Vector3[] newPositions = new Vector3[probeCount];
             for (var lengthIdx = 0; lengthIdx < probeLengthPositions; ++lengthIdx)
             {
                 var probeZ =
@@ -117,11 +117,7 @@ namespace BetterDrag
                 newPositions[lengthIdx * 2] = new(-beam / 2.5f, 0f, probeZ);
                 newPositions[lengthIdx * 2 + 1] = new(beam / 2.5f, 0f, probeZ);
             }
-            for (
-                var forcePointIdx = 0;
-                forcePointIdx < boatProbes._forcePoints.Length;
-                ++forcePointIdx
-            )
+            for (var forcePointIdx = 0; forcePointIdx < probeCount; ++forcePointIdx)
             {
                 boatProbes._forcePoints[forcePointIdx]._offsetPosition = newPositions[
                     forcePointIdx
@@ -281,7 +277,7 @@ namespace BetterDrag
         {
             var minDistanceSq = float.MaxValue;
             var minIdx = 0;
-            for (var idx = 0; idx < forcePoints.Length; ++idx)
+            for (var idx = 0; idx < probeCount; ++idx)
             {
                 var distanceSq = (forcePoints[idx]._offsetPosition - position).sqrMagnitude;
                 if (distanceSq < minDistanceSq)

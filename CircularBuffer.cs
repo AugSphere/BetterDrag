@@ -9,7 +9,7 @@ namespace BetterDrag
 {
     struct CircularBuffer
     {
-        public const int maxCapacity = 16;
+        public const int maxCapacity = 8;
         private VectorBuffer buffer;
         private int insertionIndex;
 #if DEBUG

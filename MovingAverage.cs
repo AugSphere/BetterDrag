@@ -4,7 +4,7 @@ namespace BetterDrag
 {
     internal struct MovingAverage
     {
-        public const int defaultPeriod = 5;
+        public const int defaultPeriod = 3;
 
         private CircularBuffer buffer = new(defaultPeriod);
 #if !DEBUG
