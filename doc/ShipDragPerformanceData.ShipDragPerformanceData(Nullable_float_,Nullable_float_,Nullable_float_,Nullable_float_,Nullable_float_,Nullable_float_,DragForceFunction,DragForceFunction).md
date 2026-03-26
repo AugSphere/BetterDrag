@@ -10,13 +10,9 @@ All entries are optional, leave `null` for the ones you do not want to override.
 All units are metric. Unit reference: cog's LWL is approximately 12.39m.
 
 ```csharp
-public ShipDragPerformanceData(System.Nullable<float> lengthAtWaterline=null, System.Nullable<float> formFactor=null, System.Nullable<float> buoyancyMultiplier=null, System.Nullable<float> massMultiplier=null, System.Nullable<float> viscousDragMultiplier=null, System.Nullable<float> waveMakingDragMultiplier=null, BetterDrag.ShipDragPerformanceData.DragForceFunction? calculateViscousDragForce=null, BetterDrag.ShipDragPerformanceData.DragForceFunction? calculateWaveMakingDragForce=null);
+public ShipDragPerformanceData(System.Nullable<float> formFactor=null, System.Nullable<float> buoyancyMultiplier=null, System.Nullable<float> viscousDragMultiplier=null, System.Nullable<float> waveMakingDragMultiplier=null, System.Nullable<float> lengthMultiplier=null, System.Nullable<float> massMultiplier=null, BetterDrag.ShipDragPerformanceData.DragForceFunction? calculateViscousDragForce=null, BetterDrag.ShipDragPerformanceData.DragForceFunction? calculateWaveMakingDragForce=null);
 ```
 #### Parameters
-
-<a name='BetterDrag.ShipDragPerformanceData.ShipDragPerformanceData(System.Nullable_float_,System.Nullable_float_,System.Nullable_float_,System.Nullable_float_,System.Nullable_float_,System.Nullable_float_,BetterDrag.ShipDragPerformanceData.DragForceFunction,BetterDrag.ShipDragPerformanceData.DragForceFunction).lengthAtWaterline'></a>
-
-`lengthAtWaterline` [System\.Nullable&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.nullable-1 'System\.Nullable\`1')[System\.Single](https://learn.microsoft.com/en-us/dotnet/api/system.single 'System\.Single')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.nullable-1 'System\.Nullable\`1')
 
 <a name='BetterDrag.ShipDragPerformanceData.ShipDragPerformanceData(System.Nullable_float_,System.Nullable_float_,System.Nullable_float_,System.Nullable_float_,System.Nullable_float_,System.Nullable_float_,BetterDrag.ShipDragPerformanceData.DragForceFunction,BetterDrag.ShipDragPerformanceData.DragForceFunction).formFactor'></a>
 
@@ -26,10 +22,6 @@ public ShipDragPerformanceData(System.Nullable<float> lengthAtWaterline=null, Sy
 
 `buoyancyMultiplier` [System\.Nullable&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.nullable-1 'System\.Nullable\`1')[System\.Single](https://learn.microsoft.com/en-us/dotnet/api/system.single 'System\.Single')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.nullable-1 'System\.Nullable\`1')
 
-<a name='BetterDrag.ShipDragPerformanceData.ShipDragPerformanceData(System.Nullable_float_,System.Nullable_float_,System.Nullable_float_,System.Nullable_float_,System.Nullable_float_,System.Nullable_float_,BetterDrag.ShipDragPerformanceData.DragForceFunction,BetterDrag.ShipDragPerformanceData.DragForceFunction).massMultiplier'></a>
-
-`massMultiplier` [System\.Nullable&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.nullable-1 'System\.Nullable\`1')[System\.Single](https://learn.microsoft.com/en-us/dotnet/api/system.single 'System\.Single')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.nullable-1 'System\.Nullable\`1')
-
 <a name='BetterDrag.ShipDragPerformanceData.ShipDragPerformanceData(System.Nullable_float_,System.Nullable_float_,System.Nullable_float_,System.Nullable_float_,System.Nullable_float_,System.Nullable_float_,BetterDrag.ShipDragPerformanceData.DragForceFunction,BetterDrag.ShipDragPerformanceData.DragForceFunction).viscousDragMultiplier'></a>
 
 `viscousDragMultiplier` [System\.Nullable&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.nullable-1 'System\.Nullable\`1')[System\.Single](https://learn.microsoft.com/en-us/dotnet/api/system.single 'System\.Single')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.nullable-1 'System\.Nullable\`1')
@@ -37,6 +29,14 @@ public ShipDragPerformanceData(System.Nullable<float> lengthAtWaterline=null, Sy
 <a name='BetterDrag.ShipDragPerformanceData.ShipDragPerformanceData(System.Nullable_float_,System.Nullable_float_,System.Nullable_float_,System.Nullable_float_,System.Nullable_float_,System.Nullable_float_,BetterDrag.ShipDragPerformanceData.DragForceFunction,BetterDrag.ShipDragPerformanceData.DragForceFunction).waveMakingDragMultiplier'></a>
 
 `waveMakingDragMultiplier` [System\.Nullable&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.nullable-1 'System\.Nullable\`1')[System\.Single](https://learn.microsoft.com/en-us/dotnet/api/system.single 'System\.Single')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.nullable-1 'System\.Nullable\`1')
+
+<a name='BetterDrag.ShipDragPerformanceData.ShipDragPerformanceData(System.Nullable_float_,System.Nullable_float_,System.Nullable_float_,System.Nullable_float_,System.Nullable_float_,System.Nullable_float_,BetterDrag.ShipDragPerformanceData.DragForceFunction,BetterDrag.ShipDragPerformanceData.DragForceFunction).lengthMultiplier'></a>
+
+`lengthMultiplier` [System\.Nullable&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.nullable-1 'System\.Nullable\`1')[System\.Single](https://learn.microsoft.com/en-us/dotnet/api/system.single 'System\.Single')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.nullable-1 'System\.Nullable\`1')
+
+<a name='BetterDrag.ShipDragPerformanceData.ShipDragPerformanceData(System.Nullable_float_,System.Nullable_float_,System.Nullable_float_,System.Nullable_float_,System.Nullable_float_,System.Nullable_float_,BetterDrag.ShipDragPerformanceData.DragForceFunction,BetterDrag.ShipDragPerformanceData.DragForceFunction).massMultiplier'></a>
+
+`massMultiplier` [System\.Nullable&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.nullable-1 'System\.Nullable\`1')[System\.Single](https://learn.microsoft.com/en-us/dotnet/api/system.single 'System\.Single')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.nullable-1 'System\.Nullable\`1')
 
 <a name='BetterDrag.ShipDragPerformanceData.ShipDragPerformanceData(System.Nullable_float_,System.Nullable_float_,System.Nullable_float_,System.Nullable_float_,System.Nullable_float_,System.Nullable_float_,BetterDrag.ShipDragPerformanceData.DragForceFunction,BetterDrag.ShipDragPerformanceData.DragForceFunction).calculateViscousDragForce'></a>
 

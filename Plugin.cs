@@ -149,7 +149,7 @@ internal class Plugin : BaseUnityPlugin
             else
                 Logger!.LogError($"Invalid JSON formatting of {filePath}");
 
-            shipOverrides["BOAT Example 1"] = new ShipDragPerformanceData(lengthAtWaterline: 5f);
+            shipOverrides["BOAT Example 1"] = new ShipDragPerformanceData(lengthMultiplier: 1.2f);
             shipOverrides["BOAT Example 2"] = new ShipDragPerformanceData(
                 formFactor: 1.23f,
                 waveMakingDragMultiplier: 3f

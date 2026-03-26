@@ -14,15 +14,17 @@ namespace BetterDrag
             float velocity,
             float displacement,
             float wettedArea,
-            ShipData shipData,
+            float lengthAtWaterline,
+            ShipDragPerformanceData performanceData,
             bool isLongitudinal,
             int probeIdx
         )
         {
             var absVelocity = Mathf.Abs(velocity);
-            var performanceData = shipData.dragData;
-            var lengthAtWaterline =
-                Plugin.globalShipLengthMultiplier!.Value * performanceData.LengthAtWaterline;
+            var finalLengthAtWaterline =
+                Plugin.globalShipLengthMultiplier!.Value
+                * performanceData.LengthMultiplier
+                * lengthAtWaterline;
             var formFactor = performanceData.FormFactor;
 
             var viscousDrag =
@@ -30,7 +32,7 @@ namespace BetterDrag
                 * performanceData.ViscousDragMultiplier
                 * performanceData.CalculateViscousDragForce(
                     absVelocity,
-                    lengthAtWaterline,
+                    finalLengthAtWaterline,
                     formFactor,
                     displacement,
                     wettedArea
@@ -44,7 +46,7 @@ namespace BetterDrag
                 * performanceData.WaveMakingDragMultiplier
                 * performanceData.CalculateWaveMakingDragForce(
                     absVelocity,
-                    lengthAtWaterline,
+                    finalLengthAtWaterline,
                     formFactor,
                     displacement,
                     wettedArea
@@ -79,7 +81,7 @@ namespace BetterDrag
 #endif
 
             var shipDataValues = shipData.GetValues(boatProbes);
-            var lengthAtWaterline = shipData.dragData.LengthAtWaterline;
+            var lengthAtWaterline = shipDataValues.lengthAtWaterline;
             var buoyancyMultiplier = shipData.dragData.BuoyancyMultiplier;
 
             float seaLevel = OceanRenderer.Instance.SeaLevel;
@@ -125,7 +127,8 @@ namespace BetterDrag
                     forwardVelocity.magnitude,
                     displacement,
                     area,
-                    shipData,
+                    lengthAtWaterline,
+                    shipData.dragData,
                     true,
                     idx
                 );
@@ -134,7 +137,8 @@ namespace BetterDrag
                     offAxisVelocity.magnitude,
                     displacement,
                     area,
-                    shipData,
+                    lengthAtWaterline,
+                    shipData.dragData,
                     false,
                     idx
                 );

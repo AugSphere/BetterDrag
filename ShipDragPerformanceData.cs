@@ -22,18 +22,18 @@ namespace BetterDrag
     /// </summary>
     [DataContract]
     public readonly struct ShipDragPerformanceData(
-        float? lengthAtWaterline = null,
         float? formFactor = null,
         float? buoyancyMultiplier = null,
-        float? massMultiplier = null,
         float? viscousDragMultiplier = null,
         float? waveMakingDragMultiplier = null,
+        float? lengthMultiplier = null,
+        float? massMultiplier = null,
         DragForceFunction? calculateViscousDragForce = null,
         DragForceFunction? calculateWaveMakingDragForce = null
     ) : IEquatable<ShipDragPerformanceData>
     {
         [DataMember(EmitDefaultValue = false, IsRequired = false)]
-        private readonly float? lengthAtWaterline = lengthAtWaterline;
+        private readonly float? lengthMultiplier = lengthMultiplier;
 
         [DataMember(EmitDefaultValue = false, IsRequired = false)]
         private readonly float? formFactor = formFactor;
@@ -58,10 +58,10 @@ namespace BetterDrag
             calculateWaveMakingDragForce;
 
         /// <summary>
-        /// Length of the hull at waterline in meters.
+        /// Length multiplier for the hull.
         /// </summary>
-        public readonly float LengthAtWaterline =>
-            this.lengthAtWaterline ?? placeholderData.LengthAtWaterline;
+        public readonly float LengthMultiplier =>
+            this.lengthMultiplier ?? placeholderData.LengthMultiplier;
 
         /// <summary>
         /// Form factor of the hull for ITTC 57 friction line.
@@ -143,7 +143,7 @@ namespace BetterDrag
         /// <inheritdoc/>
         public readonly bool Equals(ShipDragPerformanceData other)
         {
-            if (lengthAtWaterline != other.lengthAtWaterline)
+            if (lengthMultiplier != other.lengthMultiplier)
                 return false;
             if (formFactor != other.formFactor)
                 return false;
@@ -179,7 +179,7 @@ namespace BetterDrag
         public readonly override int GetHashCode()
         {
             return HashCode.Combine(
-                lengthAtWaterline,
+                lengthMultiplier,
                 formFactor,
                 buoyancyMultiplier,
                 massMultiplier,
@@ -211,12 +211,12 @@ namespace BetterDrag
             }
             return String.Join(
                 ", ",
-                $"LWL={this.lengthAtWaterline}",
                 $"FormFactor={this.formFactor}",
                 $"BuoyancyMultiplier={this.buoyancyMultiplier}",
-                $"MassMultiplier={this.massMultiplier}",
                 $"ViscousDragMultiplier={this.viscousDragMultiplier}",
                 $"WaveMakingDragMultiplier={this.waveMakingDragMultiplier}",
+                $"MassMultiplier={this.massMultiplier}",
+                $"LengthMultiplier={this.lengthMultiplier}",
                 $"CalculateViscousDragForce={FuncRepr(this.calculateViscousDragForce)}",
                 $"CalculateWaveMakingDragForce={FuncRepr(this.calculateWaveMakingDragForce)}"
             );
@@ -229,7 +229,7 @@ namespace BetterDrag
         )
         {
             return new ShipDragPerformanceData(
-                lengthAtWaterline: highPriority.lengthAtWaterline ?? lowPriority.lengthAtWaterline,
+                lengthMultiplier: highPriority.lengthMultiplier ?? lowPriority.lengthMultiplier,
                 formFactor: highPriority.formFactor ?? lowPriority.formFactor,
                 buoyancyMultiplier: highPriority.buoyancyMultiplier
                     ?? lowPriority.buoyancyMultiplier,
@@ -246,7 +246,7 @@ namespace BetterDrag
         }
 
         internal static readonly ShipDragPerformanceData placeholderData = new(
-            lengthAtWaterline: 15f,
+            lengthMultiplier: 1.0f,
             formFactor: 0.15f,
             buoyancyMultiplier: 0.12f,
             massMultiplier: 1f,
@@ -329,20 +329,20 @@ namespace BetterDrag
         {
             return (shipName) switch
             {
-                "BOAT dhow small (10)" => new(12.76f, 0.25f, 0.08f),
-                "BOAT dhow medium (20)" => new(21.03f, 0.21f, 0.10f),
-                "BOAT medi small (40)" => new(12.39f, 0.24f, 0.07f),
-                "BOAT medi medium (50)" => new(24.83f, 0.19f, 0.17f),
-                "BOAT junk large (70)" => new(29.9f, 0.23f, 0.15f),
-                "BOAT junk medium (80)" => new(21.8f, 0.22f, 0.09f),
-                "BOAT junk small singleroof(90)" => new(11.07f, 0.23f, 0.09f),
-                "BOAT Shroud Small" => new(14.77f, 0.8f, 0.16f, 0.9f, 0.95f),
-                "BOAT Shroud Large" => new(34.56f, 0.6f, 0.16f, 0.9f, 0.9f),
-                "BOAT GLORIANA (182)" => new(24.6f, 0.18f, 0.09f),
-                "BOAT CHRONIAN (187)" => new(36f, 0.20f, 0.09f),
-                "BOAT CAELANOR (192)" => new(18f, 0.22f, 0.13f),
-                "BOAT GALLUS (197)" => new(9.2f, 0.15f, 0.10f),
-                "BOAT Le Requin (131)" => new(36.8f, 0.10f, 0.10f),
+                "BOAT dhow small (10)" => new(0.25f, 0.08f),
+                "BOAT dhow medium (20)" => new(0.21f, 0.10f),
+                "BOAT medi small (40)" => new(0.24f, 0.07f),
+                "BOAT medi medium (50)" => new(0.19f, 0.17f),
+                "BOAT junk large (70)" => new(0.23f, 0.15f),
+                "BOAT junk medium (80)" => new(0.22f, 0.09f),
+                "BOAT junk small singleroof(90)" => new(0.23f, 0.09f),
+                "BOAT Shroud Small" => new(0.8f, 0.16f, 0.8f, 0.95f),
+                "BOAT Shroud Large" => new(0.6f, 0.16f, 0.8f, 0.9f),
+                "BOAT GLORIANA (182)" => new(0.18f, 0.09f),
+                "BOAT CHRONIAN (187)" => new(0.20f, 0.09f),
+                "BOAT CAELANOR (192)" => new(0.22f, 0.13f),
+                "BOAT GALLUS (197)" => new(0.15f, 0.10f),
+                "BOAT Le Requin (131)" => new(0.10f, 0.10f),
                 _ => new(),
             };
         }
