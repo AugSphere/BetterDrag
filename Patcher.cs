@@ -9,11 +9,11 @@ namespace BetterDrag
     {
         [HarmonyPrefix]
         [HarmonyPatch(typeof(BoatProbes), "FixedUpdateDrag")]
-        static bool IsUnpatchedDragUsed() => false;
+        static bool IsUnpatchedDragUsed() => GameState.sleeping;
 
         [HarmonyPrefix]
         [HarmonyPatch(typeof(BoatProbes), "FixedUpdateBuoyancy")]
-        static bool IsUnpatchedBuoyancyUsed() => false;
+        static bool IsUnpatchedBuoyancyUsed() => GameState.sleeping;
 
         [HarmonyPostfix]
         [HarmonyPatch(typeof(BoatProbes), "FixedUpdateDrag")]
@@ -26,6 +26,9 @@ namespace BetterDrag
             float ____totalWeight
         )
         {
+            if (GameState.sleeping)
+                return;
+
             Profiler.RestartClock();
 
             var shipData = ShipData.GetShipData(__instance.gameObject);
