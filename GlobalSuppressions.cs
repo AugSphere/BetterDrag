@@ -85,5 +85,5 @@ using System.Diagnostics.CodeAnalysis;
     "UnusedVariable:Unused variable is declared.",
     Justification = "Debug print support",
     Scope = "member",
-    Target = "~M:BetterDrag.PhysicsCalculation.CalculateDragForce(System.Single,System.Single,System.Single,BetterDrag.ShipData,System.Boolean,System.Int32)~System.Single"
+    Target = "~M:BetterDrag.PhysicsCalculation.CalculateDragForce(System.Single,System.Single,System.Single,System.Single,BetterDrag.ShipDragPerformanceData,System.Boolean,System.Int32)~System.Single"
 )]
