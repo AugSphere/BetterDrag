@@ -85,7 +85,7 @@ internal static class BetterDragCompatibility
             (forwardVelocity, _, _, _, _) => forwardVelocity * 100f;
 
         var customData = new BetterDrag.ShipDragPerformanceData(
-            lengthAtWaterline: 50,
+            massMultiplier: 2f,
             calculateViscousDragForce: customViscousDragFunc
         );
 
