@@ -87,3 +87,10 @@ using System.Diagnostics.CodeAnalysis;
     Scope = "member",
     Target = "~M:BetterDrag.PhysicsCalculation.CalculateDragForce(System.Single,System.Single,System.Single,System.Single,BetterDrag.ShipDragPerformanceData,System.Boolean,System.Int32)~System.Single"
 )]
+[assembly: SuppressMessage(
+    "Cleaning",
+    "UnusedVariable:Unused variable is declared.",
+    Justification = "API deprecation",
+    Scope = "member",
+    Target = "~M:BetterDrag.ShipDragPerformanceData.#ctor(System.Single,System.Nullable{System.Single},System.Nullable{System.Single},System.Nullable{System.Single},System.Nullable{System.Single},System.Nullable{System.Single},System.Nullable{System.Single},BetterDrag.ShipDragPerformanceData.DragForceFunction,BetterDrag.ShipDragPerformanceData.DragForceFunction)"
+)]

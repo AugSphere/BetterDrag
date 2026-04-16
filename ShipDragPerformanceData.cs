@@ -57,6 +57,30 @@ namespace BetterDrag
         private readonly DragForceFunction? calculateWaveMakingDragForce =
             calculateWaveMakingDragForce;
 
+        /// <inheritdoc/>
+        [Obsolete("lengthAtWaterline is no longer used. Remove it.")]
+        public ShipDragPerformanceData(
+            float lengthAtWaterline,
+            float? formFactor = null,
+            float? buoyancyMultiplier = null,
+            float? viscousDragMultiplier = null,
+            float? waveMakingDragMultiplier = null,
+            float? lengthMultiplier = null,
+            float? massMultiplier = null,
+            DragForceFunction? calculateViscousDragForce = null,
+            DragForceFunction? calculateWaveMakingDragForce = null
+        )
+            : this(
+                formFactor: formFactor,
+                buoyancyMultiplier: buoyancyMultiplier,
+                viscousDragMultiplier: viscousDragMultiplier,
+                waveMakingDragMultiplier: waveMakingDragMultiplier,
+                lengthMultiplier: lengthMultiplier,
+                massMultiplier: massMultiplier,
+                calculateViscousDragForce: calculateViscousDragForce,
+                calculateWaveMakingDragForce: calculateWaveMakingDragForce
+            ) { }
+
         /// <summary>
         /// Length multiplier for the hull.
         /// </summary>
@@ -329,20 +353,33 @@ namespace BetterDrag
         {
             return (shipName) switch
             {
-                "BOAT dhow small (10)" => new(0.25f, 0.08f),
-                "BOAT dhow medium (20)" => new(0.21f, 0.10f),
-                "BOAT medi small (40)" => new(0.24f, 0.07f),
-                "BOAT medi medium (50)" => new(0.19f, 0.17f),
-                "BOAT junk large (70)" => new(0.23f, 0.15f),
-                "BOAT junk medium (80)" => new(0.22f, 0.09f),
-                "BOAT junk small singleroof(90)" => new(0.23f, 0.09f),
-                "BOAT Shroud Small" => new(0.8f, 0.16f, 0.8f, 0.95f),
-                "BOAT Shroud Large" => new(0.6f, 0.16f, 0.8f, 0.9f),
-                "BOAT GLORIANA (182)" => new(0.18f, 0.09f),
-                "BOAT CHRONIAN (187)" => new(0.20f, 0.09f),
-                "BOAT CAELANOR (192)" => new(0.22f, 0.13f),
-                "BOAT GALLUS (197)" => new(0.15f, 0.10f),
-                "BOAT Le Requin (131)" => new(0.10f, 0.10f),
+                "BOAT dhow small (10)" => new(formFactor: 0.25f, buoyancyMultiplier: 0.08f),
+                "BOAT dhow medium (20)" => new(formFactor: 0.21f, buoyancyMultiplier: 0.10f),
+                "BOAT medi small (40)" => new(formFactor: 0.24f, buoyancyMultiplier: 0.07f),
+                "BOAT medi medium (50)" => new(formFactor: 0.19f, buoyancyMultiplier: 0.17f),
+                "BOAT junk large (70)" => new(formFactor: 0.23f, buoyancyMultiplier: 0.15f),
+                "BOAT junk medium (80)" => new(formFactor: 0.22f, buoyancyMultiplier: 0.09f),
+                "BOAT junk small singleroof(90)" => new(
+                    formFactor: 0.23f,
+                    buoyancyMultiplier: 0.09f
+                ),
+                "BOAT Shroud Small" => new(
+                    formFactor: 0.8f,
+                    buoyancyMultiplier: 0.16f,
+                    viscousDragMultiplier: 0.8f,
+                    waveMakingDragMultiplier: 0.95f
+                ),
+                "BOAT Shroud Large" => new(
+                    formFactor: 0.6f,
+                    buoyancyMultiplier: 0.16f,
+                    viscousDragMultiplier: 0.8f,
+                    waveMakingDragMultiplier: 0.9f
+                ),
+                "BOAT GLORIANA (182)" => new(formFactor: 0.18f, buoyancyMultiplier: 0.09f),
+                "BOAT CHRONIAN (187)" => new(formFactor: 0.20f, buoyancyMultiplier: 0.09f),
+                "BOAT CAELANOR (192)" => new(formFactor: 0.22f, buoyancyMultiplier: 0.13f),
+                "BOAT GALLUS (197)" => new(formFactor: 0.15f, buoyancyMultiplier: 0.10f),
+                "BOAT Le Requin (131)" => new(formFactor: 0.10f, buoyancyMultiplier: 0.10f),
                 _ => new(),
             };
         }
