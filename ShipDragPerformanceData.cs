@@ -32,22 +32,34 @@ namespace BetterDrag
         DragForceFunction? calculateWaveMakingDragForce = null
     ) : IEquatable<ShipDragPerformanceData>
     {
-        [DataMember(EmitDefaultValue = false, IsRequired = false)]
+        [DataMember(EmitDefaultValue = false, IsRequired = false, Name = nameof(LengthMultiplier))]
         private readonly float? lengthMultiplier = lengthMultiplier;
 
-        [DataMember(EmitDefaultValue = false, IsRequired = false)]
+        [DataMember(EmitDefaultValue = false, IsRequired = false, Name = nameof(FormFactor))]
         private readonly float? formFactor = formFactor;
 
-        [DataMember(EmitDefaultValue = false, IsRequired = false)]
+        [DataMember(
+            EmitDefaultValue = false,
+            IsRequired = false,
+            Name = nameof(BuoyancyMultiplier)
+        )]
         private readonly float? buoyancyMultiplier = buoyancyMultiplier;
 
-        [DataMember(EmitDefaultValue = false, IsRequired = false)]
+        [DataMember(EmitDefaultValue = false, IsRequired = false, Name = nameof(MassMultiplier))]
         private readonly float? massMultiplier = massMultiplier;
 
-        [DataMember(EmitDefaultValue = false, IsRequired = false)]
+        [DataMember(
+            EmitDefaultValue = false,
+            IsRequired = false,
+            Name = nameof(ViscousDragMultiplier)
+        )]
         private readonly float? viscousDragMultiplier = viscousDragMultiplier;
 
-        [DataMember(EmitDefaultValue = false, IsRequired = false)]
+        [DataMember(
+            EmitDefaultValue = false,
+            IsRequired = false,
+            Name = nameof(WaveMakingDragMultiplier)
+        )]
         private readonly float? waveMakingDragMultiplier = waveMakingDragMultiplier;
 
         [NonSerialized]
