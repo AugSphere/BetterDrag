@@ -383,6 +383,7 @@ namespace BetterDrag
                 "BOAT CAELANOR (192)" => new(formFactor: 0.22f, buoyancyMultiplier: 0.13f),
                 "BOAT GALLUS (197)" => new(formFactor: 0.15f, buoyancyMultiplier: 0.10f),
                 "BOAT Le Requin (131)" => new(formFactor: 0.10f, buoyancyMultiplier: 0.10f),
+                "BOAT LEOPARD (207)" => new(formFactor: 0.20f, buoyancyMultiplier: 0.065f),
                 _ => new(),
             };
         }
