@@ -4,6 +4,8 @@
 
 Ship\-specific mass multiplier\.
 
+A value of 2.0 would make the hull (but not the cargo) twice as heavy.
+
 ```csharp
 public float MassMultiplier { get; }
 ```

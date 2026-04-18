@@ -31,8 +31,13 @@ settings.
 are used to select the ships to modify.
 
 Refer to [ShipDragPerformanceData documentation](doc/ShipDragPerformanceData.md)
-for what the settings mean. Setting custom water drag functions through
-config files is not currently supported.
+for what the settings mean. Make sure the config you supply
+uses the same case as the docs. For example, use
+`BuoyancyMultiplier` rather than `buoyancyMultiplier`. Due to limitations of the
+parser unknown entries are simply ignored without warning.
+
+Setting custom water drag functions through
+config files is not supported.
 
 # Mod compatibility
 There are no known conflicts.

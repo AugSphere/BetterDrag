@@ -10,14 +10,10 @@ using System.Reflection;
 namespace BetterDrag
 {
     /// <summary>
-    /// A struct holding drag performance setting overrides for a single ship.
+    /// A structure holding drag performance setting overrides for a single ship.
     ///
     /// <para>
-    /// All entries are optional, leave <c>null</c> for the ones you do not want to override.
-    /// </para>
-    ///
-    /// <para>
-    /// All units are metric. Unit reference: cog's LWL is approximately 12.39m.
+    /// All arguments are optional, pass only the ones you wish to override.
     /// </para>
     /// </summary>
     [DataContract]
@@ -95,6 +91,9 @@ namespace BetterDrag
 
         /// <summary>
         /// Length multiplier for the hull.
+        /// <para>
+        /// A value of 2.0 would make the mod treat the hull as though it is twice the length, increasing the top speed.
+        /// </para>
         /// </summary>
         public readonly float LengthMultiplier =>
             this.lengthMultiplier ?? placeholderData.LengthMultiplier;
@@ -113,24 +112,36 @@ namespace BetterDrag
 
         /// <summary>
         /// Ship-specific buoyancy multiplier.
+        /// <para>
+        /// A value of 2.0 would make the hull float as though it displaces twice the volume of water at the same draft.
+        /// </para>
         /// </summary>
         public readonly float BuoyancyMultiplier =>
             this.buoyancyMultiplier ?? placeholderData.BuoyancyMultiplier;
 
         /// <summary>
         /// Ship-specific mass multiplier.
+        /// <para>
+        /// A value of 2.0 would make the hull (but not the cargo) twice as heavy.
+        /// </para>
         /// </summary>
         public readonly float MassMultiplier =>
             this.massMultiplier ?? placeholderData.MassMultiplier;
 
         /// <summary>
         /// Ship-specific drag multiplier for viscous resistance.
+        /// <para>
+        /// Viscous drag smoothly increases with velocity and dominates at low speeds.
+        /// </para>
         /// </summary>
         public readonly float ViscousDragMultiplier =>
             this.viscousDragMultiplier ?? placeholderData.ViscousDragMultiplier;
 
         /// <summary>
         /// Ship-specific drag multiplier for wave-making resistance.
+        /// <para>
+        /// Wave-making drag oscillates with velocity and rises sharply close to the highest speed the hull is capable of.
+        /// </para>
         /// </summary>
         public readonly float WaveMakingDragMultiplier =>
             this.waveMakingDragMultiplier ?? placeholderData.WaveMakingDragMultiplier;
@@ -139,7 +150,7 @@ namespace BetterDrag
         /// Custom force function type.
         /// </summary>
         /// <param name="forwardVelocity">Absolute forward component of ship velocity in default unity meters/second.</param>
-        /// <param name="lengthAtWaterline">Length at waterline in meters. Specified in ship's configuration.</param>
+        /// <param name="lengthAtWaterline">Length at waterline in meters. Calculated by the mod.</param>
         /// <param name="formFactor">Form factor of the ship. Specified in ship's configuration.</param>
         /// <param name="displacement">Ship's displacement in m^3. Calculated by the mod.</param>
         /// <param name="wettedArea">Ship's wetted surface area in m^2. Calculated by the mod.</param>

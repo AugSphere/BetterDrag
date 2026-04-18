@@ -2,12 +2,10 @@
 
 ## ShipDragPerformanceData\(Nullable\<float\>, Nullable\<float\>, Nullable\<float\>, Nullable\<float\>, Nullable\<float\>, Nullable\<float\>, DragForceFunction, DragForceFunction\) Constructor
 
-A struct holding drag performance setting overrides for a single ship\.
+A structure holding drag performance setting overrides for a single ship\.
 
 
-All entries are optional, leave `null` for the ones you do not want to override.
-
-All units are metric. Unit reference: cog's LWL is approximately 12.39m.
+All arguments are optional, pass only the ones you wish to override.
 
 ```csharp
 public ShipDragPerformanceData(System.Nullable<float> formFactor=null, System.Nullable<float> buoyancyMultiplier=null, System.Nullable<float> viscousDragMultiplier=null, System.Nullable<float> waveMakingDragMultiplier=null, System.Nullable<float> lengthMultiplier=null, System.Nullable<float> massMultiplier=null, BetterDrag.ShipDragPerformanceData.DragForceFunction? calculateViscousDragForce=null, BetterDrag.ShipDragPerformanceData.DragForceFunction? calculateWaveMakingDragForce=null);

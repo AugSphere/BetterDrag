@@ -4,6 +4,8 @@
 
 Length multiplier for the hull\.
 
+A value of 2.0 would make the mod treat the hull as though it is twice the length, increasing the top speed.
+
 ```csharp
 public float LengthMultiplier { get; }
 ```

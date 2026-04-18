@@ -4,6 +4,8 @@
 
 Ship\-specific drag multiplier for wave\-making resistance\.
 
+Wave-making drag oscillates with velocity and rises sharply close to the highest speed the hull is capable of.
+
 ```csharp
 public float WaveMakingDragMultiplier { get; }
 ```

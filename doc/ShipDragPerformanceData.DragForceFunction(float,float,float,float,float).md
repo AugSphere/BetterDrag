@@ -19,7 +19,7 @@ Absolute forward component of ship velocity in default unity meters/second\.
 
 `lengthAtWaterline` [System\.Single](https://learn.microsoft.com/en-us/dotnet/api/system.single 'System\.Single')
 
-Length at waterline in meters\. Specified in ship's configuration\.
+Length at waterline in meters\. Calculated by the mod\.
 
 <a name='BetterDrag.ShipDragPerformanceData.DragForceFunction(float,float,float,float,float).formFactor'></a>
 
