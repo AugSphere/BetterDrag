@@ -340,7 +340,10 @@ namespace BetterDrag
             Dictionary<string, ShipDragPerformanceData> userConfig
         )
         {
-            userPerformance = userConfig;
+            foreach (var item in userConfig)
+            {
+                ShipDragConfigManager.userPerformance.Add(StripCloneSuffix(item.Key), item.Value);
+            }
         }
 
         internal static ShipDragPerformanceData GetDefaultPerformance(GameObject ship)
@@ -386,14 +389,19 @@ namespace BetterDrag
 
         private static string GetNormalizedShipName(GameObject ship)
         {
-            var shipName = ship.name;
+            return StripCloneSuffix(ship.name);
+        }
+
+        private static string StripCloneSuffix(string shipName)
+        {
+            var strippedName = shipName;
             var suffix = "(Clone)";
 
-            while (shipName.EndsWith(suffix, StringComparison.OrdinalIgnoreCase))
+            while (strippedName.EndsWith(suffix, StringComparison.OrdinalIgnoreCase))
             {
-                shipName = shipName.Substring(0, shipName.Length - suffix.Length);
+                strippedName = strippedName.Substring(0, strippedName.Length - suffix.Length);
             }
-            return shipName;
+            return strippedName;
         }
 
         private static ShipDragPerformanceData? GetPerformance(
