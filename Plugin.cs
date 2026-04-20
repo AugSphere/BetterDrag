@@ -29,6 +29,7 @@ internal class Plugin : BaseUnityPlugin
     internal static ConfigEntry<float>? globalBuoyancyMultiplier;
     internal static ConfigEntry<float>? globalMassMultiplier;
     internal static ConfigEntry<float>? globalOffAxisDragMultiplier;
+    internal static ConfigEntry<bool>? turnOffDuringSleep;
     internal static Dictionary<string, ShipDragPerformanceData> shipOverrides = [];
 #if DEBUG
     internal static ConfigEntry<int>? debugPrintPeriod;
@@ -98,6 +99,13 @@ internal class Plugin : BaseUnityPlugin
                 "Viscous drag multiplier for vertical and lateral movement. Higher values make ships less prone to drifting sideways.",
                 new AcceptableValueRange<float>(50f, 250.0f)
             )
+        );
+
+        turnOffDuringSleep = Config.Bind(
+            "--------- Misc ---------",
+            nameof(turnOffDuringSleep),
+            false,
+            new ConfigDescription("Revert to default physics during sleep.")
         );
 
 #if DEBUG

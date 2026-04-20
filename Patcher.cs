@@ -7,13 +7,15 @@ namespace BetterDrag
     [HarmonyPatch]
     static class BoatProbesFixedUpdateDragPatch
     {
+        static bool IsModDisabled => (Plugin.turnOffDuringSleep!.Value && GameState.sleeping);
+
         [HarmonyPrefix]
         [HarmonyPatch(typeof(BoatProbes), "FixedUpdateDrag")]
-        static bool IsUnpatchedDragUsed() => GameState.sleeping;
+        static bool IsUnpatchedDragUsed() => IsModDisabled;
 
         [HarmonyPrefix]
         [HarmonyPatch(typeof(BoatProbes), "FixedUpdateBuoyancy")]
-        static bool IsUnpatchedBuoyancyUsed() => GameState.sleeping;
+        static bool IsUnpatchedBuoyancyUsed() => IsModDisabled;
 
         [HarmonyPostfix]
         [HarmonyPatch(typeof(BoatProbes), "FixedUpdateDrag")]
@@ -26,7 +28,7 @@ namespace BetterDrag
             float ____totalWeight
         )
         {
-            if (GameState.sleeping)
+            if (IsModDisabled)
                 return;
 
             Profiler.RestartClock();
