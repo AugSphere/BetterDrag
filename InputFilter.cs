@@ -6,15 +6,15 @@ namespace BetterDrag
     {
         private readonly Rigidbody rigidBody = rigidBody;
         private readonly Vector3[] bodyVelocities = new Vector3[Hydrostatics.probeCount];
-        private readonly VectorArrayFilter bodyVelocityFilter = new();
-        private readonly VectorArrayFilter waterVelocityFilter = new();
-        private readonly VectorArrayFilter waterDisplacementFilter = new();
+        private readonly InputStore bodyVelocityStore = new();
+        private readonly InputStore waterVelocityStore = new();
+        private readonly InputStore waterDisplacementStore = new();
 
         internal (
-            Vector3[] smoothedBodyVelocities,
-            Vector3[] smoothedQueryVelocities,
-            Vector3[] smoothedQueryDisplacements
-        ) GetSmoothedQueries(
+            Vector3[] bodyVelocities,
+            Vector3[] queryVelocities,
+            Vector3[] queryDisplacements
+        ) GetLastValidInputs(
             bool dontUpdateVelocity,
             Vector3[] queryPoints,
             Vector3[] queryDisplacements,
@@ -32,28 +32,26 @@ namespace BetterDrag
 
             if (areInputsValid)
             {
-                bodyVelocityFilter.ProcessArray(bodyVelocities);
-                waterVelocityFilter.ProcessArray(queryVelocities);
-                waterDisplacementFilter.ProcessArray(queryDisplacements);
+                bodyVelocityStore.SaveArray(bodyVelocities);
+                waterVelocityStore.SaveArray(queryVelocities);
+                waterDisplacementStore.SaveArray(queryDisplacements);
             }
             return (
-                bodyVelocityFilter.filteredValues,
-                waterVelocityFilter.filteredValues,
-                waterDisplacementFilter.filteredValues
+                bodyVelocityStore.savedValues,
+                waterVelocityStore.savedValues,
+                waterDisplacementStore.savedValues
             );
         }
 
-        private class VectorArrayFilter
+        private class InputStore
         {
-            const float maxSqrMagnitude = 20f * 20f;
-            internal readonly Vector3[] filteredValues = new Vector3[Hydrostatics.probeCount];
+            internal readonly Vector3[] savedValues = new Vector3[Hydrostatics.probeCount];
 
-            internal void ProcessArray(Vector3[] values)
+            internal void SaveArray(Vector3[] values)
             {
                 for (int idx = 0; idx < Hydrostatics.probeCount; ++idx)
                 {
-                    if (values[idx].sqrMagnitude < maxSqrMagnitude)
-                        filteredValues[idx] = values[idx];
+                    savedValues[idx] = values[idx];
                 }
             }
         }

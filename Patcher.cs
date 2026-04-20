@@ -36,21 +36,22 @@ namespace BetterDrag
             var shipData = ShipData.GetShipData(__instance.gameObject);
             Profiler.Profile("GetShipData");
 
-            var smoothedInputs = shipData.inputFilter.GetSmoothedQueries(
-                __instance.dontUpdateVelocity,
-                ____queryPoints,
-                ____queryResultDisps,
-                ____queryResultVels
-            );
+            var (bodyVelocities, queryVelocities, queryDisplacements) =
+                shipData.inputFilter.GetLastValidInputs(
+                    __instance.dontUpdateVelocity,
+                    ____queryPoints,
+                    ____queryResultDisps,
+                    ____queryResultVels
+                );
 
             PhysicsCalculation.UpdateForces(
                 __instance,
                 ____rb,
                 shipData,
                 ____queryPoints,
-                smoothedInputs.smoothedQueryDisplacements,
-                smoothedInputs.smoothedQueryVelocities,
-                smoothedInputs.smoothedBodyVelocities,
+                queryDisplacements,
+                queryVelocities,
+                bodyVelocities,
                 ____totalWeight
             );
             Profiler.Profile("UpdateForces");
