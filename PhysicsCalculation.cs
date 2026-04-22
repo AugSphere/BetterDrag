@@ -148,9 +148,8 @@ namespace BetterDrag
                     -forwardVelocity.normalized * forwardDrag
                     - offAxisVelocity.normalized * offAxisDrag;
 
-                rigidBody.AddForceAtPosition(buoyantForce + dragForce, queryPoints[idx]);
+                shipData.rawForces[idx] = buoyantForce + dragForce;
                 boatProbes.appliedBuoyancyForces[idx] = buoyantForceMagnitude;
-
 #if DEBUG
                 averageDraft += draft / totalWeight;
                 totalFbDisplacement += fallbackDisplacement;
@@ -172,6 +171,17 @@ namespace BetterDrag
                 shipData.waterVelocityRenders[idx].SetMagnitude(queryVelocities[idx].magnitude);
                 shipData.relativeVelocityRenders[idx].SetDirection(relativeVelocity.normalized);
                 shipData.relativeVelocityRenders[idx].SetMagnitude(relativeVelocity.magnitude);
+#endif
+            }
+
+            var forces = shipData.outputFilter.FilterForces(shipData.rawForces);
+
+            for (int idx = 0; idx < boatProbes._forcePoints.Length; ++idx)
+            {
+                rigidBody.AddForceAtPosition(forces[idx], queryPoints[idx]);
+#if DEBUG
+                shipData.outputForceRenders[idx].SetDirection(forces[idx].normalized);
+                shipData.outputForceRenders[idx].SetMagnitude(forces[idx].magnitude / 1000f);
 #endif
             }
 

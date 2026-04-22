@@ -9,6 +9,10 @@ namespace BetterDrag
         private readonly InputStore bodyVelocityStore = new();
         private readonly InputStore waterVelocityStore = new();
         private readonly InputStore waterDisplacementStore = new();
+        private const float velocityCutoff = 40f;
+        private const float velocityCutoffSqr = velocityCutoff * velocityCutoff;
+        private const float displacementCutoff = 20f;
+        private const float displacementCutoffSqr = displacementCutoff * displacementCutoff;
 
         internal (
             Vector3[] bodyVelocities,
@@ -32,9 +36,13 @@ namespace BetterDrag
 
             if (areInputsValid)
             {
-                bodyVelocityStore.SaveArray(bodyVelocities);
-                waterVelocityStore.SaveArray(queryVelocities);
-                waterDisplacementStore.SaveArray(queryDisplacements);
+                bodyVelocityStore.SaveArray(bodyVelocities, velocityCutoff, velocityCutoffSqr);
+                waterVelocityStore.SaveArray(queryVelocities, velocityCutoff, velocityCutoffSqr);
+                waterDisplacementStore.SaveArray(
+                    queryDisplacements,
+                    displacementCutoff,
+                    displacementCutoffSqr
+                );
             }
             return (
                 bodyVelocityStore.savedValues,
@@ -47,11 +55,14 @@ namespace BetterDrag
         {
             internal readonly Vector3[] savedValues = new Vector3[Hydrostatics.probeCount];
 
-            internal void SaveArray(Vector3[] values)
+            internal void SaveArray(Vector3[] values, float outlierCutoff, float outlierCutoffSqr)
             {
                 for (int idx = 0; idx < Hydrostatics.probeCount; ++idx)
                 {
-                    savedValues[idx] = values[idx];
+                    if (values[idx].sqrMagnitude < outlierCutoffSqr)
+                        savedValues[idx] = values[idx];
+                    else
+                        savedValues[idx] = values[idx] / values[idx].magnitude * outlierCutoff;
                 }
             }
         }

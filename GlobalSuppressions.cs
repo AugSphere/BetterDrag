@@ -94,3 +94,10 @@ using System.Diagnostics.CodeAnalysis;
     Scope = "member",
     Target = "~M:BetterDrag.ShipDragPerformanceData.#ctor(System.Single,System.Nullable{System.Single},System.Nullable{System.Single},System.Nullable{System.Single},System.Nullable{System.Single},System.Nullable{System.Single},System.Nullable{System.Single},BetterDrag.ShipDragPerformanceData.DragForceFunction,BetterDrag.ShipDragPerformanceData.DragForceFunction)"
 )]
+[assembly: SuppressMessage(
+    "Performance",
+    "CA1814:Prefer jagged arrays over multidimensional",
+    Justification = "Wastes no space",
+    Scope = "member",
+    Target = "~F:BetterDrag.OutputFilter.ArrayFilter.memory"
+)]

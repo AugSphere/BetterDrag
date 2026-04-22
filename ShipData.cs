@@ -20,7 +20,9 @@ namespace BetterDrag
         public readonly ShipDragPerformanceData dragData = ShipDragConfigManager.GetPerformanceData(
             shipGameObject
         );
-        public readonly InputFilter inputFilter = new(shipGameObject.GetComponent<Rigidbody>());
+        internal readonly InputFilter inputFilter = new(shipGameObject.GetComponent<Rigidbody>());
+        internal readonly Vector3[] rawForces = new Vector3[Hydrostatics.probeCount];
+        internal readonly OutputFilter outputFilter = new();
         private Hydrostatics? hydrostatics;
         private float baseBuoyancy = 25f;
         private float overflowOffset = 10f;
@@ -45,6 +47,7 @@ namespace BetterDrag
         public List<DebugVectorRenderer> dragForceRenderers = [];
         public List<DebugVectorRenderer> waterVelocityRenders = [];
         public List<DebugVectorRenderer> relativeVelocityRenders = [];
+        public List<DebugVectorRenderer> outputForceRenders = [];
 #endif
 
         public static ShipData GetShipData(GameObject shipGameObject)
@@ -241,6 +244,9 @@ namespace BetterDrag
                 );
                 this.relativeVelocityRenders.Add(
                     new(this.rigidBody, position, Vector3.zero, Color.magenta)
+                );
+                this.outputForceRenders.Add(
+                    new(this.rigidBody, position, Vector3.zero, Color.white)
                 );
             }
         }
