@@ -52,7 +52,7 @@ namespace BetterDrag
             {
 #if DEBUG
                 BetterDragDebug.LogLineBuffered(
-                    "Failed to cast rays to the hull, falling back to default hydrostatics."
+                    $"{shipName}: failed to cast rays to the hull, falling back to default hydrostatics."
                 );
 #endif
                 return;
@@ -65,14 +65,8 @@ namespace BetterDrag
         internal (float area, float displacement)? GetValues(int probeIdx, float draft)
         {
             if (!isTableFilled)
-            {
-#if DEBUG
-                BetterDragDebug.LogLineBuffered(
-                    "Trying to get a value from hydrostatic tables before they are built."
-                );
-#endif
                 return null;
-            }
+
             var heightSegmentFloat =
                 Mathf.Clamp01(draft / Hydrostatics.maxHeight) * heightSegmentCount;
             var heightSegmentFloor = (int)heightSegmentFloat;
