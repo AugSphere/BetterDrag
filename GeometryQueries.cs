@@ -99,7 +99,7 @@ namespace BetterDrag
         static bool IsCleanableColliderOfShip(Collider collider, GameObject shipObject)
         {
             var cleanable = collider.gameObject.GetComponent<CleanableObjectCollider>();
-            if (cleanable is null)
+            if (cleanable is null || cleanable.parentCleanable is null)
                 return false;
             var transform = cleanable.parentCleanable.transform;
             while (transform is not null)
