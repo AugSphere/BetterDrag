@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+﻿using System;
 using Crest;
 using HarmonyLib;
 using UnityEngine;
@@ -8,12 +8,14 @@ namespace BetterDrag
     [HarmonyPatch]
     static class BoatProbesFixedUpdateDragPatch
     {
-        static readonly List<string> shipBlacklist = ["BOAT CUTTER (212)"];
+        static readonly string[] disableForShipList = ["BOAT CUTTER (212)"];
 
         static bool IsModDisabled(Rigidbody rigidBody)
         {
-            if (shipBlacklist.Contains(Utilities.GetNormalizedShipName(rigidBody.gameObject)))
-                return true;
+            var normalizedName = Utilities.GetNormalizedShipName(rigidBody.gameObject);
+            foreach (var disableForShip in disableForShipList)
+                if (string.Equals(disableForShip, normalizedName, StringComparison.Ordinal))
+                    return true;
             return GameState.sleeping && !Plugin.enableDuringSleep!.Value;
         }
 
