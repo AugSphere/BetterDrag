@@ -9,9 +9,9 @@ namespace BetterDrag
         private readonly InputStore bodyVelocityStore = new();
         private readonly InputStore waterVelocityStore = new();
         private readonly InputStore waterDisplacementStore = new();
-        private const float velocityCutoff = 40f;
+        private const float velocityCutoff = 30f;
         private const float velocityCutoffSqr = velocityCutoff * velocityCutoff;
-        private const float displacementCutoff = 20f;
+        private const float displacementCutoff = 15f;
         private const float displacementCutoffSqr = displacementCutoff * displacementCutoff;
 
         internal (
@@ -28,7 +28,11 @@ namespace BetterDrag
             for (var idx = 0; idx < Hydrostatics.probeCount; ++idx)
                 bodyVelocities[idx] = rigidBody.GetPointVelocity(queryPoints[idx]);
 
-            var areInputsValid = !dontUpdateVelocity;
+            var areInputsValid =
+                !dontUpdateVelocity
+                && !HasMagnitudeOutliers(bodyVelocities, velocityCutoffSqr)
+                && !HasMagnitudeOutliers(queryVelocities, velocityCutoffSqr)
+                && !HasMagnitudeOutliers(queryDisplacements, displacementCutoffSqr);
 
 #if DEBUG
             BetterDragDebug.LogCSVBuffered([("valid_inputs", areInputsValid ? 1 : 0)]);
@@ -36,13 +40,9 @@ namespace BetterDrag
 
             if (areInputsValid)
             {
-                bodyVelocityStore.SaveArray(bodyVelocities, velocityCutoff, velocityCutoffSqr);
-                waterVelocityStore.SaveArray(queryVelocities, velocityCutoff, velocityCutoffSqr);
-                waterDisplacementStore.SaveArray(
-                    queryDisplacements,
-                    displacementCutoff,
-                    displacementCutoffSqr
-                );
+                bodyVelocityStore.SaveArray(bodyVelocities);
+                waterVelocityStore.SaveArray(queryVelocities);
+                waterDisplacementStore.SaveArray(queryDisplacements);
             }
             return (
                 bodyVelocityStore.savedValues,
@@ -51,18 +51,25 @@ namespace BetterDrag
             );
         }
 
+        private static bool HasMagnitudeOutliers(Vector3[] values, float outlierCutoffSqr)
+        {
+            for (int idx = 0; idx < Hydrostatics.probeCount; ++idx)
+            {
+                if (values[idx].sqrMagnitude > outlierCutoffSqr)
+                    return true;
+            }
+            return false;
+        }
+
         private class InputStore
         {
             internal readonly Vector3[] savedValues = new Vector3[Hydrostatics.probeCount];
 
-            internal void SaveArray(Vector3[] values, float outlierCutoff, float outlierCutoffSqr)
+            internal void SaveArray(Vector3[] values)
             {
                 for (int idx = 0; idx < Hydrostatics.probeCount; ++idx)
                 {
-                    if (values[idx].sqrMagnitude < outlierCutoffSqr)
-                        savedValues[idx] = values[idx];
-                    else
-                        savedValues[idx] = values[idx] / values[idx].magnitude * outlierCutoff;
+                    savedValues[idx] = values[idx];
                 }
             }
         }
