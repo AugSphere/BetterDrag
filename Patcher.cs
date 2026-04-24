@@ -7,7 +7,7 @@ namespace BetterDrag
     [HarmonyPatch]
     static class BoatProbesFixedUpdateDragPatch
     {
-        static bool IsModDisabled => (Plugin.turnOffDuringSleep!.Value && GameState.sleeping);
+        static bool IsModDisabled => (GameState.sleeping && !Plugin.applyDuringSleep!.Value);
 
         [HarmonyPrefix]
         [HarmonyPatch(typeof(BoatProbes), "FixedUpdateDrag")]

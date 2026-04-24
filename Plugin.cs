@@ -29,7 +29,7 @@ internal class Plugin : BaseUnityPlugin
     internal static ConfigEntry<float>? globalBuoyancyMultiplier;
     internal static ConfigEntry<float>? globalMassMultiplier;
     internal static ConfigEntry<float>? globalOffAxisDragMultiplier;
-    internal static ConfigEntry<bool>? turnOffDuringSleep;
+    internal static ConfigEntry<bool>? applyDuringSleep;
     internal static Dictionary<string, ShipDragPerformanceData> shipOverrides = [];
 #if DEBUG
     internal static ConfigEntry<int>? debugPrintPeriod;
@@ -101,11 +101,13 @@ internal class Plugin : BaseUnityPlugin
             )
         );
 
-        turnOffDuringSleep = Config.Bind(
+        applyDuringSleep = Config.Bind(
             "--------- Misc ---------",
-            nameof(turnOffDuringSleep),
-            false,
-            new ConfigDescription("Revert to default physics during sleep.")
+            nameof(applyDuringSleep),
+            true,
+            new ConfigDescription(
+                "Keep mod physics on during sleep. Set to false in case of ships being thrown around while sleeping."
+            )
         );
 
 #if DEBUG
