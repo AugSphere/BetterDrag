@@ -50,6 +50,18 @@ namespace BetterDrag
             }
         }
 
+        public static void LogVectorComponents(
+            List<(string, float)> csvItems,
+            string prefix,
+            int idx,
+            Vector3 vector
+        )
+        {
+            csvItems.Add(($"{prefix}_x_p{idx}", vector.x));
+            csvItems.Add(($"{prefix}_y_p{idx}", vector.y));
+            csvItems.Add(($"{prefix}_z_p{idx}", vector.z));
+        }
+
         public static void FlushBuffer(Mode mode)
         {
             switch (mode)
