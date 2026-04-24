@@ -27,10 +27,15 @@ namespace BetterDrag
             if (absVelocity < 1e-4)
                 return 0f;
 
-            float forceScaling = (Mathf.Exp(froudeNumber * 10f) - 1f) / 500f;
-            float forceOscillation = 2f + Mathf.Cos(2f * Mathf.PI / froudeNumber);
-            float force = forceScaling * forceOscillation;
-
+            float force = 0f;
+            if (froudeNumber < 0.5801)
+            {
+                float forceScaling = (Mathf.Exp(froudeNumber * 10f) - 1f) / 500f;
+                float forceOscillation = 2f + Mathf.Cos(2f * Mathf.PI / froudeNumber);
+                force = forceScaling * forceOscillation;
+            }
+            else
+                force = 1.2106f;
             force *= displacement * tuningWaveMakingDragMult;
             return force;
         }
