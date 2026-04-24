@@ -167,10 +167,10 @@ namespace BetterDrag
                 shipData.buoyancyForceRenderers[idx].SetMagnitude(buoyantForceMagnitude / 1000f);
                 shipData.dragForceRenderers[idx].SetDirection(dragForce.normalized);
                 shipData.dragForceRenderers[idx].SetMagnitude(dragForce.magnitude / 1000f);
-                shipData.waterVelocityRenders[idx].SetDirection(queryVelocities[idx].normalized);
-                shipData.waterVelocityRenders[idx].SetMagnitude(queryVelocities[idx].magnitude);
-                shipData.relativeVelocityRenders[idx].SetDirection(relativeVelocity.normalized);
-                shipData.relativeVelocityRenders[idx].SetMagnitude(relativeVelocity.magnitude);
+                shipData.waterVelocityRenderers[idx].SetDirection(queryVelocities[idx].normalized);
+                shipData.waterVelocityRenderers[idx].SetMagnitude(queryVelocities[idx].magnitude);
+                shipData.relativeVelocityRenderers[idx].SetDirection(relativeVelocity.normalized);
+                shipData.relativeVelocityRenderers[idx].SetMagnitude(relativeVelocity.magnitude);
 #endif
             }
 
@@ -180,8 +180,8 @@ namespace BetterDrag
             {
                 rigidBody.AddForceAtPosition(forces[idx], queryPoints[idx]);
 #if DEBUG
-                shipData.outputForceRenders[idx].SetDirection(forces[idx].normalized);
-                shipData.outputForceRenders[idx].SetMagnitude(forces[idx].magnitude / 1000f);
+                shipData.outputForceRenderers[idx].SetDirection(forces[idx].normalized);
+                shipData.outputForceRenderers[idx].SetMagnitude(forces[idx].magnitude / 1000f);
 #endif
             }
 
