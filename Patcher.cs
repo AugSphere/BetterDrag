@@ -1,4 +1,5 @@
-﻿using Crest;
+﻿using System.Collections.Generic;
+using Crest;
 using HarmonyLib;
 using UnityEngine;
 
@@ -7,15 +8,22 @@ namespace BetterDrag
     [HarmonyPatch]
     static class BoatProbesFixedUpdateDragPatch
     {
-        static bool IsModDisabled => (GameState.sleeping && !Plugin.enableDuringSleep!.Value);
+        static readonly List<string> shipBlacklist = ["BOAT CUTTER (212)"];
+
+        static bool IsModDisabled(Rigidbody rigidBody)
+        {
+            if (shipBlacklist.Contains(Utilities.GetNormalizedShipName(rigidBody.gameObject)))
+                return true;
+            return GameState.sleeping && !Plugin.enableDuringSleep!.Value;
+        }
 
         [HarmonyPrefix]
         [HarmonyPatch(typeof(BoatProbes), "FixedUpdateDrag")]
-        static bool IsUnpatchedDragUsed() => IsModDisabled;
+        static bool IsUnpatchedDragUsed(Rigidbody ____rb) => IsModDisabled(____rb);
 
         [HarmonyPrefix]
         [HarmonyPatch(typeof(BoatProbes), "FixedUpdateBuoyancy")]
-        static bool IsUnpatchedBuoyancyUsed() => IsModDisabled;
+        static bool IsUnpatchedBuoyancyUsed(Rigidbody ____rb) => IsModDisabled(____rb);
 
         [HarmonyPostfix]
         [HarmonyPatch(typeof(BoatProbes), "FixedUpdateDrag")]
@@ -28,7 +36,7 @@ namespace BetterDrag
             float ____totalWeight
         )
         {
-            if (IsModDisabled)
+            if (IsModDisabled(____rb))
                 return;
 
             Profiler.RestartClock();
@@ -58,7 +66,7 @@ namespace BetterDrag
             Profiler.LogDurations();
 
 #if DEBUG
-            BetterDragDebug.FlushBuffer(BetterDragDebug.Mode.CSV);
+            BetterDragDebug.FlushBuffer(BetterDragDebug.Mode.Line);
             BetterDragDebug.FinishUpdate();
 #endif
         }

@@ -365,13 +365,16 @@ namespace BetterDrag
         {
             foreach (var item in userConfig)
             {
-                ShipDragConfigManager.userPerformance.Add(StripCloneSuffix(item.Key), item.Value);
+                ShipDragConfigManager.userPerformance.Add(
+                    Utilities.StripCloneSuffix(item.Key),
+                    item.Value
+                );
             }
         }
 
         internal static ShipDragPerformanceData GetDefaultPerformance(GameObject ship)
         {
-            var shipName = GetNormalizedShipName(ship);
+            var shipName = Utilities.GetNormalizedShipName(ship);
             return GetDefaultPerformanceByName(shipName);
         }
 
@@ -411,30 +414,13 @@ namespace BetterDrag
             };
         }
 
-        private static string GetNormalizedShipName(GameObject ship)
-        {
-            return StripCloneSuffix(ship.name);
-        }
-
-        private static string StripCloneSuffix(string shipName)
-        {
-            var strippedName = shipName;
-            var suffix = "(Clone)";
-
-            while (strippedName.EndsWith(suffix, StringComparison.OrdinalIgnoreCase))
-            {
-                strippedName = strippedName.Substring(0, strippedName.Length - suffix.Length);
-            }
-            return strippedName;
-        }
-
         private static ShipDragPerformanceData? GetPerformance(
             GameObject ship,
             Dictionary<String, ShipDragPerformanceData> store
         )
         {
             var isPresent = store.TryGetValue(
-                GetNormalizedShipName(ship),
+                Utilities.GetNormalizedShipName(ship),
                 out ShipDragPerformanceData data
             );
             return isPresent ? data : null;
