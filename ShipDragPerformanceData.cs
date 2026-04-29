@@ -96,7 +96,8 @@ namespace BetterDrag
         /// </para>
         /// </summary>
         public readonly float LengthMultiplier =>
-            this.lengthMultiplier ?? placeholderData.LengthMultiplier;
+            this.lengthMultiplier
+            ?? DefaultShipConfigurations.baseShipConfiguration.LengthMultiplier;
 
         /// <summary>
         /// Form factor of the hull for ITTC 57 friction line.
@@ -108,7 +109,8 @@ namespace BetterDrag
         /// Typical values range from 0.05 to 0.30, higher means more resistance.
         /// </para>
         /// </summary>
-        public readonly float FormFactor => this.formFactor ?? placeholderData.FormFactor;
+        public readonly float FormFactor =>
+            this.formFactor ?? DefaultShipConfigurations.baseShipConfiguration.FormFactor;
 
         /// <summary>
         /// Ship-specific buoyancy multiplier.
@@ -117,7 +119,8 @@ namespace BetterDrag
         /// </para>
         /// </summary>
         public readonly float BuoyancyMultiplier =>
-            this.buoyancyMultiplier ?? placeholderData.BuoyancyMultiplier;
+            this.buoyancyMultiplier
+            ?? DefaultShipConfigurations.baseShipConfiguration.BuoyancyMultiplier;
 
         /// <summary>
         /// Ship-specific mass multiplier.
@@ -126,7 +129,7 @@ namespace BetterDrag
         /// </para>
         /// </summary>
         public readonly float MassMultiplier =>
-            this.massMultiplier ?? placeholderData.MassMultiplier;
+            this.massMultiplier ?? DefaultShipConfigurations.baseShipConfiguration.MassMultiplier;
 
         /// <summary>
         /// Ship-specific drag multiplier for viscous resistance.
@@ -135,7 +138,8 @@ namespace BetterDrag
         /// </para>
         /// </summary>
         public readonly float ViscousDragMultiplier =>
-            this.viscousDragMultiplier ?? placeholderData.ViscousDragMultiplier;
+            this.viscousDragMultiplier
+            ?? DefaultShipConfigurations.baseShipConfiguration.ViscousDragMultiplier;
 
         /// <summary>
         /// Ship-specific drag multiplier for wave-making resistance.
@@ -144,7 +148,8 @@ namespace BetterDrag
         /// </para>
         /// </summary>
         public readonly float WaveMakingDragMultiplier =>
-            this.waveMakingDragMultiplier ?? placeholderData.WaveMakingDragMultiplier;
+            this.waveMakingDragMultiplier
+            ?? DefaultShipConfigurations.baseShipConfiguration.WaveMakingDragMultiplier;
 
         /// <summary>
         /// Custom force function type.
@@ -170,13 +175,15 @@ namespace BetterDrag
         /// </para>
         /// </summary>
         public readonly DragForceFunction CalculateViscousDragForce =>
-            this.calculateViscousDragForce ?? placeholderData.CalculateViscousDragForce;
+            this.calculateViscousDragForce
+            ?? DefaultShipConfigurations.baseShipConfiguration.CalculateViscousDragForce;
 
         /// <summary>
         /// Same as <see cref="CalculateViscousDragForce"/>, but for wave-making drag.
         /// </summary>
         public readonly DragForceFunction CalculateWaveMakingDragForce =>
-            this.calculateWaveMakingDragForce ?? placeholderData.CalculateWaveMakingDragForce;
+            this.calculateWaveMakingDragForce
+            ?? DefaultShipConfigurations.baseShipConfiguration.CalculateWaveMakingDragForce;
 
         /// <inheritdoc/>
         public readonly override bool Equals(object? obj)
@@ -291,17 +298,6 @@ namespace BetterDrag
                     ?? lowPriority.calculateWaveMakingDragForce
             );
         }
-
-        internal static readonly ShipDragPerformanceData placeholderData = new(
-            lengthMultiplier: 1.0f,
-            formFactor: 0.15f,
-            buoyancyMultiplier: 0.12f,
-            massMultiplier: 1f,
-            viscousDragMultiplier: 1.0f,
-            waveMakingDragMultiplier: 1.0f,
-            calculateViscousDragForce: DragModel.CalculateViscousDragForce,
-            calculateWaveMakingDragForce: DragModel.CalculateWaveMakingDragForce
-        );
     };
 
     /// <summary>
@@ -375,43 +371,7 @@ namespace BetterDrag
         internal static ShipDragPerformanceData GetDefaultPerformance(GameObject ship)
         {
             var shipName = Utilities.GetNormalizedShipName(ship);
-            return GetDefaultPerformanceByName(shipName);
-        }
-
-        internal static ShipDragPerformanceData GetDefaultPerformanceByName(string shipName)
-        {
-            return (shipName) switch
-            {
-                "BOAT dhow small (10)" => new(formFactor: 0.25f, buoyancyMultiplier: 0.08f),
-                "BOAT dhow medium (20)" => new(formFactor: 0.21f, buoyancyMultiplier: 0.10f),
-                "BOAT medi small (40)" => new(formFactor: 0.24f, buoyancyMultiplier: 0.07f),
-                "BOAT medi medium (50)" => new(formFactor: 0.19f, buoyancyMultiplier: 0.17f),
-                "BOAT junk large (70)" => new(formFactor: 0.23f, buoyancyMultiplier: 0.15f),
-                "BOAT junk medium (80)" => new(formFactor: 0.22f, buoyancyMultiplier: 0.09f),
-                "BOAT junk small singleroof(90)" => new(
-                    formFactor: 0.23f,
-                    buoyancyMultiplier: 0.09f
-                ),
-                "BOAT Shroud Small" => new(
-                    formFactor: 0.8f,
-                    buoyancyMultiplier: 0.16f,
-                    viscousDragMultiplier: 0.8f,
-                    waveMakingDragMultiplier: 0.95f
-                ),
-                "BOAT Shroud Large" => new(
-                    formFactor: 0.6f,
-                    buoyancyMultiplier: 0.16f,
-                    viscousDragMultiplier: 0.8f,
-                    waveMakingDragMultiplier: 0.9f
-                ),
-                "BOAT GLORIANA (182)" => new(formFactor: 0.18f, buoyancyMultiplier: 0.09f),
-                "BOAT CHRONIAN (187)" => new(formFactor: 0.20f, buoyancyMultiplier: 0.09f),
-                "BOAT CAELANOR (192)" => new(formFactor: 0.22f, buoyancyMultiplier: 0.13f),
-                "BOAT GALLUS (197)" => new(formFactor: 0.15f, buoyancyMultiplier: 0.10f),
-                "BOAT Le Requin (131)" => new(formFactor: 0.10f, buoyancyMultiplier: 0.10f),
-                "BOAT LEOPARD (207)" => new(formFactor: 0.20f, buoyancyMultiplier: 0.065f),
-                _ => new(),
-            };
+            return DefaultShipConfigurations.GetDefaultPerformanceByName(shipName);
         }
 
         private static ShipDragPerformanceData? GetPerformance(
