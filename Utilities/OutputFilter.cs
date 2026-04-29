@@ -8,7 +8,7 @@ namespace BetterDrag
 
         internal Vector3[] FilterForces(Vector3[] rawForces)
         {
-            if (GameState.sleeping)
+            if (!Plugin.enableForceSmoothing!.Value || GameState.sleeping)
                 return rawForces;
             forcesFilter.ProcessArray(rawForces);
             return forcesFilter.filteredValues;
