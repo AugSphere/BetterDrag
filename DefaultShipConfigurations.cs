@@ -39,6 +39,7 @@
                     viscousDragMultiplier: 0.8f,
                     waveMakingDragMultiplier: 0.9f
                 ),
+                "BOAT Shroud Small (160)" => new(formFactor: 0.12f, buoyancyMultiplier: 0.08f),
                 "BOAT GLORIANA (182)" => new(formFactor: 0.18f, buoyancyMultiplier: 0.09f),
                 "BOAT CHRONIAN (187)" => new(formFactor: 0.20f, buoyancyMultiplier: 0.09f),
                 "BOAT CAELANOR (192)" => new(formFactor: 0.22f, buoyancyMultiplier: 0.13f),
