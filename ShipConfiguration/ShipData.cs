@@ -20,6 +20,7 @@ namespace BetterDrag
         public readonly ShipDragPerformanceData dragData = ShipDragConfigManager.GetPerformanceData(
             shipGameObject
         );
+        internal readonly ModEnableCheck modEnableCheck = new(shipGameObject);
         internal readonly InputFilter inputFilter = new(shipGameObject.GetComponent<Rigidbody>());
         internal readonly Vector3[] rawForces = new Vector3[Hydrostatics.probeCount];
         internal readonly OutputFilter outputFilter = new();

@@ -1,5 +1,4 @@
-﻿using System;
-using Crest;
+﻿using Crest;
 using HarmonyLib;
 using UnityEngine;
 
@@ -8,24 +7,15 @@ namespace BetterDrag
     [HarmonyPatch]
     static class BoatProbesFixedUpdateDragPatch
     {
-        static readonly string[] disableForShipList = ["BOAT CUTTER (212)"];
-
-        static bool IsModDisabled(Rigidbody rigidBody)
-        {
-            var normalizedName = Utilities.GetNormalizedShipName(rigidBody.gameObject);
-            foreach (var disableForShip in disableForShipList)
-                if (string.Equals(disableForShip, normalizedName, StringComparison.Ordinal))
-                    return true;
-            return GameState.sleeping && !Plugin.enableDuringSleep!.Value;
-        }
-
         [HarmonyPrefix]
         [HarmonyPatch(typeof(BoatProbes), "FixedUpdateDrag")]
-        static bool IsUnpatchedDragUsed(Rigidbody ____rb) => IsModDisabled(____rb);
+        static bool IsUnpatchedDragUsed(BoatProbes __instance) =>
+            !ShipData.GetShipData(__instance.gameObject).modEnableCheck.IsModEnabled();
 
         [HarmonyPrefix]
         [HarmonyPatch(typeof(BoatProbes), "FixedUpdateBuoyancy")]
-        static bool IsUnpatchedBuoyancyUsed(Rigidbody ____rb) => IsModDisabled(____rb);
+        static bool IsUnpatchedBuoyancyUsed(BoatProbes __instance) =>
+            !ShipData.GetShipData(__instance.gameObject).modEnableCheck.IsModEnabled();
 
         [HarmonyPostfix]
         [HarmonyPatch(typeof(BoatProbes), "FixedUpdateDrag")]
@@ -38,13 +28,13 @@ namespace BetterDrag
             float ____totalWeight
         )
         {
-            if (IsModDisabled(____rb))
-                return;
-
             Profiler.RestartClock();
 
             var shipData = ShipData.GetShipData(__instance.gameObject);
             Profiler.Profile("GetShipData");
+
+            if (!shipData.modEnableCheck.IsModEnabled())
+                return;
 
             var (bodyVelocities, queryVelocities, queryDisplacements) =
                 shipData.inputFilter.GetLastValidInputs(
