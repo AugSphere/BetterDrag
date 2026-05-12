@@ -10,7 +10,7 @@ namespace BetterDrag
         private readonly InputStore bodyVelocityStore = new();
         private readonly InputStore waterVelocityStore = new();
         private readonly InputStore waterDisplacementStore = new();
-        private readonly UnstickUpdateVelocity unstickUpdateVelocity = new UnstickUpdateVelocity();
+        private readonly UnstickUpdateVelocity unstickUpdateVelocity = new();
         private const float velocityCutoff = 30f;
         private const float velocityCutoffSqr = velocityCutoff * velocityCutoff;
         private const float displacementCutoff = 15f;
