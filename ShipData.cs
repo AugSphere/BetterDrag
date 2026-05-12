@@ -20,6 +20,8 @@ namespace BetterDrag
         public readonly ShipDragPerformanceData dragData = ShipDragConfigManager.GetPerformanceData(
             shipGameObject
         );
+        internal readonly ModEnableCheck modEnableCheck = new(shipGameObject);
+        internal readonly UnstickUpdateVelocity unstickUpdateVelocity = new();
         private Hydrostatics? hydrostatics;
         private float baseBuoyancy = 25f;
         private float overflowOffset = 10f;
@@ -57,6 +59,7 @@ namespace BetterDrag
             float draftSpanRatio
         ) GetValues(BoatProbes boatProbes)
         {
+            unstickUpdateVelocity.Update(boatProbes);
             if (!this.valuesSet)
             {
                 this.CalculateDraftOffset(boatProbes);

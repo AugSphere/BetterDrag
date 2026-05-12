@@ -343,11 +343,14 @@ namespace BetterDrag
                 "BOAT CAELANOR (192)" => new(18f, 0.22f, 0.13f),
                 "BOAT GALLUS (197)" => new(9.2f, 0.15f, 0.10f),
                 "BOAT Le Requin (131)" => new(36.8f, 0.10f, 0.10f),
+                "BOAT Shroud Small (160)" => new(formFactor: 0.12f, buoyancyMultiplier: 0.08f),
+                "BOAT LEOPARD (207)" => new(formFactor: 0.20f, buoyancyMultiplier: 0.065f),
+                "DNG Cutter" => new(formFactor: 0.23f, buoyancyMultiplier: 0.22f),
                 _ => new(),
             };
         }
 
-        private static string GetNormalizedShipName(GameObject ship)
+        internal static string GetNormalizedShipName(GameObject ship)
         {
             var shipName = ship.name;
             var suffix = "(Clone)";
