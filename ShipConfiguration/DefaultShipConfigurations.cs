@@ -46,6 +46,7 @@
                 "BOAT GALLUS (197)" => new(formFactor: 0.15f, buoyancyMultiplier: 0.10f),
                 "BOAT Le Requin (131)" => new(formFactor: 0.10f, buoyancyMultiplier: 0.10f),
                 "BOAT LEOPARD (207)" => new(formFactor: 0.20f, buoyancyMultiplier: 0.065f),
+                "DNG Cutter" => new(formFactor: 0.23f, buoyancyMultiplier: 0.22f),
                 _ => new(),
             };
         }
