@@ -48,7 +48,7 @@ namespace BetterDrag
 
             var (bodyVelocities, queryVelocities, queryDisplacements) =
                 shipData.inputFilter.GetLastValidInputs(
-                    __instance.dontUpdateVelocity,
+                    __instance,
                     ____queryPoints,
                     ____queryResultDisps,
                     ____queryResultVels

@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using Crest;
+using UnityEngine;
 
 namespace BetterDrag
 {
@@ -9,6 +10,7 @@ namespace BetterDrag
         private readonly InputStore bodyVelocityStore = new();
         private readonly InputStore waterVelocityStore = new();
         private readonly InputStore waterDisplacementStore = new();
+        private readonly UnstickUpdateVelocity unstickUpdateVelocity = new UnstickUpdateVelocity();
         private const float velocityCutoff = 30f;
         private const float velocityCutoffSqr = velocityCutoff * velocityCutoff;
         private const float displacementCutoff = 15f;
@@ -19,22 +21,25 @@ namespace BetterDrag
             Vector3[] queryVelocities,
             Vector3[] queryDisplacements
         ) GetLastValidInputs(
-            bool dontUpdateVelocity,
+            BoatProbes boatProbes,
             Vector3[] queryPoints,
             Vector3[] queryDisplacements,
             Vector3[] queryVelocities
         )
         {
+            unstickUpdateVelocity.Update(boatProbes);
+
             for (var idx = 0; idx < Hydrostatics.probeCount; ++idx)
                 bodyVelocities[idx] = rigidBody.GetPointVelocity(queryPoints[idx]);
 
             var areInputsValid =
-                !dontUpdateVelocity
+                !boatProbes.dontUpdateVelocity
                 && !HasMagnitudeOutliers(bodyVelocities, velocityCutoffSqr)
                 && !HasMagnitudeOutliers(queryVelocities, velocityCutoffSqr)
                 && !HasMagnitudeOutliers(queryDisplacements, displacementCutoffSqr);
 
 #if DEBUG
+            BetterDragDebug.LogCSVBuffered([("update_v", !boatProbes.dontUpdateVelocity ? 1 : 0)]);
             BetterDragDebug.LogCSVBuffered([("valid_inputs", areInputsValid ? 1 : 0)]);
 #endif
 
