@@ -9,7 +9,6 @@ namespace BetterDrag
         private readonly Vector3[] bodyVelocities = new Vector3[Hydrostatics.probeCount];
         private readonly InputStore bodyVelocityStore = new();
         private readonly InputStore waterVelocityStore = new();
-        private readonly InputStore waterDisplacementStore = new();
         private readonly UnstickUpdateVelocity unstickUpdateVelocity = new();
         private const float velocityCutoff = 30f;
         private const float velocityCutoffSqr = velocityCutoff * velocityCutoff;
@@ -47,12 +46,11 @@ namespace BetterDrag
             {
                 bodyVelocityStore.SaveArray(bodyVelocities);
                 waterVelocityStore.SaveArray(queryVelocities);
-                waterDisplacementStore.SaveArray(queryDisplacements);
             }
             return (
                 bodyVelocityStore.savedValues,
                 waterVelocityStore.savedValues,
-                waterDisplacementStore.savedValues
+                queryDisplacements
             );
         }
 
