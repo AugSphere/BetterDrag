@@ -24,6 +24,7 @@ namespace BetterDrag
         internal readonly InputFilter inputFilter = new(shipGameObject.GetComponent<Rigidbody>());
         internal readonly Vector3[] rawForces = new Vector3[Hydrostatics.probeCount];
         internal readonly OutputFilter outputFilter = new();
+        internal readonly UnstickUpdateVelocity unstickUpdateVelocity = new();
         private Hydrostatics? hydrostatics;
         private float baseBuoyancy = 25f;
         private float overflowOffset = 10f;
@@ -65,6 +66,7 @@ namespace BetterDrag
             float draftSpanRatio
         ) GetValues(BoatProbes boatProbes)
         {
+            unstickUpdateVelocity.Update(boatProbes);
             if (!this.valuesSet)
             {
                 this.CalculateDraftOffset(boatProbes);
