@@ -68,6 +68,8 @@ namespace BetterDrag
         static void UpdateMass(Rigidbody ___body, float ___selfMass, float ___partsMass)
         {
             var shipData = ShipData.GetShipData(___body.gameObject);
+            if (!shipData.modEnableCheck.IsModEnabled())
+                return;
             ___body.mass +=
                 (___selfMass + ___partsMass)
                 * (Plugin.globalMassMultiplier!.Value * shipData.dragData.MassMultiplier - 1f);
