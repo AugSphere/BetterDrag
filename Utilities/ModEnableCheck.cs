@@ -13,12 +13,15 @@ namespace BetterDrag
             if (!isEnabledForShip)
                 return false;
 
+            if (GameState.sleeping)
+                return Plugin.enableDuringSleep!.Value;
+
             return true;
         }
 
         private static bool IsEnabledForShip(GameObject shipGameObject)
         {
-            var normalizedName = ShipDragConfigManager.GetNormalizedShipName(shipGameObject);
+            var normalizedName = Utilities.GetNormalizedShipName(shipGameObject);
             foreach (var disableForShip in disableForShipList)
                 if (string.Equals(disableForShip, normalizedName, StringComparison.Ordinal))
                     return false;

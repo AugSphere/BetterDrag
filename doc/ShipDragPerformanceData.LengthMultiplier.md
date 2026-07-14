@@ -1,11 +1,13 @@
 ### [BetterDrag](BetterDrag.md 'BetterDrag').[ShipDragPerformanceData](ShipDragPerformanceData.md 'BetterDrag\.ShipDragPerformanceData')
 
-## ShipDragPerformanceData\.LengthAtWaterline Property
+## ShipDragPerformanceData\.LengthMultiplier Property
 
-Length of the hull at waterline in meters\.
+Length multiplier for the hull\.
+
+A value of 2.0 would make the mod treat the hull as though it is twice the length, increasing the top speed.
 
 ```csharp
-public float LengthAtWaterline { get; }
+public float LengthMultiplier { get; }
 ```
 
 #### Property Value

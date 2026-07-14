@@ -7,7 +7,8 @@ namespace BetterDrag
     {
         const uint lengthSegmentCount = 100;
         const uint heightSegmentCount = 50;
-        const uint probeLengthPositions = 6;
+        public const uint probeLengthPositions = 6;
+        public const uint probeCount = probeLengthPositions * 2;
         readonly float minHeight;
         const float maxHeight = 10f;
         readonly float minLength;
@@ -18,7 +19,7 @@ namespace BetterDrag
         readonly bool isTableFilled;
         readonly string shipName;
 
-#if DEBUG
+#if DEBUG && DRAW_HULL
         static readonly Color[] colorList =
         [
             Color.white,
@@ -51,7 +52,7 @@ namespace BetterDrag
             {
 #if DEBUG
                 BetterDragDebug.LogLineBuffered(
-                    "Failed to cast rays to the hull, falling back to default hydrostatics."
+                    $"{shipName}: failed to cast rays to the hull, falling back to default hydrostatics."
                 );
 #endif
                 return;
@@ -64,15 +65,8 @@ namespace BetterDrag
         internal (float area, float displacement)? GetValues(int probeIdx, float draft)
         {
             if (!isTableFilled)
-            {
-#if DEBUG
-
-                BetterDragDebug.LogLineBuffered(
-                    "Trying to get a value from hydrostatic tables before they are built."
-                );
-#endif
                 return null;
-            }
+
             var heightSegmentFloat =
                 Mathf.Clamp01(draft / Hydrostatics.maxHeight) * heightSegmentCount;
             var heightSegmentFloor = (int)heightSegmentFloat;
@@ -107,7 +101,7 @@ namespace BetterDrag
         {
             var maxProbeZ = bowPoint.z * 0.9f;
             var minProbeZ = sternPoint.z * 0.9f;
-            Vector3[] newPositions = new Vector3[boatProbes._forcePoints.Length];
+            Vector3[] newPositions = new Vector3[probeCount];
             for (var lengthIdx = 0; lengthIdx < probeLengthPositions; ++lengthIdx)
             {
                 var probeZ =
@@ -117,11 +111,7 @@ namespace BetterDrag
                 newPositions[lengthIdx * 2] = new(-beam / 2.5f, 0f, probeZ);
                 newPositions[lengthIdx * 2 + 1] = new(beam / 2.5f, 0f, probeZ);
             }
-            for (
-                var forcePointIdx = 0;
-                forcePointIdx < boatProbes._forcePoints.Length;
-                ++forcePointIdx
-            )
+            for (var forcePointIdx = 0; forcePointIdx < probeCount; ++forcePointIdx)
             {
                 boatProbes._forcePoints[forcePointIdx]._offsetPosition = newPositions[
                     forcePointIdx
@@ -220,7 +210,7 @@ namespace BetterDrag
                         var hitPoint = rigidbody.transform.InverseTransformPoint(hitInfo.point);
                         hullPoints[heightIdx, lengthIdx] = hitPoint;
                         beamWidths[lengthIdx] = Mathf.Max(beamWidths[lengthIdx], hitPoint.x);
-#if DEBUG
+#if DEBUG && DRAW_HULL
                         renderers[heightIdx, lengthIdx] = new(rigidbody, hitPoint, radius: 0.1f);
 #endif
                     }
@@ -253,7 +243,7 @@ namespace BetterDrag
                     var aheadPointHigh = hullPoints[heightIdx + 1, lengthIdx + 1];
                     var halfProbeIdx =
                         FindNearestProbe(boatProbes._forcePoints, asternPointLow) / 2;
-#if DEBUG
+#if DEBUG && DRAW_HULL
                     if (renderers[heightIdx, lengthIdx] is not null)
                         renderers[heightIdx, lengthIdx]!.SetColor(colorList[halfProbeIdx]);
 #endif
@@ -281,7 +271,7 @@ namespace BetterDrag
         {
             var minDistanceSq = float.MaxValue;
             var minIdx = 0;
-            for (var idx = 0; idx < forcePoints.Length; ++idx)
+            for (var idx = 0; idx < probeCount; ++idx)
             {
                 var distanceSq = (forcePoints[idx]._offsetPosition - position).sqrMagnitude;
                 if (distanceSq < minDistanceSq)

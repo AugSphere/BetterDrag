@@ -46,13 +46,6 @@ using System.Diagnostics.CodeAnalysis;
     Target = "~T:BetterDrag.Profiler"
 )]
 [assembly: SuppressMessage(
-    "Refactoring",
-    "UninitializedLocalVariable:The local variable is not initialized at declaration.",
-    Justification = "No cleaner way to branch",
-    Scope = "type",
-    Target = "~T:BetterDrag.DragModel"
-)]
-[assembly: SuppressMessage(
     "Performance",
     "CA1814:Prefer jagged arrays over multidimensional",
     Justification = "Wastes no space",
@@ -86,4 +79,25 @@ using System.Diagnostics.CodeAnalysis;
     Justification = "Conditional compilation",
     Scope = "member",
     Target = "~F:BetterDrag.Hydrostatics.shipName"
+)]
+[assembly: SuppressMessage(
+    "Cleaning",
+    "UnusedVariable:Unused variable is declared.",
+    Justification = "Debug print support",
+    Scope = "member",
+    Target = "~M:BetterDrag.PhysicsCalculation.CalculateDragForce(System.Single,System.Single,System.Single,System.Single,BetterDrag.ShipDragPerformanceData,System.Boolean,System.Int32)~System.Single"
+)]
+[assembly: SuppressMessage(
+    "Cleaning",
+    "UnusedVariable:Unused variable is declared.",
+    Justification = "API deprecation",
+    Scope = "member",
+    Target = "~M:BetterDrag.ShipDragPerformanceData.#ctor(System.Single,System.Nullable{System.Single},System.Nullable{System.Single},System.Nullable{System.Single},System.Nullable{System.Single},System.Nullable{System.Single},System.Nullable{System.Single},BetterDrag.ShipDragPerformanceData.DragForceFunction,BetterDrag.ShipDragPerformanceData.DragForceFunction)"
+)]
+[assembly: SuppressMessage(
+    "Performance",
+    "CA1814:Prefer jagged arrays over multidimensional",
+    Justification = "Wastes no space",
+    Scope = "member",
+    Target = "~F:BetterDrag.OutputFilter.ArrayFilter.memory"
 )]

@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 namespace BetterDrag
 {
@@ -11,8 +12,7 @@ namespace BetterDrag
     {
         private static bool isOnFirstRun = true;
         private static uint counter = 1;
-        private static readonly List<string> textBuffer = [];
-        private static readonly List<float> valuesBuffer = [];
+        private static readonly Dictionary<string, float> csvBuffer = [];
 
         internal enum Mode
         {
@@ -24,8 +24,7 @@ namespace BetterDrag
         {
             ++counter;
             FileLog.SetBuffer([]);
-            textBuffer.Clear();
-            valuesBuffer.Clear();
+            csvBuffer.Clear();
         }
 
         public static bool IsAtPeriod
@@ -43,13 +42,24 @@ namespace BetterDrag
             FileLog.LogBuffered(lines);
         }
 
-        public static void LogCSVBuffered((string, float)[] entries)
+        public static void LogCSVBuffered(IEnumerable<(string, float)> entries)
         {
             foreach (var (text, value) in entries)
             {
-                textBuffer.Add(text);
-                valuesBuffer.Add(value);
+                csvBuffer[text] = value;
             }
+        }
+
+        public static void LogVectorComponents(
+            List<(string, float)> csvItems,
+            string prefix,
+            int idx,
+            Vector3 vector
+        )
+        {
+            csvItems.Add(($"{prefix}_x_p{idx}", vector.x));
+            csvItems.Add(($"{prefix}_y_p{idx}", vector.y));
+            csvItems.Add(($"{prefix}_z_p{idx}", vector.z));
         }
 
         public static void FlushBuffer(Mode mode)
@@ -71,14 +81,16 @@ namespace BetterDrag
         {
             if (isOnFirstRun)
             {
-                FileLog.Log(textBuffer.Join(delimiter: ";"));
+                FileLog.Log(csvBuffer.Keys.Join(delimiter: ";"));
                 isOnFirstRun = false;
             }
             FileLog.Log(
-                valuesBuffer.Join((n) => n.ToString(CultureInfo.InvariantCulture), delimiter: ";")
+                csvBuffer.Values.Join(
+                    (n) => n.ToString(CultureInfo.InvariantCulture),
+                    delimiter: ";"
+                )
             );
-            textBuffer.Clear();
-            valuesBuffer.Clear();
+            csvBuffer.Clear();
         }
     }
 
@@ -177,62 +189,72 @@ namespace BetterDrag
 
     internal class DebugVectorRenderer
     {
-        private GameObject gameObject;
-        private readonly LineRenderer lineRenderer;
-        private readonly PositionUpdater positionUpdater;
+        private readonly GLLineRenderer glRenderer;
 
         internal DebugVectorRenderer(
-            Rigidbody rigidbody,
-            Vector3 origin,
-            Vector3 direction,
-            float? debugLineSize = null
+            Rigidbody rigidBody,
+            Vector3 localOrigin,
+            Vector3 worldDirection,
+            Color color
         )
         {
-            this.gameObject = new GameObject(
-                nameof(DebugSphereRenderer) + "(" + rigidbody.name + ")"
-            );
-            lineRenderer = this.gameObject.AddComponent<LineRenderer>();
-            lineRenderer.material = new Material(Shader.Find("Sprites/Default"));
-            lineRenderer.startWidth = debugLineSize ?? 0.25f;
-            lineRenderer.endWidth = debugLineSize ?? 0.25f;
-            lineRenderer.positionCount = 2;
-            positionUpdater = this.gameObject.AddComponent<PositionUpdater>();
-            positionUpdater.lineRenderer = lineRenderer;
-            positionUpdater.rigidbody = rigidbody;
-            positionUpdater.origin = origin;
-            positionUpdater.direction = direction;
+            glRenderer = Camera.main.gameObject.AddComponent<GLLineRenderer>();
+            glRenderer.rigidBody = rigidBody;
+            glRenderer.localOrigin = localOrigin;
+            glRenderer.worldDirection = worldDirection;
+            glRenderer.color = color;
         }
 
         internal void SetMagnitude(float magnitude)
         {
-            this.positionUpdater.magnitude = magnitude;
+            this.glRenderer.magnitude = magnitude;
         }
 
-        private class PositionUpdater : MonoBehaviour
+        internal void SetDirection(Vector3 worldDirection)
         {
-            public Rigidbody? rigidbody;
-            public LineRenderer? lineRenderer;
-            public Vector3 origin;
-            public Vector3 direction;
+            this.glRenderer.worldDirection = worldDirection;
+        }
+
+        private class GLLineRenderer : MonoBehaviour
+        {
+            public Rigidbody? rigidBody;
+            public Material? lineMaterial;
+            public Vector3 localOrigin;
+            public Vector3 worldDirection;
+            public Color color;
             public float magnitude;
 
-            void Awake()
+            private void OnPostRender()
             {
-                DontDestroyOnLoad(gameObject);
+                CreateLineMaterial();
+                if (rigidBody is null || lineMaterial is null)
+                    return;
+                lineMaterial.SetPass(0);
+
+                GL.PushMatrix();
+
+                var originInWorld = rigidBody.transform.TransformPoint(localOrigin);
+
+                GL.Begin(GL.LINES);
+                GL.Color(color);
+                GL.Vertex(originInWorld);
+                GL.Vertex(originInWorld + worldDirection * magnitude);
+                GL.End();
+
+                GL.PopMatrix();
             }
 
-            void Update()
+            private void CreateLineMaterial()
             {
-                if (rigidbody is null || lineRenderer is null)
+                if (lineMaterial is not null)
                     return;
-                var originInWorld = rigidbody.transform.TransformPoint(origin);
-                var directionInWorld = rigidbody.transform.TransformDirection(direction);
-                var color = magnitude < 0 ? UnityEngine.Color.red : UnityEngine.Color.green;
-                lineRenderer.startColor = color;
-                lineRenderer.endColor = color;
-                lineRenderer.SetPositions(
-                    [originInWorld, originInWorld + directionInWorld * magnitude]
-                );
+
+                lineMaterial = new(Shader.Find("Hidden/Internal-Colored"))
+                {
+                    hideFlags = HideFlags.HideAndDontSave,
+                };
+
+                lineMaterial.SetInt("_ZTest", (int)CompareFunction.Always);
             }
         }
     }

@@ -16,11 +16,14 @@ namespace BetterDrag
         );
 
         private readonly string shipName = shipGameObject.name;
-        private readonly Rigidbody rigidbody = shipGameObject.GetComponent<Rigidbody>();
+        private readonly Rigidbody rigidBody = shipGameObject.GetComponent<Rigidbody>();
         public readonly ShipDragPerformanceData dragData = ShipDragConfigManager.GetPerformanceData(
             shipGameObject
         );
         internal readonly ModEnableCheck modEnableCheck = new(shipGameObject);
+        internal readonly InputFilter inputFilter = new(shipGameObject.GetComponent<Rigidbody>());
+        internal readonly Vector3[] rawForces = new Vector3[Hydrostatics.probeCount];
+        internal readonly OutputFilter outputFilter = new();
         internal readonly UnstickUpdateVelocity unstickUpdateVelocity = new();
         private Hydrostatics? hydrostatics;
         private float baseBuoyancy = 25f;
@@ -42,7 +45,11 @@ namespace BetterDrag
         public DebugSphereRenderer? sternRenderer;
         public DebugSphereRenderer? comRenderer;
         public DebugSphereRenderer? rbComRenderer;
-        public List<DebugVectorRenderer> depthProbeRenderers = [];
+        public List<DebugVectorRenderer> buoyancyForceRenderers = [];
+        public List<DebugVectorRenderer> dragForceRenderers = [];
+        public List<DebugVectorRenderer> waterVelocityRenderers = [];
+        public List<DebugVectorRenderer> relativeVelocityRenderers = [];
+        public List<DebugVectorRenderer> outputForceRenderers = [];
 #endif
 
         public static ShipData GetShipData(GameObject shipGameObject)
@@ -66,14 +73,14 @@ namespace BetterDrag
                 this.CalculateLWL();
                 this.hydrostatics = new(
                     shipName,
-                    rigidbody,
+                    rigidBody,
                     boatProbes,
                     this.bowPointPosition,
                     this.sternPointPosition,
                     this.keelPointPosition
                 );
 #if DEBUG
-                this.SetupProbeRenderers(boatProbes);
+                this.SetupVectorRenderers(boatProbes);
                 BetterDragDebug.LogLineBuffered($"{shipName}: ship data filled");
 #endif
                 valuesSet = true;
@@ -97,9 +104,9 @@ namespace BetterDrag
         {
             this.centerOfMassHeight = centerOfMass.y;
 #if DEBUG
-            this.comRenderer = new(this.rigidbody, centerOfMass, Color.cyan, 0.6f);
+            this.comRenderer = new(this.rigidBody, centerOfMass, Color.cyan, 0.6f);
             this.rbComRenderer = new(
-                this.rigidbody,
+                this.rigidBody,
                 Vector3.zero,
                 Color.white,
                 2f,
@@ -135,15 +142,15 @@ namespace BetterDrag
             var originPoint = Vector3.down * GeometryQueries.defaultOriginOffset;
             var targetPoint = Vector3.zero;
 
-            if (!GetFirstHullHit(originPoint, targetPoint, rigidbody, out var hitInfo))
+            if (!GetFirstHullHit(originPoint, targetPoint, rigidBody, out var hitInfo))
             {
 #if DEBUG
-                BetterDragDebug.LogLineBuffered($"{rigidbody.name}: keel cast failed");
+                BetterDragDebug.LogLineBuffered($"{rigidBody.name}: keel cast failed");
 #endif
                 this.draftSpanRatio = 1;
                 return;
             }
-            var keelPoint = rigidbody.transform.InverseTransformPoint(hitInfo.point);
+            var keelPoint = rigidBody.transform.InverseTransformPoint(hitInfo.point);
 
             var draftOffset =
                 boatProbes._forcePoints[0]._offsetPosition.y
@@ -159,11 +166,11 @@ namespace BetterDrag
 #if DEBUG
             BetterDragDebug.LogLinesBuffered(
                 [
-                    $"{rigidbody.name}: set keel height to {this.keelOffset}",
-                    $"{rigidbody.name}: set draft offset to {this.draftOffset} from {hitInfo.collider.name}",
+                    $"{rigidBody.name}: set keel height to {this.keelOffset}",
+                    $"{rigidBody.name}: set draft offset to {this.draftOffset} from {hitInfo.collider.name}",
                 ]
             );
-            this.keelRenderer = new(rigidbody, keelPoint, Color.red);
+            this.keelRenderer = new(rigidBody, keelPoint, Color.red);
 #endif
         }
 
@@ -171,23 +178,23 @@ namespace BetterDrag
         {
             var fullSpan = this.keelOffset + this.overflowOffset;
             var lwlHeight = -this.keelOffset + 0.5f * fullSpan;
-            var transform = rigidbody.transform;
+            var transform = rigidBody.transform;
             var bowOriginPoint = Vector3.forward * GeometryQueries.defaultOriginOffset;
             var sternOriginPoint = Vector3.back * GeometryQueries.defaultOriginOffset;
             var targetPoint = Vector3.up * lwlHeight;
 
-            var isBowHit = GetFirstHullHit(bowOriginPoint, targetPoint, rigidbody, out var bowHit);
+            var isBowHit = GetFirstHullHit(bowOriginPoint, targetPoint, rigidBody, out var bowHit);
             var isSternHit = GetFirstHullHit(
                 sternOriginPoint,
                 targetPoint,
-                rigidbody,
+                rigidBody,
                 out var sternHit
             );
 
             if (!isBowHit || !isSternHit)
             {
 #if DEBUG
-                BetterDragDebug.LogLineBuffered($"{rigidbody.name}: LWL cast failed");
+                BetterDragDebug.LogLineBuffered($"{rigidBody.name}: LWL cast failed");
 #endif
                 return;
             }
@@ -199,10 +206,10 @@ namespace BetterDrag
 #if DEBUG
 
             BetterDragDebug.LogLineBuffered(
-                $"{rigidbody.name}: calculated LWL {this.lengthAtWaterline}"
+                $"{rigidBody.name}: calculated LWL {this.lengthAtWaterline}"
             );
-            this.bowRenderer = new(rigidbody, bowPointPosition, Color.green);
-            this.sternRenderer = new(rigidbody, sternPointPosition, Color.green);
+            this.bowRenderer = new(rigidBody, bowPointPosition, Color.green);
+            this.sternRenderer = new(rigidBody, sternPointPosition, Color.green);
 #endif
         }
 
@@ -211,30 +218,38 @@ namespace BetterDrag
             var worldOverflowPoint =
                 splashZone.transform.position
                 + splashZone.transform.TransformDirection(Vector3.up) * splashZone.verticalOffset;
-            var bodyOffset = this.rigidbody.transform.InverseTransformPoint(worldOverflowPoint).y;
+            var bodyOffset = this.rigidBody.transform.InverseTransformPoint(worldOverflowPoint).y;
 
             this.overflowOffset = Mathf.Min(this.overflowOffset, bodyOffset);
 
 #if DEBUG
             BetterDragDebug.LogLineBuffered(
-                $"{this.rigidbody.name}: set overflow offset to {this.overflowOffset}"
+                $"{this.rigidBody.name}: set overflow offset to {this.overflowOffset}"
             );
-            this.overflowRenderer = new(this.rigidbody, new(0, bodyOffset, 0), Color.blue);
+            this.overflowRenderer = new(this.rigidBody, new(0, bodyOffset, 0), Color.blue);
 #endif
         }
 
 #if DEBUG
-        private void SetupProbeRenderers(BoatProbes boatProbes)
+        private void SetupVectorRenderers(BoatProbes boatProbes)
         {
             for (int idx = 0; idx < boatProbes._forcePoints.Length; ++idx)
             {
-                this.depthProbeRenderers.Add(
-                    new(
-                        this.rigidbody,
-                        boatProbes._forcePoints[idx]._offsetPosition
-                            + new Vector3(0f, this.centerOfMassHeight, 0f),
-                        Vector3.up
-                    )
+                var position =
+                    boatProbes._forcePoints[idx]._offsetPosition
+                    + new Vector3(0f, this.centerOfMassHeight, 0f);
+                this.buoyancyForceRenderers.Add(
+                    new(this.rigidBody, position, Vector3.up, Color.blue)
+                );
+                this.dragForceRenderers.Add(new(this.rigidBody, position, Vector3.zero, Color.red));
+                this.waterVelocityRenderers.Add(
+                    new(this.rigidBody, position, Vector3.zero, Color.green)
+                );
+                this.relativeVelocityRenderers.Add(
+                    new(this.rigidBody, position, Vector3.zero, Color.magenta)
+                );
+                this.outputForceRenderers.Add(
+                    new(this.rigidBody, position, Vector3.zero, Color.white)
                 );
             }
         }

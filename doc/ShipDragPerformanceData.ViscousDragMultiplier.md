@@ -4,6 +4,8 @@
 
 Ship\-specific drag multiplier for viscous resistance\.
 
+Viscous drag smoothly increases with velocity and dominates at low speeds.
+
 ```csharp
 public float ViscousDragMultiplier { get; }
 ```

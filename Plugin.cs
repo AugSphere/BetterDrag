@@ -19,7 +19,7 @@ internal class Plugin : BaseUnityPlugin
 {
     private const string PLUGIN_GUID = "com.AugSphere.BetterDrag";
     private const string PLUGIN_NAME = "BetterDrag";
-    private const string PLUGIN_VERSION = "1.2.2";
+    private const string PLUGIN_VERSION = "1.4.0";
 
     internal static new ManualLogSource? Logger;
 
@@ -28,6 +28,9 @@ internal class Plugin : BaseUnityPlugin
     internal static ConfigEntry<float>? globalShipLengthMultiplier;
     internal static ConfigEntry<float>? globalBuoyancyMultiplier;
     internal static ConfigEntry<float>? globalMassMultiplier;
+    internal static ConfigEntry<float>? globalOffAxisDragMultiplier;
+    internal static ConfigEntry<bool>? enableDuringSleep;
+    internal static ConfigEntry<bool>? enableForceSmoothing;
     internal static Dictionary<string, ShipDragPerformanceData> shipOverrides = [];
 #if DEBUG
     internal static ConfigEntry<int>? debugPrintPeriod;
@@ -41,30 +44,30 @@ internal class Plugin : BaseUnityPlugin
 
         globalViscousDragMultiplier = Config.Bind(
             "--------- Global Multipliers ---------",
-            "globalViscousDragMultiplier",
+            nameof(globalViscousDragMultiplier),
             1.0f,
             new ConfigDescription(
-                "Viscous drag multiplier for all ships",
+                "Viscous drag multiplier. Relevant at all speeds. Higher values make ships slower.",
                 new AcceptableValueRange<float>(0.0f, 5.0f)
             )
         );
 
         globalWaveMakingDragMultiplier = Config.Bind(
             "--------- Global Multipliers ---------",
-            "globalWaveMakingDragMultiplier",
+            nameof(globalWaveMakingDragMultiplier),
             1.0f,
             new ConfigDescription(
-                "Wave-making drag multiplier for all ships",
+                "Wave-making drag multiplier. Mostly matters at high speeds. Higher values make ships slower.",
                 new AcceptableValueRange<float>(0.0f, 5.0f)
             )
         );
 
         globalShipLengthMultiplier = Config.Bind(
             "--------- Global Multipliers ---------",
-            "globalShipLengthMultiplier",
+            nameof(globalShipLengthMultiplier),
             1.0f,
             new ConfigDescription(
-                "Ship length multiplier, higher values raise the maximum speed",
+                "Ship length multiplier. Higher values raise the maximum speed.",
                 new AcceptableValueRange<float>(0.1f, 5.0f)
             )
         );
@@ -74,7 +77,7 @@ internal class Plugin : BaseUnityPlugin
             nameof(globalBuoyancyMultiplier),
             1.0f,
             new ConfigDescription(
-                "Buoyancy multiplier",
+                "Buoyancy multiplier. Higher values make ships sit higher in the water.",
                 new AcceptableValueRange<float>(0.1f, 5.0f)
             )
         );
@@ -83,16 +86,47 @@ internal class Plugin : BaseUnityPlugin
             "--------- Global Multipliers ---------",
             nameof(globalMassMultiplier),
             1.0f,
-            new ConfigDescription("Mass multiplier", new AcceptableValueRange<float>(0.1f, 5.0f))
+            new ConfigDescription(
+                "Mass multiplier. Higher values result in heavier ship hulls.",
+                new AcceptableValueRange<float>(0.1f, 5.0f)
+            )
+        );
+
+        globalOffAxisDragMultiplier = Config.Bind(
+            "--------- Global Multipliers ---------",
+            nameof(globalOffAxisDragMultiplier),
+            150f,
+            new ConfigDescription(
+                "Viscous drag multiplier for vertical and lateral movement. Higher values make ships less prone to drifting sideways.",
+                new AcceptableValueRange<float>(50f, 250.0f)
+            )
+        );
+
+        enableDuringSleep = Config.Bind(
+            "--------- Misc ---------",
+            nameof(enableDuringSleep),
+            true,
+            new ConfigDescription(
+                "Keep mod physics on during sleep. Set to false in case of ships being thrown around while sleeping."
+            )
+        );
+
+        enableForceSmoothing = Config.Bind(
+            "--------- Misc ---------",
+            nameof(enableForceSmoothing),
+            false,
+            new ConfigDescription(
+                "Smooth forces on the ship. Reduces the small vibrations of the ship, but can create unrealistic slow oscillations."
+            )
         );
 
 #if DEBUG
         debugPrintPeriod = Config.Bind(
             "--------Ω Debug Ω--------",
-            "debugPrintPeriod",
+            nameof(debugPrintPeriod),
             500,
             new ConfigDescription(
-                "How frequently debug data is printed to harmony.log.txt",
+                "How frequently debug data is printed to harmony.log.txt.",
                 new AcceptableValueRange<int>(1, 500)
             )
         );
@@ -135,7 +169,7 @@ internal class Plugin : BaseUnityPlugin
             else
                 Logger!.LogError($"Invalid JSON formatting of {filePath}");
 
-            shipOverrides["BOAT Example 1"] = new ShipDragPerformanceData(lengthAtWaterline: 5f);
+            shipOverrides["BOAT Example 1"] = new ShipDragPerformanceData(lengthMultiplier: 1.2f);
             shipOverrides["BOAT Example 2"] = new ShipDragPerformanceData(
                 formFactor: 1.23f,
                 waveMakingDragMultiplier: 3f
