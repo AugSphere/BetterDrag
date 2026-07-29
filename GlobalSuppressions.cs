@@ -122,12 +122,6 @@ using System.Diagnostics.CodeAnalysis;
     Scope = "module"
 )]
 [assembly: SuppressMessage(
-    "Style",
-    "IDE0161:Convert to file-scoped namespace",
-    Justification = "Keeping old namespaces",
-    Scope = "module"
-)]
-[assembly: SuppressMessage(
     "Refactoring",
     "IsNull:Do not use 'is' pattern matching with 'null'.",
     Justification = "Reference check for null is correct",
