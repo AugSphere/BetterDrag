@@ -1,4 +1,4 @@
-### [BetterDrag](BetterDrag.md 'BetterDrag')
+### [BetterDrag\.ShipConfiguration](BetterDrag.ShipConfiguration.md 'BetterDrag\.ShipConfiguration')
 
 ## ShipDragConfigManager Class
 
@@ -12,4 +12,4 @@ Inheritance [System\.Object](https://learn.microsoft.com/en-us/dotnet/api/system
 
 | Methods | |
 | :--- | :--- |
-| [SetCustomPerformance\(string, Nullable&lt;ShipDragPerformanceData&gt;\)](ShipDragConfigManager.SetCustomPerformance(string,Nullable_ShipDragPerformanceData_).md 'BetterDrag\.ShipDragConfigManager\.SetCustomPerformance\(string, System\.Nullable\<BetterDrag\.ShipDragPerformanceData\>\)') | Store custom performance data for a ship\.   Existing data is overwritten. |
+| [SetCustomPerformance\(string, Nullable&lt;ShipDragPerformanceData&gt;\)](ShipDragConfigManager.SetCustomPerformance(string,Nullable_ShipDragPerformanceData_).md 'BetterDrag\.ShipConfiguration\.ShipDragConfigManager\.SetCustomPerformance\(string, System\.Nullable\<BetterDrag\.ShipConfiguration\.ShipDragPerformanceData\>\)') | Store custom performance data for a ship\.   Existing data is overwritten. |

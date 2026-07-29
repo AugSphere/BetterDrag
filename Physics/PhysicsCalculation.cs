@@ -1,16 +1,22 @@
 ﻿using Crest;
+
 using UnityEngine;
+
+using BetterDrag.ShipConfiguration;
+
 #if DEBUG
+using BetterDrag.Utilities;
+
 using System.Collections.Generic;
 #endif
 
-namespace BetterDrag
+namespace BetterDrag.Physics
 {
     internal static class PhysicsCalculation
     {
-        static readonly float waterWeight = 1000f * Mathf.Abs(Physics.gravity.y);
+        private static readonly float WaterWeight = 1000f * Mathf.Abs(UnityEngine.Physics.gravity.y);
 
-        static float CalculateDragForce(
+        private static float CalculateDragForce(
             float velocity,
             float displacement,
             float wettedArea,
@@ -22,13 +28,13 @@ namespace BetterDrag
         {
             var absVelocity = Mathf.Abs(velocity);
             var finalLengthAtWaterline =
-                Plugin.globalShipLengthMultiplier!.Value
+                Plugin.GlobalShipLengthMultiplier!.Value
                 * performanceData.LengthMultiplier
                 * lengthAtWaterline;
             var formFactor = performanceData.FormFactor;
 
             var viscousDrag =
-                Plugin.globalViscousDragMultiplier!.Value
+                Plugin.GlobalViscousDragMultiplier!.Value
                 * performanceData.ViscousDragMultiplier
                 * performanceData.CalculateViscousDragForce(
                     absVelocity,
@@ -39,10 +45,12 @@ namespace BetterDrag
                 );
 
             if (!isLongitudinal)
-                return viscousDrag * Plugin.globalOffAxisDragMultiplier!.Value;
+            {
+                return viscousDrag * Plugin.GlobalOffAxisDragMultiplier!.Value;
+            }
 
             var waveMakingDrag =
-                Plugin.globalWaveMakingDragMultiplier!.Value
+                Plugin.GlobalWaveMakingDragMultiplier!.Value
                 * performanceData.WaveMakingDragMultiplier
                 * performanceData.CalculateWaveMakingDragForce(
                     absVelocity,
@@ -82,7 +90,7 @@ namespace BetterDrag
 
             var shipDataValues = shipData.GetValues(boatProbes);
             var lengthAtWaterline = shipDataValues.lengthAtWaterline;
-            var buoyancyMultiplier = shipData.dragData.BuoyancyMultiplier;
+            var buoyancyMultiplier = shipData.DragData.BuoyancyMultiplier;
 
             float seaLevel = OceanRenderer.Instance.SeaLevel;
             Vector3 bodyForward = rigidBody.transform.forward;
@@ -111,12 +119,12 @@ namespace BetterDrag
                 totalWettedArea += area;
 
                 float buoyantForceMagnitude =
-                    PhysicsCalculation.waterWeight
+                    WaterWeight
                     * displacement
                     * boatProbes._forceMultiplier
                     / shipDataValues.baseBuoyancy
                     * buoyancyMultiplier
-                    * Plugin.globalBuoyancyMultiplier!.Value;
+                    * Plugin.GlobalBuoyancyMultiplier!.Value;
 
                 Vector3 bodyPointVelocity = bodyVelocities[idx];
                 Vector3 relativeVelocity = bodyPointVelocity - queryVelocities[idx];
@@ -128,7 +136,7 @@ namespace BetterDrag
                     displacement,
                     area,
                     lengthAtWaterline,
-                    shipData.dragData,
+                    shipData.DragData,
                     true,
                     idx
                 );
@@ -138,17 +146,17 @@ namespace BetterDrag
                     displacement,
                     area,
                     lengthAtWaterline,
-                    shipData.dragData,
+                    shipData.DragData,
                     false,
                     idx
                 );
 
                 Vector3 buoyantForce = Vector3.up * buoyantForceMagnitude;
                 Vector3 dragForce =
-                    -forwardVelocity.normalized * forwardDrag
-                    - offAxisVelocity.normalized * offAxisDrag;
+                    (-forwardVelocity.normalized * forwardDrag)
+                    - (offAxisVelocity.normalized * offAxisDrag);
 
-                shipData.rawForces[idx] = buoyantForce + dragForce;
+                shipData.RawForces[idx] = buoyantForce + dragForce;
                 boatProbes.appliedBuoyancyForces[idx] = buoyantForceMagnitude;
 #if DEBUG
                 averageDraft += draft / totalWeight;
@@ -165,24 +173,24 @@ namespace BetterDrag
                 csvItems.Add(($"area_p{idx}", area));
                 csvItems.Add(($"drag_fw_p{idx}", forwardDrag));
                 csvItems.Add(($"drag_oa_p{idx}", offAxisDrag));
-                shipData.buoyancyForceRenderers[idx].SetMagnitude(buoyantForceMagnitude / 1000f);
-                shipData.dragForceRenderers[idx].SetDirection(dragForce.normalized);
-                shipData.dragForceRenderers[idx].SetMagnitude(dragForce.magnitude / 1000f);
-                shipData.waterVelocityRenderers[idx].SetDirection(queryVelocities[idx].normalized);
-                shipData.waterVelocityRenderers[idx].SetMagnitude(queryVelocities[idx].magnitude);
-                shipData.relativeVelocityRenderers[idx].SetDirection(relativeVelocity.normalized);
-                shipData.relativeVelocityRenderers[idx].SetMagnitude(relativeVelocity.magnitude);
+                shipData.BuoyancyForceRenderers[idx].SetMagnitude(buoyantForceMagnitude / 1000f);
+                shipData.DragForceRenderers[idx].SetDirection(dragForce.normalized);
+                shipData.DragForceRenderers[idx].SetMagnitude(dragForce.magnitude / 1000f);
+                shipData.WaterVelocityRenderers[idx].SetDirection(queryVelocities[idx].normalized);
+                shipData.WaterVelocityRenderers[idx].SetMagnitude(queryVelocities[idx].magnitude);
+                shipData.RelativeVelocityRenderers[idx].SetDirection(relativeVelocity.normalized);
+                shipData.RelativeVelocityRenderers[idx].SetMagnitude(relativeVelocity.magnitude);
 #endif
             }
 
-            var forces = shipData.outputFilter.FilterForces(shipData.rawForces);
+            var forces = shipData.OutputFilter.FilterForces(shipData.RawForces);
 
             for (int idx = 0; idx < boatProbes._forcePoints.Length; ++idx)
             {
                 rigidBody.AddForceAtPosition(forces[idx], queryPoints[idx]);
 #if DEBUG
-                shipData.outputForceRenderers[idx].SetDirection(forces[idx].normalized);
-                shipData.outputForceRenderers[idx].SetMagnitude(forces[idx].magnitude / 1000f);
+                shipData.OutputForceRenderers[idx].SetDirection(forces[idx].normalized);
+                shipData.OutputForceRenderers[idx].SetMagnitude(forces[idx].magnitude / 1000f);
 #endif
             }
 

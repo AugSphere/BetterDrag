@@ -1,8 +1,10 @@
-﻿namespace BetterDrag
+﻿using BetterDrag.Physics;
+
+namespace BetterDrag.ShipConfiguration
 {
     internal static class DefaultShipConfigurations
     {
-        internal static readonly ShipDragPerformanceData baseShipConfiguration = new(
+        internal static readonly ShipDragPerformanceData BaseShipConfiguration = new(
             lengthMultiplier: 1.0f,
             formFactor: 0.15f,
             buoyancyMultiplier: 0.12f,
@@ -15,7 +17,7 @@
 
         internal static ShipDragPerformanceData GetDefaultPerformanceByName(string shipName)
         {
-            return (shipName) switch
+            return shipName switch
             {
                 "BOAT dhow small (10)" => new(formFactor: 0.25f, buoyancyMultiplier: 0.08f),
                 "BOAT dhow medium (20)" => new(formFactor: 0.21f, buoyancyMultiplier: 0.10f),

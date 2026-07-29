@@ -1,35 +1,38 @@
 ﻿using UnityEngine;
 
-namespace BetterDrag
+namespace BetterDrag.Utilities
 {
     internal class OutputFilter
     {
-        private readonly ArrayFilter forcesFilter = new();
+        private readonly ArrayFilter _forcesFilter = new();
 
         internal Vector3[] FilterForces(Vector3[] rawForces)
         {
-            if (!Plugin.enableForceSmoothing!.Value || GameState.sleeping)
+            if (!Plugin.EnableForceSmoothing!.Value || GameState.sleeping)
+            {
                 return rawForces;
-            forcesFilter.ProcessArray(rawForces);
-            return forcesFilter.filteredValues;
+            }
+
+            _forcesFilter.ProcessArray(rawForces);
+            return _forcesFilter.FilteredValues;
         }
 
         private class ArrayFilter
         {
-            const int windowSize = 5;
-            const float weight = 1f / (float)windowSize;
-            internal readonly Vector3[] filteredValues = new Vector3[Hydrostatics.probeCount];
-            private readonly Vector3[,] memory = new Vector3[windowSize, Hydrostatics.probeCount];
-            private int memoryIdx;
+            private const int WindowSize = 5;
+            private const float Weight = 1f / WindowSize;
+            internal readonly Vector3[] FilteredValues = new Vector3[Hydrostatics.Hydrostatics.ProbeCount];
+            private readonly Vector3[,] _memory = new Vector3[WindowSize, Hydrostatics.Hydrostatics.ProbeCount];
+            private int _memoryIdx;
 
             internal void ProcessArray(Vector3[] values)
             {
-                for (int idx = 0; idx < Hydrostatics.probeCount; ++idx)
+                for (int idx = 0; idx < Hydrostatics.Hydrostatics.ProbeCount; ++idx)
                 {
-                    filteredValues[idx] += weight * (values[idx] - memory[memoryIdx, idx]);
-                    memory[memoryIdx, idx] = values[idx];
+                    FilteredValues[idx] += Weight * (values[idx] - _memory[_memoryIdx, idx]);
+                    _memory[_memoryIdx, idx] = values[idx];
                 }
-                memoryIdx = (memoryIdx + 1) % windowSize;
+                _memoryIdx = (_memoryIdx + 1) % WindowSize;
             }
         }
     }

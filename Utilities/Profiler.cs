@@ -1,29 +1,30 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
+
 using HarmonyLib;
 #if PROFILE
 using System.Globalization;
 #endif
 
-namespace BetterDrag
+namespace BetterDrag.Utilities
 {
     internal static class Profiler
     {
-        private static readonly Stopwatch clock = new();
-        private static long lastTick;
+        private static readonly Stopwatch Clock = new();
+        private static long s_lastTick;
 
-        private static readonly List<string> names = [];
+        private static readonly List<string> Names = [];
 #if PROFILE
-        private static readonly List<long> durations = [];
+        private static readonly List<long> Durations = [];
 #endif
 
-        private static bool isOnFirstRun = true;
+        private static bool s_isOnFirstRun = true;
 
         static Profiler()
         {
 #if PROFILE
-            clock.Start();
+            Clock.Start();
 #endif
         }
 
@@ -33,8 +34,8 @@ namespace BetterDrag
 #if !PROFILE
             return;
 #else
-            lastTick = clock.ElapsedTicks;
-            durations.Clear();
+            s_lastTick = Clock.ElapsedTicks;
+            Durations.Clear();
 #endif
         }
 
@@ -45,9 +46,9 @@ namespace BetterDrag
             return;
 #else
             var duration = GetTicksSinceLast();
-            if (isOnFirstRun)
-                names.Add(name);
-            durations.Add(duration);
+            if (s_isOnFirstRun)
+                Names.Add(name);
+            Durations.Add(duration);
 #endif
         }
 
@@ -57,28 +58,31 @@ namespace BetterDrag
 #if !PROFILE
             return;
 #else
-            UnityEngine.Debug.Assert(names.Count == durations.Count);
+            UnityEngine.Debug.Assert(Names.Count == Durations.Count);
             PrintProfilingHeaderOnce();
             FileLog.Log(
-                durations.Join((n) => n.ToString(CultureInfo.InvariantCulture), delimiter: ";")
+                Durations.Join((n) => n.ToString(CultureInfo.InvariantCulture), delimiter: ";")
             );
 #endif
         }
 
         private static void PrintProfilingHeaderOnce()
         {
-            if (!isOnFirstRun)
+            if (!s_isOnFirstRun)
+            {
                 return;
+            }
+
             FileLog.Log($"Performance clock frequency {Stopwatch.Frequency}");
-            FileLog.Log(names.Join(delimiter: ";"));
-            isOnFirstRun = false;
+            FileLog.Log(Names.Join(delimiter: ";"));
+            s_isOnFirstRun = false;
         }
 
         private static long GetTicksSinceLast()
         {
-            var currentTick = clock.ElapsedTicks;
-            var duration = currentTick - lastTick;
-            lastTick = currentTick;
+            var currentTick = Clock.ElapsedTicks;
+            var duration = currentTick - s_lastTick;
+            s_lastTick = currentTick;
             return duration;
         }
     }

@@ -1,13 +1,14 @@
 ﻿using System;
+
 using UnityEngine;
 
-namespace BetterDrag
+namespace BetterDrag.Hydrostatics
 {
     internal static class GeometryQueries
     {
-        internal const float defaultRadius = 0.1f;
-        internal const float defaultOriginOffset = 100f;
-        static readonly int layerMask = LayerMask.GetMask(
+        internal const float DefaultRadius = 0.1f;
+        internal const float DefaultOriginOffset = 100f;
+        private static readonly int LayerMask = UnityEngine.LayerMask.GetMask(
             "Ignore Raycast", // embark and interior layer
             "OnlyPlayerCol+Paintable" // hull player collider layer
         );
@@ -25,12 +26,12 @@ namespace BetterDrag
             var targetPointWorld = rigidbody.transform.TransformPoint(targetPointBody);
             var originPointWorld = rigidbody.transform.TransformPoint(originPointBody);
 
-            var allHits = Physics.SphereCastAll(
+            var allHits = UnityEngine.Physics.SphereCastAll(
                 originPointWorld,
-                radius ?? GeometryQueries.defaultRadius,
+                radius ?? DefaultRadius,
                 targetPointWorld - originPointWorld,
-                maxDistance: maxDistance ?? GeometryQueries.defaultOriginOffset,
-                layerMask: layerMask ?? GeometryQueries.layerMask
+                maxDistance: maxDistance ?? DefaultOriginOffset,
+                layerMask: layerMask ?? LayerMask
             );
 
             return GetFirstMatchingHit(
@@ -43,7 +44,7 @@ namespace BetterDrag
             );
         }
 
-        static bool GetFirstMatchingHit(
+        private static bool GetFirstMatchingHit(
             RaycastHit[] allHits,
             GameObject shipObject,
             out RaycastHit hitInfo,
@@ -59,13 +60,15 @@ namespace BetterDrag
                         out hitInfo
                     )
                 )
+                {
                     return true;
+                }
             }
             hitInfo = new();
             return false;
         }
 
-        static bool GetFirstHitWithFilter(
+        private static bool GetFirstHitWithFilter(
             RaycastHit[] hits,
             Func<RaycastHit, bool> filter,
             out RaycastHit hitInfo
@@ -77,7 +80,10 @@ namespace BetterDrag
             foreach (var hit in hits)
             {
                 if (!filter(hit))
+                {
                     continue;
+                }
+
                 isHit = true;
                 if (hit.distance < minDistance)
                 {
@@ -96,41 +102,41 @@ namespace BetterDrag
             return isHit;
         }
 
-        static bool IsCleanableColliderOfShip(Collider collider, GameObject shipObject)
+        private static bool IsCleanableColliderOfShip(Collider collider, GameObject shipObject)
         {
             var cleanable = collider.gameObject.GetComponent<CleanableObjectCollider>();
             if (cleanable is null || cleanable.parentCleanable is null)
+            {
                 return false;
+            }
+
             var transform = cleanable.parentCleanable.transform;
             while (transform is not null)
             {
                 if (ReferenceEquals(transform.gameObject, shipObject))
+                {
                     return true;
+                }
+
                 transform = transform.parent;
             }
             return false;
         }
 
-        static bool IsInnerEmbarkColliderOfShip(Collider collider, GameObject shipObject)
+        private static bool IsInnerEmbarkColliderOfShip(Collider collider, GameObject shipObject)
         {
-            if (!typeof(MeshCollider).IsInstanceOfType(collider))
-                return false;
-            if (collider.attachedRigidbody is null)
-                return false;
-            if (!collider.name.Equals("embark_col (this)", StringComparison.OrdinalIgnoreCase))
-                return false;
-            return ReferenceEquals(collider.attachedRigidbody.gameObject, shipObject);
+            return typeof(MeshCollider).IsInstanceOfType(collider)
+                && collider.attachedRigidbody is not null
+                && collider.name.Equals("embark_col (this)", StringComparison.OrdinalIgnoreCase)
+                && ReferenceEquals(collider.attachedRigidbody.gameObject, shipObject);
         }
 
-        static bool IsInteriorTriggerColliderOfShip(Collider collider, GameObject shipObject)
+        private static bool IsInteriorTriggerColliderOfShip(Collider collider, GameObject shipObject)
         {
-            if (!typeof(MeshCollider).IsInstanceOfType(collider))
-                return false;
-            if (collider.attachedRigidbody is null)
-                return false;
-            if (!collider.name.Contains("interior"))
-                return false;
-            return ReferenceEquals(collider.attachedRigidbody.gameObject, shipObject);
+            return typeof(MeshCollider).IsInstanceOfType(collider)
+                && collider.attachedRigidbody is not null
+                && collider.name.Contains("interior")
+                && ReferenceEquals(collider.attachedRigidbody.gameObject, shipObject);
         }
     }
 }

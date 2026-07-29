@@ -1,18 +1,20 @@
 ﻿#if DEBUG
-using HarmonyLib;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+
+using HarmonyLib;
+
 using UnityEngine;
 using UnityEngine.Rendering;
 
-namespace BetterDrag
+namespace BetterDrag.Utilities
 {
     internal static class BetterDragDebug
     {
-        private static bool isOnFirstRun = true;
-        private static uint counter = 1;
-        private static readonly Dictionary<string, float> csvBuffer = [];
+        private static bool s_isOnFirstRun = true;
+        private static uint s_counter = 1;
+        private static readonly Dictionary<string, float> CsvBuffer = [];
 
         internal enum Mode
         {
@@ -22,15 +24,12 @@ namespace BetterDrag
 
         public static void FinishUpdate()
         {
-            ++counter;
+            ++s_counter;
             FileLog.SetBuffer([]);
-            csvBuffer.Clear();
+            CsvBuffer.Clear();
         }
 
-        public static bool IsAtPeriod
-        {
-            get { return counter % Plugin.debugPrintPeriod!.Value == 0; }
-        }
+        public static bool IsAtPeriod => s_counter % Plugin.DebugPrintPeriod!.Value == 0;
 
         public static void LogLineBuffered(string line)
         {
@@ -46,7 +45,7 @@ namespace BetterDrag
         {
             foreach (var (text, value) in entries)
             {
-                csvBuffer[text] = value;
+                CsvBuffer[text] = value;
             }
         }
 
@@ -79,94 +78,100 @@ namespace BetterDrag
 
         private static void FlushCSVBuffer()
         {
-            if (isOnFirstRun)
+            if (s_isOnFirstRun)
             {
-                FileLog.Log(csvBuffer.Keys.Join(delimiter: ";"));
-                isOnFirstRun = false;
+                FileLog.Log(CsvBuffer.Keys.Join(delimiter: ";"));
+                s_isOnFirstRun = false;
             }
             FileLog.Log(
-                csvBuffer.Values.Join(
+                CsvBuffer.Values.Join(
                     (n) => n.ToString(CultureInfo.InvariantCulture),
                     delimiter: ";"
                 )
             );
-            csvBuffer.Clear();
+            CsvBuffer.Clear();
         }
     }
 
     internal class DebugSphereRenderer
     {
-        private static readonly Vector3[] s_UnitSphere = MakeUnitSphere(16);
-        private GameObject gameObject;
-        private readonly LineRenderer lineRenderer;
-        private readonly PositionUpdater positionUpdater;
+        private static readonly Vector3[] UnitSphere = MakeUnitSphere(16);
+        private readonly GameObject _gameObject;
+        private readonly LineRenderer _lineRenderer;
+        private readonly PositionUpdater _positionUpdater;
 
         internal DebugSphereRenderer(
             Rigidbody rigidbody,
             Vector3 origin,
-            UnityEngine.Color? color = null,
+            Color? color = null,
             float radius = 0.5f,
             float debugLineSize = 0.1f,
             bool relativeToCoM = false
         )
         {
-            this.gameObject = new GameObject(
+            _gameObject = new GameObject(
                 nameof(DebugSphereRenderer) + "(" + rigidbody.name + ")"
             );
-            lineRenderer = this.gameObject.AddComponent<LineRenderer>();
-            lineRenderer.material = new Material(Shader.Find("Sprites/Default"));
-            lineRenderer.startColor = color ?? UnityEngine.Color.magenta;
-            lineRenderer.endColor = color ?? UnityEngine.Color.magenta;
-            lineRenderer.startWidth = debugLineSize;
-            lineRenderer.endWidth = debugLineSize;
-            lineRenderer.positionCount = s_UnitSphere.Length;
-            positionUpdater = this.gameObject.AddComponent<PositionUpdater>();
-            positionUpdater.lineRenderer = lineRenderer;
-            positionUpdater.radius = radius;
-            positionUpdater.origin = origin;
-            positionUpdater.rigidbody = rigidbody;
-            positionUpdater.relativeToCoM = relativeToCoM;
+            _lineRenderer = _gameObject.AddComponent<LineRenderer>();
+            _lineRenderer.material = new Material(Shader.Find("Sprites/Default"));
+            _lineRenderer.startColor = color ?? Color.magenta;
+            _lineRenderer.endColor = color ?? Color.magenta;
+            _lineRenderer.startWidth = debugLineSize;
+            _lineRenderer.endWidth = debugLineSize;
+            _lineRenderer.positionCount = UnitSphere.Length;
+            _positionUpdater = _gameObject.AddComponent<PositionUpdater>();
+            _positionUpdater.LineRenderer = _lineRenderer;
+            _positionUpdater.Radius = radius;
+            _positionUpdater.Origin = origin;
+            _positionUpdater.Rigidbody = rigidbody;
+            _positionUpdater.RelativeToCoM = relativeToCoM;
         }
 
         internal void SetColor(Color color)
         {
-            lineRenderer.startColor = color;
-            lineRenderer.endColor = color;
+            _lineRenderer.startColor = color;
+            _lineRenderer.endColor = color;
         }
 
         private class PositionUpdater : MonoBehaviour
         {
-            public Rigidbody? rigidbody;
-            public float radius;
-            public LineRenderer? lineRenderer;
-            public Vector3 origin;
-            public bool relativeToCoM;
+            public Rigidbody? Rigidbody;
+            public float Radius;
+            public LineRenderer? LineRenderer;
+            public Vector3 Origin;
+            public bool RelativeToCoM;
 
-            void Awake()
+            internal void Awake()
             {
                 DontDestroyOnLoad(gameObject);
             }
 
-            void Update()
+            internal void Update()
             {
-                if (rigidbody is null)
+                if (Rigidbody is null)
+                {
                     return;
-                var originInWorld = rigidbody.transform.TransformPoint(
-                    origin + (relativeToCoM ? 1f : 0f) * rigidbody.centerOfMass
+                }
+
+                var originInWorld = Rigidbody.transform.TransformPoint(
+                    Origin + ((RelativeToCoM ? 1f : 0f) * Rigidbody.centerOfMass)
                 );
                 SetSpherePositions(originInWorld);
             }
 
             private void SetSpherePositions(Vector3 originInWorld)
             {
-                if (lineRenderer is null)
-                    return;
-                Vector3[] vertices = new Vector3[s_UnitSphere.Length];
-                for (int idx = 0; idx < s_UnitSphere.Length; ++idx)
+                if (LineRenderer is null)
                 {
-                    vertices[idx] = originInWorld + this.radius * s_UnitSphere[idx];
+                    return;
                 }
-                lineRenderer.SetPositions(vertices);
+
+                Vector3[] vertices = new Vector3[UnitSphere.Length];
+                for (int idx = 0; idx < UnitSphere.Length; ++idx)
+                {
+                    vertices[idx] = originInWorld + (Radius * UnitSphere[idx]);
+                }
+                LineRenderer.SetPositions(vertices);
             }
         }
 
@@ -179,9 +184,9 @@ namespace BetterDrag
                 var f = i / (float)len;
                 float c = Mathf.Cos(f * (float)(Math.PI * 2.0));
                 float s = Mathf.Sin(f * (float)(Math.PI * 2.0));
-                vertices[0 * len + i] = new(c, s, 0);
-                vertices[1 * len + i] = new(0, c, s);
-                vertices[2 * len + i] = new(s, 0, c);
+                vertices[(0 * len) + i] = new(c, s, 0);
+                vertices[(1 * len) + i] = new(0, c, s);
+                vertices[(2 * len) + i] = new(s, 0, c);
             }
             return vertices;
         }
@@ -189,7 +194,7 @@ namespace BetterDrag
 
     internal class DebugVectorRenderer
     {
-        private readonly GLLineRenderer glRenderer;
+        private readonly GLLineRenderer _glRenderer;
 
         internal DebugVectorRenderer(
             Rigidbody rigidBody,
@@ -198,47 +203,50 @@ namespace BetterDrag
             Color color
         )
         {
-            glRenderer = Camera.main.gameObject.AddComponent<GLLineRenderer>();
-            glRenderer.rigidBody = rigidBody;
-            glRenderer.localOrigin = localOrigin;
-            glRenderer.worldDirection = worldDirection;
-            glRenderer.color = color;
+            _glRenderer = Camera.main.gameObject.AddComponent<GLLineRenderer>();
+            _glRenderer.RigidBody = rigidBody;
+            _glRenderer.LocalOrigin = localOrigin;
+            _glRenderer.WorldDirection = worldDirection;
+            _glRenderer.Color = color;
         }
 
         internal void SetMagnitude(float magnitude)
         {
-            this.glRenderer.magnitude = magnitude;
+            _glRenderer.Magnitude = magnitude;
         }
 
         internal void SetDirection(Vector3 worldDirection)
         {
-            this.glRenderer.worldDirection = worldDirection;
+            _glRenderer.WorldDirection = worldDirection;
         }
 
         private class GLLineRenderer : MonoBehaviour
         {
-            public Rigidbody? rigidBody;
-            public Material? lineMaterial;
-            public Vector3 localOrigin;
-            public Vector3 worldDirection;
-            public Color color;
-            public float magnitude;
+            public Rigidbody? RigidBody;
+            public Material? LineMaterial;
+            public Vector3 LocalOrigin;
+            public Vector3 WorldDirection;
+            public Color Color;
+            public float Magnitude;
 
-            private void OnPostRender()
+            internal void OnPostRender()
             {
                 CreateLineMaterial();
-                if (rigidBody is null || lineMaterial is null)
+                if (RigidBody is null || LineMaterial is null)
+                {
                     return;
-                lineMaterial.SetPass(0);
+                }
+
+                _ = LineMaterial.SetPass(0);
 
                 GL.PushMatrix();
 
-                var originInWorld = rigidBody.transform.TransformPoint(localOrigin);
+                var originInWorld = RigidBody.transform.TransformPoint(LocalOrigin);
 
                 GL.Begin(GL.LINES);
-                GL.Color(color);
+                GL.Color(Color);
                 GL.Vertex(originInWorld);
-                GL.Vertex(originInWorld + worldDirection * magnitude);
+                GL.Vertex(originInWorld + (WorldDirection * Magnitude));
                 GL.End();
 
                 GL.PopMatrix();
@@ -246,15 +254,17 @@ namespace BetterDrag
 
             private void CreateLineMaterial()
             {
-                if (lineMaterial is not null)
+                if (LineMaterial is not null)
+                {
                     return;
+                }
 
-                lineMaterial = new(Shader.Find("Hidden/Internal-Colored"))
+                LineMaterial = new(Shader.Find("Hidden/Internal-Colored"))
                 {
                     hideFlags = HideFlags.HideAndDontSave,
                 };
 
-                lineMaterial.SetInt("_ZTest", (int)CompareFunction.Always);
+                LineMaterial.SetInt("_ZTest", (int)CompareFunction.Always);
             }
         }
     }

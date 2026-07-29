@@ -23,14 +23,14 @@ using System.Diagnostics.CodeAnalysis;
     "UnusedVariable:Unused variable is declared.",
     Justification = "Compatibility with delegate",
     Scope = "type",
-    Target = "~T:BetterDrag.DragModel"
+    Target = "~T:BetterDrag.Physics.DragModel"
 )]
 [assembly: SuppressMessage(
     "Refactoring",
     "NotOneShotInitialization:Declare the local variable with one-shot initialization.",
     Justification = "No cleaner way to merge",
     Scope = "member",
-    Target = "~M:BetterDrag.ShipDragConfigManager.GetPerformanceData(UnityEngine.GameObject)~BetterDrag.ShipDragPerformanceData"
+    Target = "~M:BetterDrag.ShipConfiguration.ShipDragConfigManager.GetPerformanceData(UnityEngine.GameObject)~BetterDrag.ShipConfiguration.ShipDragPerformanceData"
 )]
 [assembly: SuppressMessage(
     "Cleaning",
@@ -43,14 +43,21 @@ using System.Diagnostics.CodeAnalysis;
     "UnusedVariable:Unused variable is declared.",
     Justification = "Conditional compilation",
     Scope = "type",
-    Target = "~T:BetterDrag.Profiler"
+    Target = "~T:BetterDrag.Utilities.Profiler"
+)]
+[assembly: SuppressMessage(
+    "Style",
+    "IDE0051:Remove unused private members",
+    Justification = "Conditional compilation",
+    Scope = "type",
+    Target = "~T:BetterDrag.Utilities.Profiler"
 )]
 [assembly: SuppressMessage(
     "Performance",
     "CA1814:Prefer jagged arrays over multidimensional",
     Justification = "Wastes no space",
     Scope = "type",
-    Target = "~T:BetterDrag.Hydrostatics"
+    Target = "~T:BetterDrag.Hydrostatics.Hydrostatics"
 )]
 [assembly: SuppressMessage(
     "Usage",
@@ -64,40 +71,72 @@ using System.Diagnostics.CodeAnalysis;
     "CA1823:Avoid unused private fields",
     Justification = "Conditional compilation",
     Scope = "member",
-    Target = "~F:BetterDrag.Cache`1.name"
+    Target = "~F:BetterDrag.Utilities.Cache`1._name"
+)]
+[assembly: SuppressMessage(
+    "Style",
+    "IDE0052:Remove unread private members",
+    Justification = "Conditional compilation",
+    Scope = "member",
+    Target = "~F:BetterDrag.Utilities.Cache`1._name"
 )]
 [assembly: SuppressMessage(
     "Performance",
     "CA1822:Mark members as static",
     Justification = "Conditional compilation",
     Scope = "member",
-    Target = "~M:BetterDrag.ShipDragPerformanceData.FieldRepr~System.String"
+    Target = "~M:BetterDrag.ShipConfiguration.ShipDragPerformanceData.FieldRepr~System.String"
 )]
 [assembly: SuppressMessage(
-    "Performance",
-    "CA1823:Avoid unused private fields",
+    "Style",
+    "IDE0052:Remove unread private members",
     Justification = "Conditional compilation",
     Scope = "member",
-    Target = "~F:BetterDrag.Hydrostatics.shipName"
+    Target = "~F:BetterDrag.Hydrostatics.Hydrostatics._shipName"
 )]
 [assembly: SuppressMessage(
     "Cleaning",
     "UnusedVariable:Unused variable is declared.",
     Justification = "Debug print support",
     Scope = "member",
-    Target = "~M:BetterDrag.PhysicsCalculation.CalculateDragForce(System.Single,System.Single,System.Single,System.Single,BetterDrag.ShipDragPerformanceData,System.Boolean,System.Int32)~System.Single"
+    Target = "~M:BetterDrag.Physics.PhysicsCalculation.CalculateDragForce(System.Single,System.Single,System.Single,System.Single,BetterDrag.ShipConfiguration.ShipDragPerformanceData,System.Boolean,System.Int32)~System.Single"
 )]
 [assembly: SuppressMessage(
     "Cleaning",
     "UnusedVariable:Unused variable is declared.",
-    Justification = "API deprecation",
+    Justification = "API Deprecation",
     Scope = "member",
-    Target = "~M:BetterDrag.ShipDragPerformanceData.#ctor(System.Single,System.Nullable{System.Single},System.Nullable{System.Single},System.Nullable{System.Single},System.Nullable{System.Single},System.Nullable{System.Single},System.Nullable{System.Single},BetterDrag.ShipDragPerformanceData.DragForceFunction,BetterDrag.ShipDragPerformanceData.DragForceFunction)"
+    Target = "~M:BetterDrag.ShipConfiguration.ShipDragPerformanceData.#ctor(System.Single,System.Nullable{System.Single},System.Nullable{System.Single},System.Nullable{System.Single},System.Nullable{System.Single},System.Nullable{System.Single},System.Nullable{System.Single},BetterDrag.ShipConfiguration.ShipDragPerformanceData.DragForceFunction,BetterDrag.ShipConfiguration.ShipDragPerformanceData.DragForceFunction)"
 )]
 [assembly: SuppressMessage(
     "Performance",
     "CA1814:Prefer jagged arrays over multidimensional",
     Justification = "Wastes no space",
-    Scope = "member",
-    Target = "~F:BetterDrag.OutputFilter.ArrayFilter.memory"
+    Scope = "type",
+    Target = "~T:BetterDrag.Utilities.OutputFilter"
+)]
+[assembly: SuppressMessage(
+    "Style",
+    "IDE0008:Use explicit type",
+    Justification = "Strict enough without it",
+    Scope = "module"
+)]
+[assembly: SuppressMessage(
+    "Style",
+    "IDE0161:Convert to file-scoped namespace",
+    Justification = "Keeping old namespaces",
+    Scope = "module"
+)]
+[assembly: SuppressMessage(
+    "Refactoring",
+    "IsNull:Do not use 'is' pattern matching with 'null'.",
+    Justification = "Reference check for null is correct",
+    Scope = "module"
+)]
+[assembly: SuppressMessage(
+    "Style",
+    "IDE1006:Naming Styles",
+    Justification = "Harmony syntax",
+    Scope = "type",
+    Target = "~T:BetterDrag.BoatProbesFixedUpdateDragPatch"
 )]

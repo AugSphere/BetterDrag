@@ -1,7 +1,8 @@
 ﻿using System;
+
 using UnityEngine;
 
-namespace BetterDrag
+namespace BetterDrag.Utilities
 {
     internal static class Utilities
     {

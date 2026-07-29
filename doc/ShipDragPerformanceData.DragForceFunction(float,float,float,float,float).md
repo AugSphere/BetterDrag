@@ -1,4 +1,4 @@
-### [BetterDrag](BetterDrag.md 'BetterDrag').[ShipDragPerformanceData](ShipDragPerformanceData.md 'BetterDrag\.ShipDragPerformanceData')
+### [BetterDrag\.ShipConfiguration](BetterDrag.ShipConfiguration.md 'BetterDrag\.ShipConfiguration').[ShipDragPerformanceData](ShipDragPerformanceData.md 'BetterDrag\.ShipConfiguration\.ShipDragPerformanceData')
 
 ## ShipDragPerformanceData\.DragForceFunction\(float, float, float, float, float\) Delegate
 
@@ -9,31 +9,31 @@ public delegate float ShipDragPerformanceData.DragForceFunction(float forwardVel
 ```
 #### Parameters
 
-<a name='BetterDrag.ShipDragPerformanceData.DragForceFunction(float,float,float,float,float).forwardVelocity'></a>
+<a name='BetterDrag.ShipConfiguration.ShipDragPerformanceData.DragForceFunction(float,float,float,float,float).forwardVelocity'></a>
 
 `forwardVelocity` [System\.Single](https://learn.microsoft.com/en-us/dotnet/api/system.single 'System\.Single')
 
 Absolute forward component of ship velocity in default unity meters/second\.
 
-<a name='BetterDrag.ShipDragPerformanceData.DragForceFunction(float,float,float,float,float).lengthAtWaterline'></a>
+<a name='BetterDrag.ShipConfiguration.ShipDragPerformanceData.DragForceFunction(float,float,float,float,float).lengthAtWaterline'></a>
 
 `lengthAtWaterline` [System\.Single](https://learn.microsoft.com/en-us/dotnet/api/system.single 'System\.Single')
 
 Length at waterline in meters\. Calculated by the mod\.
 
-<a name='BetterDrag.ShipDragPerformanceData.DragForceFunction(float,float,float,float,float).formFactor'></a>
+<a name='BetterDrag.ShipConfiguration.ShipDragPerformanceData.DragForceFunction(float,float,float,float,float).formFactor'></a>
 
 `formFactor` [System\.Single](https://learn.microsoft.com/en-us/dotnet/api/system.single 'System\.Single')
 
 Form factor of the ship\. Specified in ship's configuration\.
 
-<a name='BetterDrag.ShipDragPerformanceData.DragForceFunction(float,float,float,float,float).displacement'></a>
+<a name='BetterDrag.ShipConfiguration.ShipDragPerformanceData.DragForceFunction(float,float,float,float,float).displacement'></a>
 
 `displacement` [System\.Single](https://learn.microsoft.com/en-us/dotnet/api/system.single 'System\.Single')
 
 Ship's displacement in m^3\. Calculated by the mod\.
 
-<a name='BetterDrag.ShipDragPerformanceData.DragForceFunction(float,float,float,float,float).wettedArea'></a>
+<a name='BetterDrag.ShipConfiguration.ShipDragPerformanceData.DragForceFunction(float,float,float,float,float).wettedArea'></a>
 
 `wettedArea` [System\.Single](https://learn.microsoft.com/en-us/dotnet/api/system.single 'System\.Single')
 

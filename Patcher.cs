@@ -1,25 +1,35 @@
-﻿using Crest;
+﻿using BetterDrag.Physics;
+using BetterDrag.ShipConfiguration;
+using BetterDrag.Utilities;
+
+using Crest;
+
 using HarmonyLib;
+
 using UnityEngine;
 
 namespace BetterDrag
 {
     [HarmonyPatch]
-    static class BoatProbesFixedUpdateDragPatch
+    internal static class BoatProbesFixedUpdateDragPatch
     {
         [HarmonyPrefix]
         [HarmonyPatch(typeof(BoatProbes), "FixedUpdateDrag")]
-        static bool IsUnpatchedDragUsed(BoatProbes __instance) =>
-            !ShipData.GetShipData(__instance.gameObject).modEnableCheck.IsModEnabled();
+        internal static bool IsUnpatchedDragUsed(BoatProbes __instance)
+        {
+            return !ShipData.GetShipData(__instance.gameObject).ModEnableCheck.IsModEnabled();
+        }
 
         [HarmonyPrefix]
         [HarmonyPatch(typeof(BoatProbes), "FixedUpdateBuoyancy")]
-        static bool IsUnpatchedBuoyancyUsed(BoatProbes __instance) =>
-            !ShipData.GetShipData(__instance.gameObject).modEnableCheck.IsModEnabled();
+        internal static bool IsUnpatchedBuoyancyUsed(BoatProbes __instance)
+        {
+            return !ShipData.GetShipData(__instance.gameObject).ModEnableCheck.IsModEnabled();
+        }
 
         [HarmonyPostfix]
         [HarmonyPatch(typeof(BoatProbes), "FixedUpdateDrag")]
-        static void AddCustomPhysics(
+        internal static void AddCustomPhysics(
             BoatProbes __instance,
             Rigidbody ____rb,
             Vector3[] ____queryPoints,
@@ -33,11 +43,13 @@ namespace BetterDrag
             var shipData = ShipData.GetShipData(__instance.gameObject);
             Profiler.Profile("GetShipData");
 
-            if (!shipData.modEnableCheck.IsModEnabled())
+            if (!shipData.ModEnableCheck.IsModEnabled())
+            {
                 return;
+            }
 
             var (bodyVelocities, queryVelocities, queryDisplacements) =
-                shipData.inputFilter.GetLastValidInputs(
+                shipData.InputFilter.GetLastValidInputs(
                     __instance,
                     ____queryPoints,
                     ____queryResultDisps,
@@ -65,19 +77,22 @@ namespace BetterDrag
 
         [HarmonyPostfix]
         [HarmonyPatch(typeof(BoatMass), nameof(BoatMass.UpdateMass))]
-        static void UpdateMass(Rigidbody ___body, float ___selfMass, float ___partsMass)
+        internal static void UpdateMass(Rigidbody ___body, float ___selfMass, float ___partsMass)
         {
             var shipData = ShipData.GetShipData(___body.gameObject);
-            if (!shipData.modEnableCheck.IsModEnabled())
+            if (!shipData.ModEnableCheck.IsModEnabled())
+            {
                 return;
+            }
+
             ___body.mass +=
                 (___selfMass + ___partsMass)
-                * (Plugin.globalMassMultiplier!.Value * shipData.dragData.MassMultiplier - 1f);
+                * ((Plugin.GlobalMassMultiplier!.Value * shipData.DragData.MassMultiplier) - 1f);
         }
 
         [HarmonyPostfix]
         [HarmonyPatch(typeof(BoatProbes), "Start")]
-        static void BoatProbesStart(BoatProbes __instance, Vector3 ____centerOfMass)
+        internal static void BoatProbesStart(BoatProbes __instance, Vector3 ____centerOfMass)
         {
             var shipData = ShipData.GetShipData(__instance.gameObject);
             shipData.SetCenterOfMass(____centerOfMass);
@@ -85,7 +100,7 @@ namespace BetterDrag
 
         [HarmonyPostfix]
         [HarmonyPatch(typeof(BoatDamage), "Start")]
-        static void BoatDamageStart(BoatDamage __instance, float ___baseBuoyancy)
+        internal static void BoatDamageStart(BoatDamage __instance, float ___baseBuoyancy)
         {
             __instance.waterDrag = 0f;
             var shipData = ShipData.GetShipData(__instance.gameObject);
@@ -94,7 +109,7 @@ namespace BetterDrag
 
         [HarmonyPostfix]
         [HarmonyPatch(typeof(WaveSplashZone), "Start")]
-        static void WaveSplashZoneStart(WaveSplashZone __instance)
+        internal static void WaveSplashZoneStart(WaveSplashZone __instance)
         {
             var rigidbody = __instance.GetComponentInParent<Rigidbody>();
             var shipData = ShipData.GetShipData(rigidbody.gameObject);
