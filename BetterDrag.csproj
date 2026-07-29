@@ -39,14 +39,6 @@
     <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Remove="BetterDrag.Numerics\**" />
-    <Compile Remove="BetterDrag.Tests\**" />
-    <EmbeddedResource Remove="BetterDrag.Numerics\**" />
-    <EmbeddedResource Remove="BetterDrag.Tests\**" />
-    <None Remove="BetterDrag.Numerics\**" />
-    <None Remove="BetterDrag.Tests\**" />
-  </ItemGroup>
-  <ItemGroup>
     <PackageReference Include="BepInEx.Core" Version="5.*" />
     <PackageReference Include="DefaultDocumentation" Version="1.2.2">
       <PrivateAssets>all</PrivateAssets>
