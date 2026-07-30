@@ -101,6 +101,11 @@ internal static class BetterDragCompatibility
 ```
 
 # Development
+The project is set up for a .NET 10 environment. When using Visual Studio make
+sure your installation includes the .NET Framework 4.7 Targeting Pack.
+On linux `nix develop .#default` provides a suitable build environment for
+using `dotnet build`.
+
 Copy or link `Assembly-CSharp.dll` and `Crest.dll` from `Sailwind\Sailwind_Data\Managed`
 into the `lib` folder.
 
