@@ -6,12 +6,13 @@ using static BetterDrag.Hydrostatics.GeometryQueries;
 
 using BetterDrag.Utilities;
 
-
 #if DEBUG
 using System.Collections.Generic;
 #endif
 
 namespace BetterDrag.ShipConfiguration;
+
+using Hydrostatics = Hydrostatics.Hydrostatics;
 
 internal sealed class ShipData(GameObject shipGameObject)
 {
@@ -27,10 +28,10 @@ internal sealed class ShipData(GameObject shipGameObject)
     );
     internal readonly ModEnableCheck ModEnableCheck = new(shipGameObject);
     internal readonly InputFilter InputFilter = new(shipGameObject.GetComponent<Rigidbody>());
-    internal readonly Vector3[] RawForces = new Vector3[Hydrostatics.Hydrostatics.ProbeCount];
+    internal readonly Vector3[] RawForces = new Vector3[Hydrostatics.ProbeCount];
     internal readonly OutputFilter OutputFilter = new();
     internal readonly UnstickUpdateVelocity UnstickUpdateVelocity = new();
-    private Hydrostatics.Hydrostatics? _hydrostatics;
+    private Hydrostatics? _hydrostatics;
     private float _baseBuoyancy = 25f;
     private float _overflowOffset = 10f;
     private float _centerOfMassHeight;

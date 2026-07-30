@@ -4,10 +4,12 @@ using UnityEngine;
 
 namespace BetterDrag.Utilities;
 
+using Hydrostatics = Hydrostatics.Hydrostatics;
+
 internal sealed class InputFilter(Rigidbody rigidBody)
 {
     private readonly Rigidbody _rigidBody = rigidBody;
-    private readonly Vector3[] _bodyVelocities = new Vector3[Hydrostatics.Hydrostatics.ProbeCount];
+    private readonly Vector3[] _bodyVelocities = new Vector3[Hydrostatics.ProbeCount];
     private readonly InputStore _bodyVelocityStore = new();
     private readonly InputStore _waterVelocityStore = new();
     private readonly UnstickUpdateVelocity _unstickUpdateVelocity = new();
@@ -29,7 +31,7 @@ internal sealed class InputFilter(Rigidbody rigidBody)
     {
         _unstickUpdateVelocity.Update(boatProbes);
 
-        for (var idx = 0; idx < Hydrostatics.Hydrostatics.ProbeCount; ++idx)
+        for (var idx = 0; idx < Hydrostatics.ProbeCount; ++idx)
         {
             _bodyVelocities[idx] = _rigidBody.GetPointVelocity(queryPoints[idx]);
         }
@@ -59,7 +61,7 @@ internal sealed class InputFilter(Rigidbody rigidBody)
 
     private static bool HasMagnitudeOutliers(Vector3[] values, float outlierCutoffSqr)
     {
-        for (int idx = 0; idx < Hydrostatics.Hydrostatics.ProbeCount; ++idx)
+        for (int idx = 0; idx < Hydrostatics.ProbeCount; ++idx)
         {
             if (values[idx].sqrMagnitude > outlierCutoffSqr)
             {
@@ -71,11 +73,11 @@ internal sealed class InputFilter(Rigidbody rigidBody)
 
     private sealed class InputStore
     {
-        internal readonly Vector3[] SavedValues = new Vector3[Hydrostatics.Hydrostatics.ProbeCount];
+        internal readonly Vector3[] SavedValues = new Vector3[Hydrostatics.ProbeCount];
 
         internal void SaveArray(Vector3[] values)
         {
-            for (int idx = 0; idx < Hydrostatics.Hydrostatics.ProbeCount; ++idx)
+            for (int idx = 0; idx < Hydrostatics.ProbeCount; ++idx)
             {
                 SavedValues[idx] = values[idx];
             }

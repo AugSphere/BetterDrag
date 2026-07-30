@@ -2,6 +2,8 @@
 
 namespace BetterDrag.Utilities;
 
+using Hydrostatics = Hydrostatics.Hydrostatics;
+
 internal sealed class OutputFilter
 {
     private readonly ArrayFilter _forcesFilter = new();
@@ -21,13 +23,13 @@ internal sealed class OutputFilter
     {
         private const int WindowSize = 5;
         private const float Weight = 1f / WindowSize;
-        internal readonly Vector3[] FilteredValues = new Vector3[Hydrostatics.Hydrostatics.ProbeCount];
-        private readonly Vector3[,] _memory = new Vector3[WindowSize, Hydrostatics.Hydrostatics.ProbeCount];
+        internal readonly Vector3[] FilteredValues = new Vector3[Hydrostatics.ProbeCount];
+        private readonly Vector3[,] _memory = new Vector3[WindowSize, Hydrostatics.ProbeCount];
         private int _memoryIdx;
 
         internal void ProcessArray(Vector3[] values)
         {
-            for (int idx = 0; idx < Hydrostatics.Hydrostatics.ProbeCount; ++idx)
+            for (int idx = 0; idx < Hydrostatics.ProbeCount; ++idx)
             {
                 FilteredValues[idx] += Weight * (values[idx] - _memory[_memoryIdx, idx]);
                 _memory[_memoryIdx, idx] = values[idx];
