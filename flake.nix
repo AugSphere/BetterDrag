@@ -18,8 +18,8 @@
           dotnetCorePackages.sdk_10_0
         ];
         shellHook = ''
-          echo "Restoring .NET local tools..."
           dotnet tool restore
+          dotnet husky install
         '';
       };
     };
