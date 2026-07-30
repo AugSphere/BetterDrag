@@ -2,25 +2,24 @@
 
 using UnityEngine;
 
-namespace BetterDrag.Utilities
+namespace BetterDrag.Utilities;
+
+internal static class Utilities
 {
-    internal static class Utilities
+    internal static string GetNormalizedShipName(GameObject ship)
     {
-        internal static string GetNormalizedShipName(GameObject ship)
-        {
-            return StripCloneSuffix(ship.name);
-        }
+        return StripCloneSuffix(ship.name);
+    }
 
-        internal static string StripCloneSuffix(string shipName)
-        {
-            var strippedName = shipName;
-            var suffix = "(Clone)";
+    internal static string StripCloneSuffix(string shipName)
+    {
+        var strippedName = shipName;
+        var suffix = "(Clone)";
 
-            while (strippedName.EndsWith(suffix, StringComparison.OrdinalIgnoreCase))
-            {
-                strippedName = strippedName.Substring(0, strippedName.Length - suffix.Length);
-            }
-            return strippedName;
+        while (strippedName.EndsWith(suffix, StringComparison.OrdinalIgnoreCase))
+        {
+            strippedName = strippedName.Substring(0, strippedName.Length - suffix.Length);
         }
+        return strippedName;
     }
 }
