@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
-
 using UnityEngine;
 
 namespace BetterDrag.Utilities;
@@ -9,10 +8,8 @@ internal sealed class Cache<T>(string name, Func<GameObject, T> createValueCallb
     where T : class
 {
     private readonly ConditionalWeakTable<GameObject, T> _cache = new();
-    private readonly ConditionalWeakTable<
-        GameObject,
-        T
-    >.CreateValueCallback _createValueCallback = new(createValueCallback);
+    private readonly ConditionalWeakTable<GameObject, T>.CreateValueCallback _createValueCallback =
+        new(createValueCallback);
     private (GameObject key, T value)? _lastAccessed;
     private readonly string _name = name;
 

@@ -1,12 +1,8 @@
-﻿using Crest;
-
+﻿using BetterDrag.ShipConfiguration;
+using Crest;
 using UnityEngine;
-
-using BetterDrag.ShipConfiguration;
-
 #if DEBUG
 using BetterDrag.Utilities;
-
 using System.Collections.Generic;
 #endif
 
@@ -61,9 +57,10 @@ internal static class PhysicsCalculation
             );
 
 #if DEBUG
-        BetterDragDebug.LogCSVBuffered(
-            [($"drag_vs_p{probeIdx}", viscousDrag), ($"drag_wm_p{probeIdx}", waveMakingDrag)]
-        );
+        BetterDragDebug.LogCSVBuffered([
+            ($"drag_vs_p{probeIdx}", viscousDrag),
+            ($"drag_wm_p{probeIdx}", waveMakingDrag),
+        ]);
 #endif
         return viscousDrag + waveMakingDrag;
     }
@@ -98,11 +95,7 @@ internal static class PhysicsCalculation
         for (int idx = 0; idx < boatProbes._forcePoints.Length; ++idx)
         {
             float waterHeightSample = seaLevel + queryDisplacements[idx].y - queryPoints[idx].y;
-            float draft = Mathf.Clamp(
-                waterHeightSample + shipDataValues.draftOffset,
-                0.001f,
-                30f
-            );
+            float draft = Mathf.Clamp(waterHeightSample + shipDataValues.draftOffset, 0.001f, 30f);
 
             var fallbackDisplacement =
                 draft
@@ -195,15 +188,13 @@ internal static class PhysicsCalculation
         }
 
 #if DEBUG
-        BetterDragDebug.LogCSVBuffered(
-            [
-                ("draft_avg", averageDraft),
-                ("displacement", totalDisplacement),
-                ("displacement_fb", totalFbDisplacement),
-                ("area", totalWettedArea),
-                ("area_fb", totalFbWettedArea),
-            ]
-        );
+        BetterDragDebug.LogCSVBuffered([
+            ("draft_avg", averageDraft),
+            ("displacement", totalDisplacement),
+            ("displacement_fb", totalFbDisplacement),
+            ("area", totalWettedArea),
+            ("area_fb", totalFbWettedArea),
+        ]);
         BetterDragDebug.LogCSVBuffered(csvItems);
 #endif
     }

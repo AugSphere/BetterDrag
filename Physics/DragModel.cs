@@ -1,8 +1,7 @@
-﻿#if DEBUG
+﻿using UnityEngine;
+#if DEBUG
 using BetterDrag.Utilities;
 #endif
-
-using UnityEngine;
 
 namespace BetterDrag.Physics;
 

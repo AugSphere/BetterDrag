@@ -6,13 +6,10 @@ using System.Runtime.Serialization;
 using System.Runtime.Serialization.Json;
 using System.Text;
 using System.Xml;
-
 using BepInEx;
 using BepInEx.Configuration;
 using BepInEx.Logging;
-
 using BetterDrag.ShipConfiguration;
-
 using HarmonyLib;
 
 namespace BetterDrag;

@@ -1,11 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
-
 using UnityEngine;
-
 using static BetterDrag.ShipConfiguration.ShipDragPerformanceData;
-
 #if DEBUG
 using System.Reflection;
 #endif
@@ -37,21 +34,13 @@ public readonly struct ShipDragPerformanceData(
     [DataMember(EmitDefaultValue = false, IsRequired = false, Name = nameof(FormFactor))]
     private readonly float? _formFactor = formFactor;
 
-    [DataMember(
-        EmitDefaultValue = false,
-        IsRequired = false,
-        Name = nameof(BuoyancyMultiplier)
-    )]
+    [DataMember(EmitDefaultValue = false, IsRequired = false, Name = nameof(BuoyancyMultiplier))]
     private readonly float? _buoyancyMultiplier = buoyancyMultiplier;
 
     [DataMember(EmitDefaultValue = false, IsRequired = false, Name = nameof(MassMultiplier))]
     private readonly float? _massMultiplier = massMultiplier;
 
-    [DataMember(
-        EmitDefaultValue = false,
-        IsRequired = false,
-        Name = nameof(ViscousDragMultiplier)
-    )]
+    [DataMember(EmitDefaultValue = false, IsRequired = false, Name = nameof(ViscousDragMultiplier))]
     private readonly float? _viscousDragMultiplier = viscousDragMultiplier;
 
     [DataMember(
@@ -90,8 +79,7 @@ public readonly struct ShipDragPerformanceData(
             massMultiplier: massMultiplier,
             calculateViscousDragForce: calculateViscousDragForce,
             calculateWaveMakingDragForce: calculateWaveMakingDragForce
-        )
-    { }
+        ) { }
 
     /// <summary>
     /// Length multiplier for the hull.
@@ -100,8 +88,7 @@ public readonly struct ShipDragPerformanceData(
     /// </para>
     /// </summary>
     public readonly float LengthMultiplier =>
-        _lengthMultiplier
-        ?? DefaultShipConfigurations.BaseShipConfiguration.LengthMultiplier;
+        _lengthMultiplier ?? DefaultShipConfigurations.BaseShipConfiguration.LengthMultiplier;
 
     /// <summary>
     /// Form factor of the hull for ITTC 57 friction line.
@@ -123,8 +110,7 @@ public readonly struct ShipDragPerformanceData(
     /// </para>
     /// </summary>
     public readonly float BuoyancyMultiplier =>
-        _buoyancyMultiplier
-        ?? DefaultShipConfigurations.BaseShipConfiguration.BuoyancyMultiplier;
+        _buoyancyMultiplier ?? DefaultShipConfigurations.BaseShipConfiguration.BuoyancyMultiplier;
 
     /// <summary>
     /// Ship-specific mass multiplier.
@@ -278,8 +264,7 @@ public readonly struct ShipDragPerformanceData(
         return new ShipDragPerformanceData(
             lengthMultiplier: highPriority._lengthMultiplier ?? lowPriority._lengthMultiplier,
             formFactor: highPriority._formFactor ?? lowPriority._formFactor,
-            buoyancyMultiplier: highPriority._buoyancyMultiplier
-                ?? lowPriority._buoyancyMultiplier,
+            buoyancyMultiplier: highPriority._buoyancyMultiplier ?? lowPriority._buoyancyMultiplier,
             massMultiplier: highPriority._massMultiplier ?? lowPriority._massMultiplier,
             viscousDragMultiplier: highPriority._viscousDragMultiplier
                 ?? lowPriority._viscousDragMultiplier,
@@ -342,29 +327,22 @@ public static class ShipDragConfigManager
         }
 
 #if DEBUG
-        Utilities.BetterDragDebug.LogLinesBuffered(
-            [
-                $"\nMerging data for: {ship.name}",
-                $"User data: {userData}",
-                $"Custom data: {customData}",
-                $"Default data: {shipDefaultData}",
-                $"Merged data: {mergedData}\n",
-            ]
-        );
+        Utilities.BetterDragDebug.LogLinesBuffered([
+            $"\nMerging data for: {ship.name}",
+            $"User data: {userData}",
+            $"Custom data: {customData}",
+            $"Default data: {shipDefaultData}",
+            $"Merged data: {mergedData}\n",
+        ]);
 #endif
         return mergedData;
     }
 
-    internal static void FillUserPerformance(
-        Dictionary<string, ShipDragPerformanceData> userConfig
-    )
+    internal static void FillUserPerformance(Dictionary<string, ShipDragPerformanceData> userConfig)
     {
         foreach (var item in userConfig)
         {
-            UserPerformance.Add(
-                Utilities.Utilities.StripCloneSuffix(item.Key),
-                item.Value
-            );
+            UserPerformance.Add(Utilities.Utilities.StripCloneSuffix(item.Key), item.Value);
         }
     }
 

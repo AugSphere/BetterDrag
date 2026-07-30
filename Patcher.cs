@@ -1,11 +1,8 @@
 ﻿using BetterDrag.Physics;
 using BetterDrag.ShipConfiguration;
 using BetterDrag.Utilities;
-
 using Crest;
-
 using HarmonyLib;
-
 using UnityEngine;
 
 namespace BetterDrag;

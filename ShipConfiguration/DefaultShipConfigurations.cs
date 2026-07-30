@@ -25,10 +25,7 @@ internal static class DefaultShipConfigurations
             "BOAT medi medium (50)" => new(formFactor: 0.19f, buoyancyMultiplier: 0.17f),
             "BOAT junk large (70)" => new(formFactor: 0.23f, buoyancyMultiplier: 0.15f),
             "BOAT junk medium (80)" => new(formFactor: 0.22f, buoyancyMultiplier: 0.09f),
-            "BOAT junk small singleroof(90)" => new(
-                formFactor: 0.23f,
-                buoyancyMultiplier: 0.09f
-            ),
+            "BOAT junk small singleroof(90)" => new(formFactor: 0.23f, buoyancyMultiplier: 0.09f),
             "BOAT Shroud Small" => new(
                 formFactor: 0.8f,
                 buoyancyMultiplier: 0.16f,

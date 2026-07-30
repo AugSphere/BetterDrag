@@ -1,7 +1,5 @@
 ﻿using BetterDrag.Utilities;
-
 using Crest;
-
 using UnityEngine;
 
 namespace BetterDrag.Hydrostatics;
@@ -17,8 +15,14 @@ internal sealed class Hydrostatics
     private readonly float _minLength;
     private readonly float _maxLength;
     private static readonly Vector3 SentinelVector = Vector3.zero + (128f * Vector3.up);
-    private readonly float[,] _displacements = new float[ProbeLengthPositions, HeightSegmentCount + 1];
-    private readonly float[,] _wettedAreas = new float[ProbeLengthPositions, HeightSegmentCount + 1];
+    private readonly float[,] _displacements = new float[
+        ProbeLengthPositions,
+        HeightSegmentCount + 1
+    ];
+    private readonly float[,] _wettedAreas = new float[
+        ProbeLengthPositions,
+        HeightSegmentCount + 1
+    ];
     private readonly bool _isTableFilled;
     private readonly string _shipName;
 
@@ -72,8 +76,7 @@ internal sealed class Hydrostatics
             return null;
         }
 
-        var heightSegmentFloat =
-            Mathf.Clamp01(draft / MaxHeight) * HeightSegmentCount;
+        var heightSegmentFloat = Mathf.Clamp01(draft / MaxHeight) * HeightSegmentCount;
         var heightSegmentFloor = (int)heightSegmentFloat;
         var heightSegmentFraction = heightSegmentFloat % 1f;
         var halfProbeIdx = probeIdx / 2;
@@ -110,17 +113,14 @@ internal sealed class Hydrostatics
         for (var lengthIdx = 0; lengthIdx < ProbeLengthPositions; ++lengthIdx)
         {
             var probeZ =
-                ((maxProbeZ - minProbeZ) / (ProbeLengthPositions - 1) * lengthIdx)
-                + minProbeZ;
+                ((maxProbeZ - minProbeZ) / (ProbeLengthPositions - 1) * lengthIdx) + minProbeZ;
             var beam = GetBeam(beamWidths, probeZ);
             newPositions[lengthIdx * 2] = new(-beam / 2.5f, 0f, probeZ);
             newPositions[(lengthIdx * 2) + 1] = new(beam / 2.5f, 0f, probeZ);
         }
         for (var forcePointIdx = 0; forcePointIdx < ProbeCount; ++forcePointIdx)
         {
-            boatProbes._forcePoints[forcePointIdx]._offsetPosition = newPositions[
-                forcePointIdx
-            ];
+            boatProbes._forcePoints[forcePointIdx]._offsetPosition = newPositions[forcePointIdx];
         }
     }
 
@@ -134,10 +134,10 @@ internal sealed class Hydrostatics
         return lengthSegmentFloor == LengthSegmentCount
             ? beamWidths[LengthSegmentCount] * 2f
             : Mathf.Lerp(
-                    beamWidths[lengthSegmentFloor],
-                    beamWidths[lengthSegmentFloor + 1],
-                    lengthSegmentFraction
-                ) * 2f;
+                beamWidths[lengthSegmentFloor],
+                beamWidths[lengthSegmentFloor + 1],
+                lengthSegmentFraction
+            ) * 2f;
     }
 
     internal bool CastHullRays(
@@ -196,8 +196,7 @@ internal sealed class Hydrostatics
 
                 Vector3 castTarget = new(0, heightCoordinate, lengthCoordinate);
                 Vector3 castOrigin =
-                    castTarget + (Vector3.right
-                    * GeometryQueries.DefaultOriginOffset);
+                    castTarget + (Vector3.right * GeometryQueries.DefaultOriginOffset);
                 var isHit = GeometryQueries.GetFirstHullHit(
                     castOrigin,
                     castTarget,
@@ -242,8 +241,7 @@ internal sealed class Hydrostatics
                 var aheadPointLow = hullPoints[heightIdx, lengthIdx + 1];
                 var asternPointHigh = hullPoints[heightIdx + 1, lengthIdx];
                 var aheadPointHigh = hullPoints[heightIdx + 1, lengthIdx + 1];
-                var halfProbeIdx =
-                    FindNearestProbe(boatProbes._forcePoints, asternPointLow) / 2;
+                var halfProbeIdx = FindNearestProbe(boatProbes._forcePoints, asternPointLow) / 2;
 #if DEBUG && DRAW_HULL
                 if (renderers[heightIdx, lengthIdx] is not null)
                     renderers[heightIdx, lengthIdx]!.SetColor(colorList[halfProbeIdx]);

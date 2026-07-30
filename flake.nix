@@ -1,5 +1,5 @@
 {
-  description = ".NET 11 Development Environment";
+  description = ".NET 10 Development Environment";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
@@ -15,8 +15,12 @@
       devShells.${system}.default = pkgs.mkShell {
         buildInputs = with pkgs; [
           roslyn-ls
-          dotnetCorePackages.sdk_11_0
+          dotnetCorePackages.sdk_10_0
         ];
+        shellHook = ''
+          echo "Restoring .NET local tools..."
+          dotnet tool restore
+        '';
       };
     };
 }

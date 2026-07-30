@@ -2,9 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
-
 using HarmonyLib;
-
 using UnityEngine;
 using UnityEngine.Rendering;
 
@@ -84,10 +82,7 @@ internal static class BetterDragDebug
             s_isOnFirstRun = false;
         }
         FileLog.Log(
-            CsvBuffer.Values.Join(
-                (n) => n.ToString(CultureInfo.InvariantCulture),
-                delimiter: ";"
-            )
+            CsvBuffer.Values.Join((n) => n.ToString(CultureInfo.InvariantCulture), delimiter: ";")
         );
         CsvBuffer.Clear();
     }
@@ -109,9 +104,7 @@ internal sealed class DebugSphereRenderer
         bool relativeToCoM = false
     )
     {
-        _gameObject = new GameObject(
-            nameof(DebugSphereRenderer) + "(" + rigidbody.name + ")"
-        );
+        _gameObject = new GameObject(nameof(DebugSphereRenderer) + "(" + rigidbody.name + ")");
         _lineRenderer = _gameObject.AddComponent<LineRenderer>();
         _lineRenderer.material = new Material(Shader.Find("Sprites/Default"));
         _lineRenderer.startColor = color ?? Color.magenta;

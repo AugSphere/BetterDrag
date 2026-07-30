@@ -1,11 +1,7 @@
-﻿using Crest;
-
+﻿using BetterDrag.Utilities;
+using Crest;
 using UnityEngine;
-
 using static BetterDrag.Hydrostatics.GeometryQueries;
-
-using BetterDrag.Utilities;
-
 #if DEBUG
 using System.Collections.Generic;
 #endif
@@ -111,14 +107,7 @@ internal sealed class ShipData(GameObject shipGameObject)
         _centerOfMassHeight = centerOfMass.y;
 #if DEBUG
         ComRenderer = new(_rigidBody, centerOfMass, Color.cyan, 0.6f);
-        RbComRenderer = new(
-            _rigidBody,
-            Vector3.zero,
-            Color.white,
-            2f,
-            0.4f,
-            relativeToCoM: true
-        );
+        RbComRenderer = new(_rigidBody, Vector3.zero, Color.white, 2f, 0.4f, relativeToCoM: true);
 #endif
     }
 
@@ -159,9 +148,7 @@ internal sealed class ShipData(GameObject shipGameObject)
         var keelPoint = _rigidBody.transform.InverseTransformPoint(hitInfo.point);
 
         var draftOffset =
-            boatProbes._forcePoints[0]._offsetPosition.y
-            + _centerOfMassHeight
-            - keelPoint.y;
+            boatProbes._forcePoints[0]._offsetPosition.y + _centerOfMassHeight - keelPoint.y;
         _draftOffset = Mathf.Clamp(draftOffset, -1f, 15f);
         _keelOffset = Mathf.Clamp(-keelPoint.y, 0, 20f);
         _keelPointPosition = keelPoint;
@@ -170,12 +157,10 @@ internal sealed class ShipData(GameObject shipGameObject)
         _draftSpanRatio = originalDraftSpan / fullDraftSpan;
 
 #if DEBUG
-        BetterDragDebug.LogLinesBuffered(
-            [
-                $"{_rigidBody.name}: set keel height to {_keelOffset}",
-                $"{_rigidBody.name}: set draft offset to {_draftOffset} from {hitInfo.collider.name}",
-            ]
-        );
+        BetterDragDebug.LogLinesBuffered([
+            $"{_rigidBody.name}: set keel height to {_keelOffset}",
+            $"{_rigidBody.name}: set draft offset to {_draftOffset} from {hitInfo.collider.name}",
+        ]);
         KeelRenderer = new(_rigidBody, keelPoint, Color.red);
 #endif
     }
@@ -211,9 +196,7 @@ internal sealed class ShipData(GameObject shipGameObject)
         _sternPointPosition = sternPointPosition;
 #if DEBUG
 
-        BetterDragDebug.LogLineBuffered(
-            $"{_rigidBody.name}: calculated LWL {_lengthAtWaterline}"
-        );
+        BetterDragDebug.LogLineBuffered($"{_rigidBody.name}: calculated LWL {_lengthAtWaterline}");
         BowRenderer = new(_rigidBody, bowPointPosition, Color.green);
         SternRenderer = new(_rigidBody, sternPointPosition, Color.green);
 #endif
@@ -244,19 +227,11 @@ internal sealed class ShipData(GameObject shipGameObject)
             var position =
                 boatProbes._forcePoints[idx]._offsetPosition
                 + new Vector3(0f, _centerOfMassHeight, 0f);
-            BuoyancyForceRenderers.Add(
-                new(_rigidBody, position, Vector3.up, Color.blue)
-            );
+            BuoyancyForceRenderers.Add(new(_rigidBody, position, Vector3.up, Color.blue));
             DragForceRenderers.Add(new(_rigidBody, position, Vector3.zero, Color.red));
-            WaterVelocityRenderers.Add(
-                new(_rigidBody, position, Vector3.zero, Color.green)
-            );
-            RelativeVelocityRenderers.Add(
-                new(_rigidBody, position, Vector3.zero, Color.magenta)
-            );
-            OutputForceRenderers.Add(
-                new(_rigidBody, position, Vector3.zero, Color.white)
-            );
+            WaterVelocityRenderers.Add(new(_rigidBody, position, Vector3.zero, Color.green));
+            RelativeVelocityRenderers.Add(new(_rigidBody, position, Vector3.zero, Color.magenta));
+            OutputForceRenderers.Add(new(_rigidBody, position, Vector3.zero, Color.white));
         }
     }
 #endif
