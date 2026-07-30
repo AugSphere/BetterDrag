@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace BetterDrag.Hydrostatics
 {
-    internal class Hydrostatics
+    internal sealed class Hydrostatics
     {
         private const uint LengthSegmentCount = 100;
         private const uint HeightSegmentCount = 50;

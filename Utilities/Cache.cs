@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace BetterDrag.Utilities
 {
-    internal class Cache<T>(string name, Func<GameObject, T> createValueCallback)
+    internal sealed class Cache<T>(string name, Func<GameObject, T> createValueCallback)
         where T : class
     {
         private readonly ConditionalWeakTable<GameObject, T> _cache = new();

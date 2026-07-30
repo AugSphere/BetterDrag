@@ -93,7 +93,7 @@ namespace BetterDrag.Utilities
         }
     }
 
-    internal class DebugSphereRenderer
+    internal sealed class DebugSphereRenderer
     {
         private static readonly Vector3[] UnitSphere = MakeUnitSphere(16);
         private readonly GameObject _gameObject;
@@ -133,7 +133,7 @@ namespace BetterDrag.Utilities
             _lineRenderer.endColor = color;
         }
 
-        private class PositionUpdater : MonoBehaviour
+        private sealed class PositionUpdater : MonoBehaviour
         {
             public Rigidbody? Rigidbody;
             public float Radius;
@@ -192,7 +192,7 @@ namespace BetterDrag.Utilities
         }
     }
 
-    internal class DebugVectorRenderer
+    internal sealed class DebugVectorRenderer
     {
         private readonly GLLineRenderer _glRenderer;
 
@@ -220,7 +220,7 @@ namespace BetterDrag.Utilities
             _glRenderer.WorldDirection = worldDirection;
         }
 
-        private class GLLineRenderer : MonoBehaviour
+        private sealed class GLLineRenderer : MonoBehaviour
         {
             public Rigidbody? RigidBody;
             public Material? LineMaterial;

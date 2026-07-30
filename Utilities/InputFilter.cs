@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace BetterDrag.Utilities
 {
-    internal class InputFilter(Rigidbody rigidBody)
+    internal sealed class InputFilter(Rigidbody rigidBody)
     {
         private readonly Rigidbody _rigidBody = rigidBody;
         private readonly Vector3[] _bodyVelocities = new Vector3[Hydrostatics.Hydrostatics.ProbeCount];
@@ -69,7 +69,7 @@ namespace BetterDrag.Utilities
             return false;
         }
 
-        private class InputStore
+        private sealed class InputStore
         {
             internal readonly Vector3[] SavedValues = new Vector3[Hydrostatics.Hydrostatics.ProbeCount];
 

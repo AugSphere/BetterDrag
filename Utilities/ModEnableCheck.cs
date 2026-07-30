@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace BetterDrag.Utilities
 {
-    internal class ModEnableCheck(GameObject shipGameObject)
+    internal sealed class ModEnableCheck(GameObject shipGameObject)
     {
         private static readonly string[] DisableForShipList = ["BOAT CUTTER (212)"];
         private readonly bool _isEnabledForShip = IsEnabledForShip(shipGameObject);

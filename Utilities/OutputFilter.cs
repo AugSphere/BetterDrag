@@ -2,7 +2,7 @@
 
 namespace BetterDrag.Utilities
 {
-    internal class OutputFilter
+    internal sealed class OutputFilter
     {
         private readonly ArrayFilter _forcesFilter = new();
 
@@ -17,7 +17,7 @@ namespace BetterDrag.Utilities
             return _forcesFilter.FilteredValues;
         }
 
-        private class ArrayFilter
+        private sealed class ArrayFilter
         {
             private const int WindowSize = 5;
             private const float Weight = 1f / WindowSize;

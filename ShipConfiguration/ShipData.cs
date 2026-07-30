@@ -13,7 +13,7 @@ using System.Collections.Generic;
 
 namespace BetterDrag.ShipConfiguration
 {
-    internal class ShipData(GameObject shipGameObject)
+    internal sealed class ShipData(GameObject shipGameObject)
     {
         private static readonly Cache<ShipData> DataCache = new(
             "ShipData",

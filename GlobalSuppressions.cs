@@ -74,3 +74,9 @@ using System.Diagnostics.CodeAnalysis;
     Scope = "type",
     Target = "~T:BetterDrag.BoatProbesFixedUpdateDragPatch"
 )]
+[assembly: SuppressMessage(
+    "Performance",
+    "CA1812:Avoid uninstantiated internal classes",
+    Justification = "Unity components and bepin plugin",
+    Scope = "module"
+)]

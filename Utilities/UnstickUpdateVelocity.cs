@@ -2,7 +2,7 @@
 
 namespace BetterDrag.Utilities
 {
-    internal class UnstickUpdateVelocity
+    internal sealed class UnstickUpdateVelocity
     {
         private int _counter;
         private const int UnstickOn = 20;

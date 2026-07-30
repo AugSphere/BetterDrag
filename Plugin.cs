@@ -19,7 +19,7 @@ namespace BetterDrag;
 
 [BepInPlugin(PLUGIN_GUID, PLUGIN_NAME, PLUGIN_VERSION)]
 [BepInProcess("Sailwind.exe")]
-internal class Plugin : BaseUnityPlugin
+internal sealed class Plugin : BaseUnityPlugin
 {
     private const string PLUGIN_GUID = "com.AugSphere.BetterDrag";
     private const string PLUGIN_NAME = "BetterDrag";

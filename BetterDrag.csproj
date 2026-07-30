@@ -57,9 +57,4 @@
       <HintPath>lib\Crest.dll</HintPath>
     </Reference>
   </ItemGroup>
-  <ItemGroup>
-    <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
-      <_Parameter1>BetterDrag.Tests</_Parameter1>
-    </AssemblyAttribute>
-  </ItemGroup>
 </Project>
