@@ -6,80 +6,82 @@ using HarmonyLib;
 using System.Globalization;
 #endif
 
-namespace BetterDrag
+namespace BetterDrag.Utilities;
+
+internal static class Profiler
 {
-    internal static class Profiler
+    private static readonly Stopwatch Clock = new();
+    private static long s_lastTick;
+
+    private static readonly List<string> Names = [];
+#if PROFILE
+    private static readonly List<long> Durations = [];
+#endif
+
+    private static bool s_isOnFirstRun = true;
+
+    static Profiler()
     {
-        private static readonly Stopwatch clock = new();
-        private static long lastTick;
-
-        private static readonly List<string> names = [];
 #if PROFILE
-        private static readonly List<long> durations = [];
+        Clock.Start();
 #endif
+    }
 
-        private static bool isOnFirstRun = true;
-
-        static Profiler()
-        {
-#if PROFILE
-            clock.Start();
-#endif
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void RestartClock()
-        {
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static void RestartClock()
+    {
 #if !PROFILE
-            return;
+        return;
 #else
-            lastTick = clock.ElapsedTicks;
-            durations.Clear();
+        s_lastTick = Clock.ElapsedTicks;
+        Durations.Clear();
 #endif
-        }
+    }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void Profile(string name)
-        {
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static void Profile(string name)
+    {
 #if !PROFILE
-            return;
+        return;
 #else
-            var duration = GetTicksSinceLast();
-            if (isOnFirstRun)
-                names.Add(name);
-            durations.Add(duration);
+        var duration = GetTicksSinceLast();
+        if (s_isOnFirstRun)
+            Names.Add(name);
+        Durations.Add(duration);
 #endif
-        }
+    }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void LogDurations()
-        {
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static void LogDurations()
+    {
 #if !PROFILE
-            return;
+        return;
 #else
-            UnityEngine.Debug.Assert(names.Count == durations.Count);
-            PrintProfilingHeaderOnce();
-            FileLog.Log(
-                durations.Join((n) => n.ToString(CultureInfo.InvariantCulture), delimiter: ";")
-            );
+        UnityEngine.Debug.Assert(Names.Count == Durations.Count);
+        PrintProfilingHeaderOnce();
+        FileLog.Log(
+            Durations.Join((n) => n.ToString(CultureInfo.InvariantCulture), delimiter: ";")
+        );
 #endif
+    }
+
+    private static void PrintProfilingHeaderOnce()
+    {
+        if (!s_isOnFirstRun)
+        {
+            return;
         }
 
-        private static void PrintProfilingHeaderOnce()
-        {
-            if (!isOnFirstRun)
-                return;
-            FileLog.Log($"Performance clock frequency {Stopwatch.Frequency}");
-            FileLog.Log(names.Join(delimiter: ";"));
-            isOnFirstRun = false;
-        }
+        FileLog.Log($"Performance clock frequency {Stopwatch.Frequency}");
+        FileLog.Log(Names.Join(delimiter: ";"));
+        s_isOnFirstRun = false;
+    }
 
-        private static long GetTicksSinceLast()
-        {
-            var currentTick = clock.ElapsedTicks;
-            var duration = currentTick - lastTick;
-            lastTick = currentTick;
-            return duration;
-        }
+    private static long GetTicksSinceLast()
+    {
+        var currentTick = Clock.ElapsedTicks;
+        var duration = currentTick - s_lastTick;
+        s_lastTick = currentTick;
+        return duration;
     }
 }

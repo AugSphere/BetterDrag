@@ -1,36 +1,40 @@
 ﻿using UnityEngine;
 
-namespace BetterDrag
-{
-    internal class OutputFilter
-    {
-        private readonly ArrayFilter forcesFilter = new();
+namespace BetterDrag.Utilities;
 
-        internal Vector3[] FilterForces(Vector3[] rawForces)
+using Hydrostatics = Hydrostatics.Hydrostatics;
+
+internal sealed class OutputFilter
+{
+    private readonly ArrayFilter _forcesFilter = new();
+
+    internal Vector3[] FilterForces(Vector3[] rawForces)
+    {
+        if (!Plugin.EnableForceSmoothing!.Value || GameState.sleeping)
         {
-            if (!Plugin.enableForceSmoothing!.Value || GameState.sleeping)
-                return rawForces;
-            forcesFilter.ProcessArray(rawForces);
-            return forcesFilter.filteredValues;
+            return rawForces;
         }
 
-        private class ArrayFilter
-        {
-            const int windowSize = 5;
-            const float weight = 1f / (float)windowSize;
-            internal readonly Vector3[] filteredValues = new Vector3[Hydrostatics.probeCount];
-            private readonly Vector3[,] memory = new Vector3[windowSize, Hydrostatics.probeCount];
-            private int memoryIdx;
+        _forcesFilter.ProcessArray(rawForces);
+        return _forcesFilter.FilteredValues;
+    }
 
-            internal void ProcessArray(Vector3[] values)
+    private sealed class ArrayFilter
+    {
+        private const int WindowSize = 5;
+        private const float Weight = 1f / WindowSize;
+        internal readonly Vector3[] FilteredValues = new Vector3[Hydrostatics.ProbeCount];
+        private readonly Vector3[,] _memory = new Vector3[WindowSize, Hydrostatics.ProbeCount];
+        private int _memoryIdx;
+
+        internal void ProcessArray(Vector3[] values)
+        {
+            for (int idx = 0; idx < Hydrostatics.ProbeCount; ++idx)
             {
-                for (int idx = 0; idx < Hydrostatics.probeCount; ++idx)
-                {
-                    filteredValues[idx] += weight * (values[idx] - memory[memoryIdx, idx]);
-                    memory[memoryIdx, idx] = values[idx];
-                }
-                memoryIdx = (memoryIdx + 1) % windowSize;
+                FilteredValues[idx] += Weight * (values[idx] - _memory[_memoryIdx, idx]);
+                _memory[_memoryIdx, idx] = values[idx];
             }
+            _memoryIdx = (_memoryIdx + 1) % WindowSize;
         }
     }
 }

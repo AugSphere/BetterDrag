@@ -1,79 +1,84 @@
 ﻿using Crest;
 using UnityEngine;
 
-namespace BetterDrag
+namespace BetterDrag.Utilities;
+
+using Hydrostatics = Hydrostatics.Hydrostatics;
+
+internal sealed class InputFilter(Rigidbody rigidBody)
 {
-    internal class InputFilter(Rigidbody rigidBody)
+    private readonly Rigidbody _rigidBody = rigidBody;
+    private readonly Vector3[] _bodyVelocities = new Vector3[Hydrostatics.ProbeCount];
+    private readonly InputStore _bodyVelocityStore = new();
+    private readonly InputStore _waterVelocityStore = new();
+    private readonly UnstickUpdateVelocity _unstickUpdateVelocity = new();
+    private const float VelocityCutoff = 30f;
+    private const float VelocityCutoffSqr = VelocityCutoff * VelocityCutoff;
+    private const float DisplacementCutoff = 15f;
+    private const float DisplacementCutoffSqr = DisplacementCutoff * DisplacementCutoff;
+
+    internal (
+        Vector3[] bodyVelocities,
+        Vector3[] queryVelocities,
+        Vector3[] queryDisplacements
+    ) GetLastValidInputs(
+        BoatProbes boatProbes,
+        Vector3[] queryPoints,
+        Vector3[] queryDisplacements,
+        Vector3[] queryVelocities
+    )
     {
-        private readonly Rigidbody rigidBody = rigidBody;
-        private readonly Vector3[] bodyVelocities = new Vector3[Hydrostatics.probeCount];
-        private readonly InputStore bodyVelocityStore = new();
-        private readonly InputStore waterVelocityStore = new();
-        private readonly UnstickUpdateVelocity unstickUpdateVelocity = new();
-        private const float velocityCutoff = 30f;
-        private const float velocityCutoffSqr = velocityCutoff * velocityCutoff;
-        private const float displacementCutoff = 15f;
-        private const float displacementCutoffSqr = displacementCutoff * displacementCutoff;
+        _unstickUpdateVelocity.Update(boatProbes);
 
-        internal (
-            Vector3[] bodyVelocities,
-            Vector3[] queryVelocities,
-            Vector3[] queryDisplacements
-        ) GetLastValidInputs(
-            BoatProbes boatProbes,
-            Vector3[] queryPoints,
-            Vector3[] queryDisplacements,
-            Vector3[] queryVelocities
-        )
+        for (var idx = 0; idx < Hydrostatics.ProbeCount; ++idx)
         {
-            unstickUpdateVelocity.Update(boatProbes);
+            _bodyVelocities[idx] = _rigidBody.GetPointVelocity(queryPoints[idx]);
+        }
 
-            for (var idx = 0; idx < Hydrostatics.probeCount; ++idx)
-                bodyVelocities[idx] = rigidBody.GetPointVelocity(queryPoints[idx]);
-
-            var areInputsValid =
-                !boatProbes.dontUpdateVelocity
-                && !HasMagnitudeOutliers(bodyVelocities, velocityCutoffSqr)
-                && !HasMagnitudeOutliers(queryVelocities, velocityCutoffSqr)
-                && !HasMagnitudeOutliers(queryDisplacements, displacementCutoffSqr);
+        var areInputsValid =
+            !boatProbes.dontUpdateVelocity
+            && !HasMagnitudeOutliers(_bodyVelocities, VelocityCutoffSqr)
+            && !HasMagnitudeOutliers(queryVelocities, VelocityCutoffSqr)
+            && !HasMagnitudeOutliers(queryDisplacements, DisplacementCutoffSqr);
 
 #if DEBUG
-            BetterDragDebug.LogCSVBuffered([("update_v", !boatProbes.dontUpdateVelocity ? 1 : 0)]);
-            BetterDragDebug.LogCSVBuffered([("valid_inputs", areInputsValid ? 1 : 0)]);
+        BetterDragDebug.LogCSVBuffered([("update_v", !boatProbes.dontUpdateVelocity ? 1 : 0)]);
+        BetterDragDebug.LogCSVBuffered([("valid_inputs", areInputsValid ? 1 : 0)]);
 #endif
 
-            if (areInputsValid)
-            {
-                bodyVelocityStore.SaveArray(bodyVelocities);
-                waterVelocityStore.SaveArray(queryVelocities);
-            }
-            return (
-                bodyVelocityStore.savedValues,
-                waterVelocityStore.savedValues,
-                queryDisplacements
-            );
-        }
-
-        private static bool HasMagnitudeOutliers(Vector3[] values, float outlierCutoffSqr)
+        if (areInputsValid)
         {
-            for (int idx = 0; idx < Hydrostatics.probeCount; ++idx)
-            {
-                if (values[idx].sqrMagnitude > outlierCutoffSqr)
-                    return true;
-            }
-            return false;
+            _bodyVelocityStore.SaveArray(_bodyVelocities);
+            _waterVelocityStore.SaveArray(queryVelocities);
         }
+        return (
+            _bodyVelocityStore.SavedValues,
+            _waterVelocityStore.SavedValues,
+            queryDisplacements
+        );
+    }
 
-        private class InputStore
+    private static bool HasMagnitudeOutliers(Vector3[] values, float outlierCutoffSqr)
+    {
+        for (int idx = 0; idx < Hydrostatics.ProbeCount; ++idx)
         {
-            internal readonly Vector3[] savedValues = new Vector3[Hydrostatics.probeCount];
-
-            internal void SaveArray(Vector3[] values)
+            if (values[idx].sqrMagnitude > outlierCutoffSqr)
             {
-                for (int idx = 0; idx < Hydrostatics.probeCount; ++idx)
-                {
-                    savedValues[idx] = values[idx];
-                }
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private sealed class InputStore
+    {
+        internal readonly Vector3[] SavedValues = new Vector3[Hydrostatics.ProbeCount];
+
+        internal void SaveArray(Vector3[] values)
+        {
+            for (int idx = 0; idx < Hydrostatics.ProbeCount; ++idx)
+            {
+                SavedValues[idx] = values[idx];
             }
         }
     }

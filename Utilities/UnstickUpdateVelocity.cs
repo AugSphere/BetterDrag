@@ -1,20 +1,25 @@
 ﻿using Crest;
 
-namespace BetterDrag
-{
-    internal class UnstickUpdateVelocity
-    {
-        private int counter;
-        const int unstickOn = 20;
+namespace BetterDrag.Utilities;
 
-        internal void Update(BoatProbes boatProbes)
+internal sealed class UnstickUpdateVelocity
+{
+    private int _counter;
+    private const int UnstickOn = 20;
+
+    internal void Update(BoatProbes boatProbes)
+    {
+        if (_counter > UnstickOn)
         {
-            if (counter > unstickOn)
-                return;
-            if (counter == unstickOn)
-                boatProbes.dontUpdateVelocity = false;
-            ++counter;
             return;
         }
+
+        if (_counter == UnstickOn)
+        {
+            boatProbes.dontUpdateVelocity = false;
+        }
+
+        ++_counter;
+        return;
     }
 }

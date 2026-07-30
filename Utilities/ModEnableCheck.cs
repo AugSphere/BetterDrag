@@ -1,31 +1,29 @@
 ﻿using System;
 using UnityEngine;
 
-namespace BetterDrag
+namespace BetterDrag.Utilities;
+
+internal sealed class ModEnableCheck(GameObject shipGameObject)
 {
-    internal class ModEnableCheck(GameObject shipGameObject)
+    private static readonly string[] DisableForShipList = ["BOAT CUTTER (212)"];
+    private readonly bool _isEnabledForShip = IsEnabledForShip(shipGameObject);
+
+    internal bool IsModEnabled()
     {
-        static readonly string[] disableForShipList = ["BOAT CUTTER (212)"];
-        private readonly bool isEnabledForShip = IsEnabledForShip(shipGameObject);
+        return _isEnabledForShip && (!GameState.sleeping || Plugin.EnableDuringSleep!.Value);
+    }
 
-        internal bool IsModEnabled()
+    private static bool IsEnabledForShip(GameObject shipGameObject)
+    {
+        var normalizedName = Utilities.GetNormalizedShipName(shipGameObject);
+        foreach (var disableForShip in DisableForShipList)
         {
-            if (!isEnabledForShip)
+            if (string.Equals(disableForShip, normalizedName, StringComparison.Ordinal))
+            {
                 return false;
-
-            if (GameState.sleeping)
-                return Plugin.enableDuringSleep!.Value;
-
-            return true;
+            }
         }
 
-        private static bool IsEnabledForShip(GameObject shipGameObject)
-        {
-            var normalizedName = Utilities.GetNormalizedShipName(shipGameObject);
-            foreach (var disableForShip in disableForShipList)
-                if (string.Equals(disableForShip, normalizedName, StringComparison.Ordinal))
-                    return false;
-            return true;
-        }
+        return true;
     }
 }

@@ -1,4 +1,4 @@
-### [BetterDrag](BetterDrag.md 'BetterDrag').[ShipDragPerformanceData](ShipDragPerformanceData.md 'BetterDrag\.ShipDragPerformanceData')
+### [BetterDrag\.ShipConfiguration](BetterDrag.ShipConfiguration.md 'BetterDrag\.ShipConfiguration').[ShipDragPerformanceData](ShipDragPerformanceData.md 'BetterDrag\.ShipConfiguration\.ShipDragPerformanceData')
 
 ## ShipDragPerformanceData\.ViscousDragMultiplier Property
 
