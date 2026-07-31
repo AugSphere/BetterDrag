@@ -40,11 +40,6 @@ internal static class BoatProbesFixedUpdateDragPatch
         var shipData = ShipData.GetShipData(__instance.gameObject);
         Profiler.Profile("GetShipData");
 
-        if (!shipData.ModEnableCheck.IsModEnabled())
-        {
-            return;
-        }
-
         var (bodyVelocities, queryVelocities, queryDisplacements) =
             shipData.InputFilter.GetLastValidInputs(
                 __instance,

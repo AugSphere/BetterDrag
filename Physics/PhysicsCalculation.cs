@@ -76,6 +76,12 @@ internal static class PhysicsCalculation
         float totalWeight
     )
     {
+        shipData.KrakenGuard.FixAfterSleep(rigidBody, queryPoints, queryDisplacements);
+        if (!shipData.ModEnableCheck.IsModEnabled())
+        {
+            return;
+        }
+
         var totalDisplacement = 0.0f;
         var totalWettedArea = 0.0f;
 #if DEBUG
