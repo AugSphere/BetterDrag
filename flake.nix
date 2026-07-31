@@ -18,6 +18,15 @@
           dotnetCorePackages.sdk_10_0
         ];
         shellHook = ''
+          # Bring xdg data dirs of build inputs into the environement
+          xdg_inputs=( "''${buildInputs[@]}" )
+          for p in ''${xdg_inputs[@]}; do
+            if [[ -d "$p/share" ]]; then
+              XDG_DATA_DIRS="''${XDG_DATA_DIRS}''${XDG_DATA_DIRS+:}$p/share"
+            fi
+          done
+          export XDG_DATA_DIRS
+
           dotnet tool restore
           dotnet husky install
         '';
