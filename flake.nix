@@ -14,8 +14,9 @@
     {
       devShells.${system}.default = pkgs.mkShell {
         buildInputs = with pkgs; [
-          roslyn-ls
           dotnetCorePackages.sdk_10_0
+          roslyn-ls
+          ilspycmd
         ];
         shellHook = ''
           # Bring xdg data dirs of build inputs into the environement
