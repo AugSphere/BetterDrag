@@ -20,7 +20,7 @@ internal sealed class Plugin : BaseUnityPlugin
 {
     private const string PLUGIN_GUID = "com.AugSphere.BetterDrag";
     private const string PLUGIN_NAME = "BetterDrag";
-    private const string PLUGIN_VERSION = "1.4.0";
+    private const string PLUGIN_VERSION = "1.4.1";
 
     internal static new ManualLogSource? Logger;
 
