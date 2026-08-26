@@ -26,7 +26,7 @@ internal sealed class KrakenGuard(Rigidbody rigidBody)
         {
             return;
         }
-        OnWakeup(rigidBody, queryPoints, queryDisplacements);
+        Sleep.instance.StartCoroutine(OnWakeup(rigidBody, queryPoints, queryDisplacements));
         _wasSleeping = false;
     }
 
@@ -47,12 +47,16 @@ internal sealed class KrakenGuard(Rigidbody rigidBody)
         );
     }
 
-    private static void OnWakeup(
+    private static IEnumerator OnWakeup(
         Rigidbody rigidBody,
         Vector3[] queryPoints,
         Vector3[] queryDisplacements
     )
     {
+        for (int idx = 0; idx < 3; ++idx)
+        {
+            yield return new WaitForFixedUpdate();
+        }
         WhileKinematic(
             rigidBody,
             () =>
