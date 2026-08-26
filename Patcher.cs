@@ -80,6 +80,7 @@ internal static class BoatProbesFixedUpdateDragPatch
         ___body.mass +=
             (___selfMass + ___partsMass)
             * ((Plugin.GlobalMassMultiplier!.Value * shipData.DragData.MassMultiplier) - 1f);
+        shipData.SetUnloadedMass(___body.mass);
     }
 
     [HarmonyPostfix]

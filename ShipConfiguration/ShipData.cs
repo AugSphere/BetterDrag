@@ -19,7 +19,7 @@ internal sealed class ShipData(GameObject shipGameObject)
 
     private readonly string _shipName = shipGameObject.name;
     private readonly Rigidbody _rigidBody = shipGameObject.GetComponent<Rigidbody>();
-    public readonly ShipDragPerformanceData DragData = ShipDragConfigManager.GetPerformanceData(
+    internal readonly ShipDragPerformanceData DragData = ShipDragConfigManager.GetPerformanceData(
         shipGameObject
     );
     internal readonly ModEnableCheck ModEnableCheck = new(shipGameObject);
@@ -36,6 +36,7 @@ internal sealed class ShipData(GameObject shipGameObject)
     private float _keelOffset = 1f;
     private float _lengthAtWaterline = 15f;
     private float _draftSpanRatio;
+    private float _unloadedMass;
     private Vector3 _keelPointPosition;
     private Vector3 _bowPointPosition;
     private Vector3 _sternPointPosition;
@@ -66,7 +67,8 @@ internal sealed class ShipData(GameObject shipGameObject)
         float draftOffset,
         float keelDepth,
         float lengthAtWaterline,
-        float draftSpanRatio
+        float draftSpanRatio,
+        float unloadedMass
     ) GetValues(BoatProbes boatProbes)
     {
         UnstickUpdateVelocity.Update(boatProbes);
@@ -94,7 +96,8 @@ internal sealed class ShipData(GameObject shipGameObject)
             _draftOffset,
             _keelOffset,
             _lengthAtWaterline,
-            _draftSpanRatio
+            _draftSpanRatio,
+            _unloadedMass
         );
     }
 
@@ -115,6 +118,11 @@ internal sealed class ShipData(GameObject shipGameObject)
     internal void SetBaseBuoyancy(float baseBuoyancy)
     {
         _baseBuoyancy = baseBuoyancy;
+    }
+
+    internal void SetUnloadedMass(float mass)
+    {
+        _unloadedMass = mass;
     }
 
     public sealed override string ToString()

@@ -17,6 +17,7 @@ internal static class PhysicsCalculation
         float displacement,
         float wettedArea,
         float lengthAtWaterline,
+        float unloadedMass,
         ShipDragPerformanceData performanceData,
         bool isLongitudinal,
         int probeIdx
@@ -42,7 +43,8 @@ internal static class PhysicsCalculation
 
         if (!isLongitudinal)
         {
-            return viscousDrag * Plugin.GlobalOffAxisDragMultiplier!.Value;
+            return Plugin.GlobalOffAxisDragMultiplier!.Value
+                * DragModel.CalculateLinearDragForce(absVelocity, wettedArea, unloadedMass);
         }
 
         var waveMakingDrag =
@@ -93,6 +95,7 @@ internal static class PhysicsCalculation
 
         var shipDataValues = shipData.GetValues(boatProbes);
         var lengthAtWaterline = shipDataValues.lengthAtWaterline;
+        var unloadedMass = shipDataValues.unloadedMass;
         var buoyancyMultiplier = shipData.DragData.BuoyancyMultiplier;
 
         float seaLevel = OceanRenderer.Instance.SeaLevel;
@@ -135,6 +138,7 @@ internal static class PhysicsCalculation
                 displacement,
                 area,
                 lengthAtWaterline,
+                unloadedMass,
                 shipData.DragData,
                 true,
                 idx
@@ -145,6 +149,7 @@ internal static class PhysicsCalculation
                 displacement,
                 area,
                 lengthAtWaterline,
+                unloadedMass,
                 shipData.DragData,
                 false,
                 idx

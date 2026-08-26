@@ -9,6 +9,7 @@ internal static class DragModel
 {
     private const float TuningTotalDragMult = 350.0f;
     private const float TuningRelativeWaveMakingDragMult = 0.25f;
+    private const float TuningLinearDragMult = 1e-3f;
     private static readonly float G = Mathf.Abs(UnityEngine.Physics.gravity.y);
 
     private const float TuningViscousDragMult = TuningTotalDragMult;
@@ -59,7 +60,7 @@ internal static class DragModel
         float reynoldsNumber = absVelocity * lengthAtWaterline * 1e6f;
         float force = 0.0f;
 
-        if (reynoldsNumber < 0.01)
+        if (reynoldsNumber <= 200)
         {
             return force;
         }
@@ -70,5 +71,10 @@ internal static class DragModel
         force *= TuningViscousDragMult;
 
         return force;
+    }
+
+    internal static float CalculateLinearDragForce(float absVelocity, float wettedArea, float mass)
+    {
+        return wettedArea < 0.01f ? 0f : absVelocity * mass * TuningLinearDragMult;
     }
 }
