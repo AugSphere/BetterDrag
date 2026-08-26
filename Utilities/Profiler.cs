@@ -46,7 +46,9 @@ internal static class Profiler
 #else
         var duration = GetTicksSinceLast();
         if (s_isOnFirstRun)
+        {
             Names.Add(name);
+        }
         Durations.Add(duration);
 #endif
     }
