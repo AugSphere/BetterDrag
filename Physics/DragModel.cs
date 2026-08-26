@@ -9,7 +9,7 @@ internal static class DragModel
 {
     private const float TuningTotalDragMult = 350.0f;
     private const float TuningRelativeWaveMakingDragMult = 0.25f;
-    private const float TuningLinearDragMult = 1e-3f;
+    private const float TuningLinearDragMult = 2e-3f;
     private static readonly float G = Mathf.Abs(UnityEngine.Physics.gravity.y);
 
     private const float TuningViscousDragMult = TuningTotalDragMult;
