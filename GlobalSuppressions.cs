@@ -60,3 +60,17 @@ using System.Diagnostics.CodeAnalysis;
     Scope = "member",
     Target = "~M:BetterDrag.Physics.DragModel.CalculateViscousDragForce(System.Single,System.Single,System.Single,System.Single,System.Single)~System.Single"
 )]
+[assembly: SuppressMessage(
+    "Style",
+    "IDE0051:Remove unused private members",
+    Justification = "Conditional compilation",
+    Scope = "member",
+    Target = "~M:BetterDrag.Utilities.Profiler.GetTicksSinceLast~System.Int64"
+)]
+[assembly: SuppressMessage(
+    "Style",
+    "IDE0051:Remove unused private members",
+    Justification = "Conditional compilation",
+    Scope = "member",
+    Target = "~M:BetterDrag.Utilities.Profiler.PrintProfilingHeaderOnce"
+)]

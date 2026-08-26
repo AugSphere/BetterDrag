@@ -91,21 +91,6 @@ internal sealed class KrakenGuard(Rigidbody rigidBody)
 #endif
     }
 
-    private static void SetSailCollisions(Rigidbody rigidBody, bool value)
-    {
-        var sails = rigidBody.gameObject.GetComponentsInChildren<Sail>();
-        foreach (var sail in sails)
-        {
-            var sailRigidBody = sail.GetComponent<Rigidbody>();
-            sailRigidBody.detectCollisions = value;
-        }
-#if DEBUG
-        BetterDragDebug.LogLineBuffered(
-            $"{rigidBody.name}: set {sails.Length} sail colliders to {value}"
-        );
-#endif
-    }
-
     private static void FreezeItems(Rigidbody rigidBody)
     {
         var shipItems = rigidBody.gameObject.GetComponentsInChildren<ShipItem>();
