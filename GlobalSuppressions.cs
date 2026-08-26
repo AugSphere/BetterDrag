@@ -80,3 +80,10 @@ using System.Diagnostics.CodeAnalysis;
     Justification = "Unity components and bepin plugin",
     Scope = "module"
 )]
+[assembly: SuppressMessage(
+    "Style",
+    "IDE0060:Remove unused parameter",
+    Justification = "Delegate API",
+    Scope = "member",
+    Target = "~M:BetterDrag.Physics.DragModel.CalculateViscousDragForce(System.Single,System.Single,System.Single,System.Single,System.Single)~System.Single"
+)]
