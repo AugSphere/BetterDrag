@@ -31,7 +31,6 @@ internal sealed class Plugin : BaseUnityPlugin
     internal static ConfigEntry<float>? GlobalMassMultiplier;
     internal static ConfigEntry<float>? GlobalOffAxisDragMultiplier;
     internal static ConfigEntry<bool>? EnableDuringSleep;
-    internal static ConfigEntry<bool>? EnableForceSmoothing;
     internal static Dictionary<string, ShipDragPerformanceData> ShipOverrides = [];
 #if DEBUG
     internal static ConfigEntry<int>? DebugPrintPeriod;
@@ -109,15 +108,6 @@ internal sealed class Plugin : BaseUnityPlugin
             true,
             new ConfigDescription(
                 "Keep mod physics on during sleep. Set to false in case of ships being thrown around while sleeping."
-            )
-        );
-
-        EnableForceSmoothing = Config.Bind(
-            "--------- Misc ---------",
-            nameof(EnableForceSmoothing),
-            false,
-            new ConfigDescription(
-                "Smooth forces on the ship. Reduces the small vibrations of the ship, but can create unrealistic slow oscillations."
             )
         );
 

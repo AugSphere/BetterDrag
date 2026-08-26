@@ -25,7 +25,6 @@ internal sealed class ShipData(GameObject shipGameObject)
     internal readonly ModEnableCheck ModEnableCheck = new(shipGameObject);
     internal readonly InputFilter InputFilter = new(shipGameObject.GetComponent<Rigidbody>());
     internal readonly Vector3[] RawForces = new Vector3[Hydrostatics.ProbeCount];
-    internal readonly OutputFilter OutputFilter = new();
     internal readonly UnstickUpdateVelocity UnstickUpdateVelocity = new();
     internal readonly KrakenGuard KrakenGuard = new(shipGameObject.GetComponent<Rigidbody>());
     private Hydrostatics? _hydrostatics;

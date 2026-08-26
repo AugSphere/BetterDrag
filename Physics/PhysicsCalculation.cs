@@ -187,7 +187,7 @@ internal static class PhysicsCalculation
 #endif
         }
 
-        var forces = shipData.OutputFilter.FilterForces(shipData.RawForces);
+        var forces = shipData.RawForces;
 
         for (int idx = 0; idx < boatProbes._forcePoints.Length; ++idx)
         {
