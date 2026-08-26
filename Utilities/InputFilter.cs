@@ -12,10 +12,6 @@ internal sealed class InputFilter(Rigidbody rigidBody)
     private readonly InputStore _bodyVelocityStore = new();
     private readonly InputStore _waterVelocityStore = new();
     private readonly UnstickUpdateVelocity _unstickUpdateVelocity = new();
-    private const float VelocityCutoff = 30f;
-    private const float VelocityCutoffSqr = VelocityCutoff * VelocityCutoff;
-    private const float DisplacementCutoff = 15f;
-    private const float DisplacementCutoffSqr = DisplacementCutoff * DisplacementCutoff;
 
     internal (
         Vector3[] bodyVelocities,
@@ -35,11 +31,7 @@ internal sealed class InputFilter(Rigidbody rigidBody)
             _bodyVelocities[idx] = _rigidBody.GetPointVelocity(queryPoints[idx]);
         }
 
-        var areInputsValid =
-            !boatProbes.dontUpdateVelocity
-            && !HasMagnitudeOutliers(_bodyVelocities, VelocityCutoffSqr)
-            && !HasMagnitudeOutliers(queryVelocities, VelocityCutoffSqr)
-            && !HasMagnitudeOutliers(queryDisplacements, DisplacementCutoffSqr);
+        var areInputsValid = !boatProbes.dontUpdateVelocity;
 
 #if DEBUG
         BetterDragDebug.LogCSVBuffered([("update_v", !boatProbes.dontUpdateVelocity ? 1 : 0)]);
@@ -56,18 +48,6 @@ internal sealed class InputFilter(Rigidbody rigidBody)
             _waterVelocityStore.SavedValues,
             queryDisplacements
         );
-    }
-
-    private static bool HasMagnitudeOutliers(Vector3[] values, float outlierCutoffSqr)
-    {
-        for (int idx = 0; idx < Hydrostatics.ProbeCount; ++idx)
-        {
-            if (values[idx].sqrMagnitude > outlierCutoffSqr)
-            {
-                return true;
-            }
-        }
-        return false;
     }
 
     private sealed class InputStore
