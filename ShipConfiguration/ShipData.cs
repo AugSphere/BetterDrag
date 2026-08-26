@@ -27,7 +27,7 @@ internal sealed class ShipData(GameObject shipGameObject)
     internal readonly Vector3[] RawForces = new Vector3[Hydrostatics.ProbeCount];
     internal readonly OutputFilter OutputFilter = new();
     internal readonly UnstickUpdateVelocity UnstickUpdateVelocity = new();
-    internal readonly KrakenGuard KrakenGuard = new();
+    internal readonly KrakenGuard KrakenGuard = new(shipGameObject.GetComponent<Rigidbody>());
     private Hydrostatics? _hydrostatics;
     private float _baseBuoyancy = 25f;
     private float _overflowOffset = 10f;

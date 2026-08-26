@@ -1,3 +1,4 @@
+using System.Collections;
 using Crest;
 using UnityEngine;
 
@@ -5,22 +6,17 @@ namespace BetterDrag.Utilities;
 
 using Hydrostatics = Hydrostatics.Hydrostatics;
 
-internal sealed class KrakenGuard
+internal sealed class KrakenGuard(Rigidbody rigidBody)
 {
     private bool _wasSleeping;
 
-    internal void ApplySleepFixes(
-        Rigidbody rigidBody,
-        Vector3[] queryPoints,
-        Vector3[] queryDisplacements
-    )
+    internal void ApplySleepFixes(Vector3[] queryPoints, Vector3[] queryDisplacements)
     {
         if (GameState.sleeping)
         {
             if (!_wasSleeping)
             {
-                FreezeItems(rigidBody);
-                SetSailCollisions(rigidBody, false);
+                Sleep.instance.StartCoroutine(OnSleep(rigidBody, queryPoints, queryDisplacements));
             }
             _wasSleeping = true;
             return;
@@ -29,16 +25,42 @@ internal sealed class KrakenGuard
         {
             return;
         }
-        MoveShipToWaterSurface(rigidBody, queryPoints, queryDisplacements);
+        var velocity = rigidBody.velocity;
+        var currentEuler = rigidBody.rotation.eulerAngles;
+        rigidBody.isKinematic = true;
         UnfreezeItems(rigidBody);
         SetSailCollisions(rigidBody, true);
+        MoveShipToWaterSurface(rigidBody, queryPoints, queryDisplacements, velocity, currentEuler);
+        rigidBody.isKinematic = false;
+        rigidBody.velocity = velocity;
+        rigidBody.angularVelocity = Vector3.zero;
         _wasSleeping = false;
+    }
+
+    private static IEnumerator OnSleep(
+        Rigidbody rigidBody,
+        Vector3[] queryPoints,
+        Vector3[] queryDisplacements
+    )
+    {
+        yield return new WaitForSeconds(3f);
+        var velocity = rigidBody.velocity;
+        var currentEuler = rigidBody.rotation.eulerAngles;
+        rigidBody.isKinematic = true;
+        FreezeItems(rigidBody);
+        SetSailCollisions(rigidBody, false);
+        MoveShipToWaterSurface(rigidBody, queryPoints, queryDisplacements, velocity, currentEuler);
+        rigidBody.isKinematic = false;
+        rigidBody.velocity = velocity;
+        rigidBody.angularVelocity = Vector3.zero;
     }
 
     private static void MoveShipToWaterSurface(
         Rigidbody rigidBody,
         Vector3[] queryPoints,
-        Vector3[] queryDisplacements
+        Vector3[] queryDisplacements,
+        Vector3 velocity,
+        Vector3 currentEuler
     )
     {
         float seaLevel = OceanRenderer.Instance.SeaLevel;
@@ -46,8 +68,9 @@ internal sealed class KrakenGuard
         float waterHeightSample =
             seaLevel + queryDisplacements[midProbeIdx].y - queryPoints[midProbeIdx].y;
         rigidBody.position += Vector3.up * waterHeightSample;
+        rigidBody.rotation = Quaternion.Euler(0, currentEuler.y, currentEuler.z);
 #if DEBUG
-        BetterDragDebug.LogLineBuffered($"{rigidBody.name}: set vertical position after sleep");
+        BetterDragDebug.LogLineBuffered($"{rigidBody.name}: moved to water surface");
 #endif
     }
 

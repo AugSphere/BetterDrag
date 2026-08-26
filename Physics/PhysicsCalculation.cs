@@ -78,7 +78,7 @@ internal static class PhysicsCalculation
         float totalWeight
     )
     {
-        shipData.KrakenGuard.ApplySleepFixes(rigidBody, queryPoints, queryDisplacements);
+        shipData.KrakenGuard.ApplySleepFixes(queryPoints, queryDisplacements);
         if (!shipData.ModEnableCheck.IsModEnabled())
         {
             return;

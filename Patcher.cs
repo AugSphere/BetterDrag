@@ -1,4 +1,5 @@
-﻿using BetterDrag.Physics;
+﻿using System.Collections;
+using BetterDrag.Physics;
 using BetterDrag.ShipConfiguration;
 using BetterDrag.Utilities;
 using Crest;
@@ -108,4 +109,29 @@ internal static class BoatProbesFixedUpdateDragPatch
         var shipData = ShipData.GetShipData(rigidbody.gameObject);
         shipData.CalculateOverflowOffset(__instance);
     }
+
+#if DEBUG
+    [HarmonyPrefix]
+    [HarmonyPatch(typeof(Sleep), nameof(Sleep.FallAsleep))]
+    internal static bool FallAsleep(Sleep __instance, ref float ___currentSleepDuration)
+    {
+        Debug.Log("Falling asleep.");
+        PlayerNeedsUI.instance.CloseNeedsUI();
+        GameState.sleeping = true;
+        ___currentSleepDuration = 0f;
+        Refs.SetPlayerControl(state: false);
+
+        static IEnumerator StartSleepTimeWarp()
+        {
+            yield return new WaitForSeconds(3f);
+            Time.fixedDeltaTime *= 10f;
+            Time.timeScale = 16f;
+            GameState.eyesFullyClosed = true;
+        }
+        ;
+
+        __instance.StartCoroutine(StartSleepTimeWarp());
+        return false;
+    }
+#endif
 }
