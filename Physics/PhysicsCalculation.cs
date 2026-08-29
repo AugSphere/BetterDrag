@@ -12,6 +12,13 @@ internal static class PhysicsCalculation
 {
     private static readonly float WaterWeight = 1000f * Mathf.Abs(UnityEngine.Physics.gravity.y);
 
+    private enum Direction
+    {
+        Forward,
+        Sideways,
+        Vertical,
+    };
+
     private static float CalculateDragForce(
         float velocity,
         float displacement,
@@ -19,8 +26,8 @@ internal static class PhysicsCalculation
         float lengthAtWaterline,
         float unloadedMass,
         ShipDragPerformanceData performanceData,
-        bool isLongitudinal,
-        int probeIdx
+        int probeIdx,
+        Direction direction
     )
     {
         var absVelocity = Mathf.Abs(velocity);
@@ -41,11 +48,15 @@ internal static class PhysicsCalculation
                 wettedArea
             );
 
-        if (!isLongitudinal)
+        switch (direction)
         {
-            return Plugin.GlobalOffAxisDragMultiplier!.Value
-                * DragModel.CalculateLinearDragForce(absVelocity, wettedArea, unloadedMass);
+            case Direction.Vertical:
+                return Plugin.GlobalVerticalDragMultiplier!.Value
+                    * DragModel.CalculateLinearDragForce(absVelocity, wettedArea, unloadedMass);
+            case Direction.Sideways:
+                return 150f * Plugin.GlobalSidewaysDragMultiplier!.Value * viscousDrag;
         }
+        ;
 
         var waveMakingDrag =
             Plugin.GlobalWaveMakingDragMultiplier!.Value
@@ -100,6 +111,7 @@ internal static class PhysicsCalculation
 
         float seaLevel = OceanRenderer.Instance.SeaLevel;
         Vector3 bodyForward = rigidBody.transform.forward;
+        Vector3 bodyUp = rigidBody.transform.up;
 
         for (int idx = 0; idx < boatProbes._forcePoints.Length; ++idx)
         {
@@ -131,34 +143,30 @@ internal static class PhysicsCalculation
             Vector3 bodyPointVelocity = bodyVelocities[idx];
             Vector3 relativeVelocity = bodyPointVelocity - queryVelocities[idx];
             Vector3 forwardVelocity = Vector3.Project(relativeVelocity, bodyForward);
-            Vector3 offAxisVelocity = relativeVelocity - forwardVelocity;
+            Vector3 verticalVelocity = Vector3.Project(relativeVelocity, bodyUp);
+            Vector3 sidewaysVelocity = relativeVelocity - forwardVelocity - verticalVelocity;
 
-            float forwardDrag = CalculateDragForce(
-                forwardVelocity.magnitude,
-                displacement,
-                area,
-                lengthAtWaterline,
-                unloadedMass,
-                shipData.DragData,
-                true,
-                idx
-            );
-
-            float offAxisDrag = CalculateDragForce(
-                offAxisVelocity.magnitude,
-                displacement,
-                area,
-                lengthAtWaterline,
-                unloadedMass,
-                shipData.DragData,
-                false,
-                idx
-            );
+            float GetDrag(Vector3 velocity, Direction direction) =>
+                CalculateDragForce(
+                    velocity.magnitude,
+                    displacement,
+                    area,
+                    lengthAtWaterline,
+                    unloadedMass,
+                    shipData.DragData,
+                    idx,
+                    direction
+                );
+            ;
+            float forwardDrag = GetDrag(forwardVelocity, Direction.Forward);
+            float sidewaysDrag = GetDrag(sidewaysVelocity, Direction.Sideways);
+            float verticalDrag = GetDrag(verticalVelocity, Direction.Vertical);
 
             Vector3 buoyantForce = Vector3.up * buoyantForceMagnitude;
             Vector3 dragForce =
-                (-forwardVelocity.normalized * forwardDrag)
-                - (offAxisVelocity.normalized * offAxisDrag);
+                -forwardVelocity.normalized * forwardDrag
+                - sidewaysVelocity.normalized * sidewaysDrag
+                - verticalVelocity.normalized * verticalDrag;
 
             shipData.RawForces[idx] = buoyantForce + dragForce;
             boatProbes.appliedBuoyancyForces[idx] = buoyantForceMagnitude;
@@ -171,12 +179,14 @@ internal static class PhysicsCalculation
             BetterDragDebug.LogVectorComponents(csvItems, "v_w", idx, queryVelocities[idx]);
             BetterDragDebug.LogVectorComponents(csvItems, "v_rel", idx, relativeVelocity);
             BetterDragDebug.LogVectorComponents(csvItems, "v_fw", idx, forwardVelocity);
-            BetterDragDebug.LogVectorComponents(csvItems, "v_oa", idx, offAxisVelocity);
+            BetterDragDebug.LogVectorComponents(csvItems, "v_sw", idx, sidewaysVelocity);
+            BetterDragDebug.LogVectorComponents(csvItems, "v_vt", idx, verticalVelocity);
             BetterDragDebug.LogVectorComponents(csvItems, "drag", idx, dragForce);
             csvItems.Add(($"displacement_p{idx}", displacement));
             csvItems.Add(($"area_p{idx}", area));
             csvItems.Add(($"drag_fw_p{idx}", forwardDrag));
-            csvItems.Add(($"drag_oa_p{idx}", offAxisDrag));
+            csvItems.Add(($"drag_sw_p{idx}", sidewaysDrag));
+            csvItems.Add(($"drag_vt_p{idx}", verticalDrag));
             shipData.BuoyancyForceRenderers[idx].SetMagnitude(buoyantForceMagnitude / 1000f);
             shipData.DragForceRenderers[idx].SetDirection(dragForce.normalized);
             shipData.DragForceRenderers[idx].SetMagnitude(dragForce.magnitude / 1000f);

@@ -29,7 +29,8 @@ internal sealed class Plugin : BaseUnityPlugin
     internal static ConfigEntry<float>? GlobalShipLengthMultiplier;
     internal static ConfigEntry<float>? GlobalBuoyancyMultiplier;
     internal static ConfigEntry<float>? GlobalMassMultiplier;
-    internal static ConfigEntry<float>? GlobalOffAxisDragMultiplier;
+    internal static ConfigEntry<float>? GlobalSidewaysDragMultiplier;
+    internal static ConfigEntry<float>? GlobalVerticalDragMultiplier;
     internal static ConfigEntry<bool>? EnableDuringSleep;
     internal static Dictionary<string, ShipDragPerformanceData> ShipOverrides = [];
 #if DEBUG
@@ -92,13 +93,23 @@ internal sealed class Plugin : BaseUnityPlugin
             )
         );
 
-        GlobalOffAxisDragMultiplier = Config.Bind(
+        GlobalSidewaysDragMultiplier = Config.Bind(
             "--------- Global Multipliers ---------",
-            nameof(GlobalOffAxisDragMultiplier),
-            150f,
+            nameof(GlobalSidewaysDragMultiplier),
+            1.0f,
             new ConfigDescription(
-                "Viscous drag multiplier for vertical and lateral movement. Higher values make ships less prone to drifting sideways.",
-                new AcceptableValueRange<float>(50f, 250.0f)
+                "Viscous drag multiplier for lateral movement. Higher values make ships less prone to drifting sideways.",
+                new AcceptableValueRange<float>(0.1f, 5.0f)
+            )
+        );
+
+        GlobalVerticalDragMultiplier = Config.Bind(
+            "--------- Global Multipliers ---------",
+            nameof(GlobalVerticalDragMultiplier),
+            1.0f,
+            new ConfigDescription(
+                "Drag multiplier for vertical movement. Higher values reduce vertical bobbing.",
+                new AcceptableValueRange<float>(0.1f, 5.0f)
             )
         );
 
