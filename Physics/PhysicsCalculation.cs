@@ -111,8 +111,7 @@ internal static class PhysicsCalculation
 
         float seaLevel = OceanRenderer.Instance.SeaLevel;
         Vector3 bodyForward = rigidBody.transform.forward;
-        bodyForward.y = 0;
-        Vector3 bodyUp = Vector3.up;
+        Vector3 bodyUp = rigidBody.transform.up;
 
         for (int idx = 0; idx < boatProbes._forcePoints.Length; ++idx)
         {
