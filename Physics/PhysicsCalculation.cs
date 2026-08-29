@@ -54,7 +54,9 @@ internal static class PhysicsCalculation
                 return Plugin.GlobalVerticalDragMultiplier!.Value
                     * DragModel.CalculateLinearDragForce(absVelocity, wettedArea, unloadedMass);
             case Direction.Sideways:
-                return 150f * Plugin.GlobalSidewaysDragMultiplier!.Value * viscousDrag;
+                return 0.5f
+                    * Plugin.GlobalSidewaysDragMultiplier!.Value
+                    * DragModel.CalculateLinearDragForce(absVelocity, wettedArea, unloadedMass);
         }
         ;
 
