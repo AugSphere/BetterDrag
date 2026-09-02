@@ -13,13 +13,6 @@ using System.Diagnostics.CodeAnalysis;
     Target = "~T:BetterDrag.Hydrostatics.Hydrostatics"
 )]
 [assembly: SuppressMessage(
-    "Performance",
-    "CA1814:Prefer jagged arrays over multidimensional",
-    Justification = "Wastes no space",
-    Scope = "type",
-    Target = "~T:BetterDrag.Utilities.OutputFilter"
-)]
-[assembly: SuppressMessage(
     "BepIn convention",
     "CA2243:Attribute string literals should parse correctly",
     Justification = "Bepin convention",
@@ -45,7 +38,7 @@ using System.Diagnostics.CodeAnalysis;
     "IDE1006:Naming Styles",
     Justification = "Harmony syntax",
     Scope = "type",
-    Target = "~T:BetterDrag.BoatProbesFixedUpdateDragPatch"
+    Target = "~T:BetterDrag.Patcher"
 )]
 [assembly: SuppressMessage(
     "Performance",
