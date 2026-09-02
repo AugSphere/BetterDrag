@@ -85,6 +85,11 @@ internal sealed class KrakenGuard(Rigidbody rigidBody)
         Vector3[] queryDisplacements
     )
     {
+        if (Patcher.CurrentBoatIsMoored(Sleep.instance))
+        {
+            return;
+        }
+
         float seaLevel = OceanRenderer.Instance.SeaLevel;
         uint midProbeIdx = Hydrostatics.ProbeCount / 2;
         float waterHeightSample =
