@@ -1,10 +1,8 @@
 ﻿using System;
-using HarmonyLib;
 using UnityEngine;
 
 namespace BetterDrag.Utilities;
 
-[HarmonyPatch]
 internal sealed class ModEnableCheck(GameObject shipGameObject)
 {
     private static readonly string[] DisableForShipList = ["BOAT CUTTER (212)"];
@@ -31,11 +29,6 @@ internal sealed class ModEnableCheck(GameObject shipGameObject)
 
     private static bool IsEnabledWhileSleeping()
     {
-        return Plugin.EnableDuringSleep!.Value && !CurrentBoatIsMoored(Sleep.instance);
+        return Plugin.EnableDuringSleep!.Value && !Patcher.CurrentBoatIsMoored(Sleep.instance);
     }
-
-    [HarmonyReversePatch]
-    [HarmonyPatch(typeof(Sleep), "CurrentBoatIsMoored")]
-    public static bool CurrentBoatIsMoored(object instance) =>
-        throw new NotImplementedException("It's a stub");
 }

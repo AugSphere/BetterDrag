@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using BetterDrag.Physics;
 using BetterDrag.ShipConfiguration;
 using BetterDrag.Utilities;
@@ -9,7 +10,7 @@ using UnityEngine;
 namespace BetterDrag;
 
 [HarmonyPatch]
-internal static class BoatProbesFixedUpdateDragPatch
+internal static class Patcher
 {
     [HarmonyPrefix]
     [HarmonyPatch(typeof(BoatProbes), "FixedUpdateDrag")]
@@ -109,6 +110,11 @@ internal static class BoatProbesFixedUpdateDragPatch
         var shipData = ShipData.GetShipData(rigidbody.gameObject);
         shipData.CalculateOverflowOffset(__instance);
     }
+
+    [HarmonyReversePatch]
+    [HarmonyPatch(typeof(Sleep), "CurrentBoatIsMoored")]
+    internal static bool CurrentBoatIsMoored(object instance) =>
+        throw new NotImplementedException("It's a stub");
 
 #if DEBUG
     [HarmonyPrefix]
