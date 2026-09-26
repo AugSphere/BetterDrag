@@ -21,6 +21,7 @@ internal static class DefaultShipConfigurations
         {
             "BOAT dhow small (10)" => new(formFactor: 0.25f, buoyancyMultiplier: 0.08f),
             "BOAT dhow medium (20)" => new(formFactor: 0.21f, buoyancyMultiplier: 0.10f),
+            "BOAT dhow large (30)" => new(formFactor: 0.20f, buoyancyMultiplier: 0.20f),
             "BOAT medi small (40)" => new(formFactor: 0.24f, buoyancyMultiplier: 0.07f),
             "BOAT medi medium (50)" => new(formFactor: 0.19f, buoyancyMultiplier: 0.17f),
             "BOAT junk large (70)" => new(formFactor: 0.23f, buoyancyMultiplier: 0.15f),
