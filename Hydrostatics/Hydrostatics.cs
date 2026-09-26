@@ -27,7 +27,7 @@ internal sealed class Hydrostatics
     private readonly string _shipName;
 
 #if DEBUG && DRAW_HULL
-    static readonly Color[] colorList =
+    private static readonly Color[] ColorList =
     [
         Color.white,
         Color.gray,
@@ -36,9 +36,9 @@ internal sealed class Hydrostatics
         Color.red,
         Color.green,
     ];
-    readonly DebugSphereRenderer?[,] renderers = new DebugSphereRenderer?[
-        heightSegmentCount + 1,
-        lengthSegmentCount + 1
+    private readonly DebugSphereRenderer?[,] _renderers = new DebugSphereRenderer?[
+        HeightSegmentCount + 1,
+        LengthSegmentCount + 1
     ];
 #endif
 
@@ -211,7 +211,7 @@ internal sealed class Hydrostatics
                     hullPoints[heightIdx, lengthIdx] = hitPoint;
                     beamWidths[lengthIdx] = Mathf.Max(beamWidths[lengthIdx], hitPoint.x);
 #if DEBUG && DRAW_HULL
-                    renderers[heightIdx, lengthIdx] = new(rigidbody, hitPoint, radius: 0.1f);
+                    _renderers[heightIdx, lengthIdx] = new(rigidbody, hitPoint, radius: 0.1f);
 #endif
                 }
                 else
@@ -243,8 +243,10 @@ internal sealed class Hydrostatics
                 var aheadPointHigh = hullPoints[heightIdx + 1, lengthIdx + 1];
                 var halfProbeIdx = FindNearestProbe(boatProbes._forcePoints, asternPointLow) / 2;
 #if DEBUG && DRAW_HULL
-                if (renderers[heightIdx, lengthIdx] is not null)
-                    renderers[heightIdx, lengthIdx]!.SetColor(colorList[halfProbeIdx]);
+                if (_renderers[heightIdx, lengthIdx] is not null)
+                {
+                    _renderers[heightIdx, lengthIdx]!.SetColor(ColorList[halfProbeIdx]);
+                }
 #endif
 
                 ApplyTriangleContribution(
