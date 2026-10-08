@@ -94,14 +94,6 @@ internal static class GeometryQueries
                 hitInfo = hit;
             }
         }
-#if DEBUG && VERBOSE
-        if (isHit)
-        {
-            BetterDragDebug.LogLineBuffered(
-                $"First hit on {hitInfo.collider.name} {hitInfo.collider.GetType().FullName} layer {hitInfo.collider.gameObject.layer}"
-            );
-        }
-#endif
         return isHit;
     }
 

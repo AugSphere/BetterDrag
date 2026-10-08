@@ -10,6 +10,16 @@ namespace BetterDrag.Utilities;
 
 internal static class BetterDragDebug
 {
+    internal static readonly Color[] ColorList =
+    [
+        Color.white,
+        Color.gray,
+        Color.black,
+        Color.blue,
+        Color.red,
+        Color.green,
+    ];
+
     private static bool s_isOnFirstRun = true;
     private static uint s_counter = 1;
     private static readonly Dictionary<string, float> CsvBuffer = [];
@@ -120,6 +130,12 @@ internal sealed class DebugSphereRenderer
         _positionUpdater.RelativeToCoM = relativeToCoM;
     }
 
+    ~DebugSphereRenderer()
+    {
+        UnityEngine.Object.Destroy(_lineRenderer);
+        UnityEngine.Object.Destroy(_positionUpdater);
+    }
+
     internal void SetColor(Color color)
     {
         _lineRenderer.startColor = color;
@@ -201,6 +217,11 @@ internal sealed class DebugVectorRenderer
         _glRenderer.LocalOrigin = localOrigin;
         _glRenderer.WorldDirection = worldDirection;
         _glRenderer.Color = color;
+    }
+
+    ~DebugVectorRenderer()
+    {
+        UnityEngine.Object.Destroy(_glRenderer);
     }
 
     internal void SetMagnitude(float magnitude)

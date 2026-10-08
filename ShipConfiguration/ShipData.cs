@@ -4,6 +4,7 @@ using UnityEngine;
 using static BetterDrag.Hydrostatics.GeometryQueries;
 #if DEBUG
 using System.Collections.Generic;
+using BetterDrag.Hydrostatics;
 #endif
 
 namespace BetterDrag.ShipConfiguration;
@@ -53,6 +54,7 @@ internal sealed class ShipData(GameObject shipGameObject)
     public List<DebugVectorRenderer> WaterVelocityRenderers = [];
     public List<DebugVectorRenderer> RelativeVelocityRenderers = [];
     public List<DebugVectorRenderer> OutputForceRenderers = [];
+    public ColldierProbe ColliderProbe = new();
 #endif
 
     public static ShipData GetShipData(GameObject shipGameObject)
@@ -71,6 +73,9 @@ internal sealed class ShipData(GameObject shipGameObject)
     ) GetValues(BoatProbes boatProbes)
     {
         UnstickUpdateVelocity.Update(boatProbes);
+#if DEBUG
+        ColliderProbe.Probe(_rigidBody);
+#endif
         if (!_valuesSet)
         {
             CalculateDraftOffset(boatProbes);

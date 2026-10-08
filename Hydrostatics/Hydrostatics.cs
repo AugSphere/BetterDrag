@@ -1,4 +1,5 @@
-﻿using BetterDrag.Utilities;
+﻿#define DRAW_HULL
+using BetterDrag.Utilities;
 using Crest;
 using UnityEngine;
 
@@ -27,15 +28,6 @@ internal sealed class Hydrostatics
     private readonly string _shipName;
 
 #if DEBUG && DRAW_HULL
-    private static readonly Color[] ColorList =
-    [
-        Color.white,
-        Color.gray,
-        Color.black,
-        Color.blue,
-        Color.red,
-        Color.green,
-    ];
     private readonly DebugSphereRenderer?[,] _renderers = new DebugSphereRenderer?[
         HeightSegmentCount + 1,
         LengthSegmentCount + 1
@@ -149,7 +141,7 @@ internal sealed class Hydrostatics
         if (
             CastHullRaysOnLayer(
                 rigidbody,
-                LayerMask.GetMask("OnlyPlayerCol+Paintable"),
+                LayerMask.GetMask("Default", "OnlyPlayerCol+Paintable"),
                 out hullPoints,
                 out beamWidths
             )
@@ -161,7 +153,7 @@ internal sealed class Hydrostatics
         {
 #if DEBUG
             BetterDragDebug.LogLineBuffered(
-                $"{_shipName}: no hits on hull, falling back to embark."
+                $"{_shipName}: no hits on hull, falling back to embark"
             );
 #endif
             return CastHullRaysOnLayer(
@@ -245,7 +237,9 @@ internal sealed class Hydrostatics
 #if DEBUG && DRAW_HULL
                 if (_renderers[heightIdx, lengthIdx] is not null)
                 {
-                    _renderers[heightIdx, lengthIdx]!.SetColor(ColorList[halfProbeIdx]);
+                    _renderers[heightIdx, lengthIdx]!.SetColor(
+                        BetterDragDebug.ColorList[halfProbeIdx]
+                    );
                 }
 #endif
 

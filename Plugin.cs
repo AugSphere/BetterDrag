@@ -35,6 +35,8 @@ internal sealed class Plugin : BaseUnityPlugin
     internal static Dictionary<string, ShipDragPerformanceData> ShipOverrides = [];
 #if DEBUG
     internal static ConfigEntry<int>? DebugPrintPeriod;
+    internal static ConfigEntry<float>? ColliderProbeZ;
+    internal static ConfigEntry<float>? ColliderProbeY;
 #endif
 
     internal void Awake()
@@ -130,6 +132,26 @@ internal sealed class Plugin : BaseUnityPlugin
             new ConfigDescription(
                 "How frequently debug data is printed to harmony.log.txt.",
                 new AcceptableValueRange<int>(1, 500)
+            )
+        );
+
+        ColliderProbeY = Config.Bind(
+            "--------Ω Debug Ω--------",
+            nameof(ColliderProbeY),
+            0f,
+            new ConfigDescription(
+                "Y coordinate of collider probe",
+                new AcceptableValueRange<float>(-20, 20)
+            )
+        );
+
+        ColliderProbeZ = Config.Bind(
+            "--------Ω Debug Ω--------",
+            nameof(ColliderProbeZ),
+            0f,
+            new ConfigDescription(
+                "Z coordinate of collider probe",
+                new AcceptableValueRange<float>(-20, 20)
             )
         );
 #endif
