@@ -21,7 +21,7 @@ internal sealed class Cache<T>(string name, Func<GameObject, T> createValueCallb
         }
 
 #if DEBUG && VERBOSE
-        Debug.LogBuffered($"{name}: L1 cache miss for {key.name}");
+        BetterDragDebug.LogLineBuffered($"{_name}: L1 cache miss for {key.name}");
 #endif
         T value = _cache.GetValue(key, _createValueCallback);
         _lastAccessed = (key, value);
@@ -33,7 +33,7 @@ internal sealed class Cache<T>(string name, Func<GameObject, T> createValueCallb
         _cache.Remove(key);
         _cache.Add(key, value);
 #if DEBUG && VERBOSE
-        Debug.LogBuffered($"{name}: set {value} for {key.name}");
+        BetterDragDebug.LogLineBuffered($"{_name}: set {value} for {key.name}");
 #endif
     }
 }

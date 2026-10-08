@@ -3,6 +3,10 @@ using UnityEngine;
 
 namespace BetterDrag.Hydrostatics;
 
+#if DEBUG && VERBOSE
+using BetterDrag.Utilities;
+#endif
+
 internal static class GeometryQueries
 {
     internal const float DefaultRadius = 0.1f;
