@@ -1,3 +1,4 @@
+#if DEBUG
 using System;
 using System.Collections.Generic;
 using BetterDrag.Utilities;
@@ -58,3 +59,4 @@ internal sealed class ColldierProbe
         }
     }
 }
+#endif
