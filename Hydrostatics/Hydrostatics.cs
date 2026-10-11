@@ -1,5 +1,4 @@
-﻿#define DRAW_HULL
-using BetterDrag.Utilities;
+﻿using BetterDrag.Utilities;
 using Crest;
 using UnityEngine;
 

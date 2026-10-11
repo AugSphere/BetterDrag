@@ -47,6 +47,7 @@ internal static class DefaultShipConfigurations
             "BOAT Le Requin (131)" => new(formFactor: 0.10f, buoyancyMultiplier: 0.10f),
             "BOAT LEOPARD (207)" => new(formFactor: 0.20f, buoyancyMultiplier: 0.065f),
             "DNG Cutter" => new(formFactor: 0.23f, buoyancyMultiplier: 0.22f),
+            "BOAT SANTA MARIA (222)" => new(formFactor: 0.25f, buoyancyMultiplier: 0.05f),
             _ => new(),
         };
     }
