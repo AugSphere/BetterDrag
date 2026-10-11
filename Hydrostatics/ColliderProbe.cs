@@ -49,11 +49,10 @@ internal sealed class ColldierProbe
 
             var hitPoint = rigidbody.transform.InverseTransformPoint(hitInfo.point);
             var colorIdx = idx % BetterDragDebug.ColorList.Length;
-            _colliderPoints.Add(
-                new(rigidbody, hitPoint, radius: 0.1f, color: BetterDragDebug.ColorList[colorIdx])
-            );
+            var color = BetterDragDebug.ColorList[colorIdx];
+            _colliderPoints.Add(new(rigidbody, hitPoint, radius: 0.1f, color: color));
             BetterDragDebug.LogLineBuffered(
-                $"{rigidbody.name} {idx}: {hitInfo.collider.name} {hitInfo.collider.GetType().FullName} layer {hitInfo.collider.gameObject.layer}"
+                $"{rigidbody.name} {idx}: {hitInfo.collider.name} {hitInfo.collider.GetType().FullName} layer {hitInfo.collider.gameObject.layer}, {color}"
             );
             ++idx;
         }
