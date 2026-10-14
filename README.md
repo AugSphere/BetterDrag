@@ -40,7 +40,8 @@ Setting custom water drag functions through
 config files is not supported.
 
 # Mod compatibility
-There are no known conflicts.
+There are no known conflicts. Mod physics are disabled for
+[dinghies](https://github.com/alesparise/Dinghies-Sailwind-Mod).
 
 If you are an author of a ship mod and would like to include custom drag
 settings for your ship, add this mod's assembly reference and set up
