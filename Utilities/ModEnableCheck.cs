@@ -5,7 +5,7 @@ namespace BetterDrag.Utilities;
 
 internal sealed class ModEnableCheck(GameObject shipGameObject)
 {
-    private static readonly string[] DisableForShipList = ["BOAT CUTTER (212)"];
+    private static readonly string[] DisableForShipList = ["BOAT CUTTER (212)", "DNG Cutter"];
     private readonly bool _isEnabledForShip = IsEnabledForShip(shipGameObject);
 
     internal bool IsModEnabled()
