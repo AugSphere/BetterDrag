@@ -13,6 +13,10 @@ internal sealed class KrakenGuard(Rigidbody rigidBody)
 
     internal void ApplySleepFixes(Vector3[] queryPoints, Vector3[] queryDisplacements)
     {
+        if (Patcher.CurrentBoatIsMoored(Sleep.instance))
+        {
+            return;
+        }
         if (GameState.sleeping)
         {
             if (!_wasSleeping)
