@@ -10,10 +10,11 @@ using Hydrostatics = Hydrostatics.Hydrostatics;
 internal sealed class KrakenGuard(Rigidbody rigidBody)
 {
     private bool _wasSleeping;
+    private readonly BoatDamage _boatDamage = rigidBody.gameObject.GetComponent<BoatDamage>();
 
     internal void ApplySleepFixes(Vector3[] queryPoints, Vector3[] queryDisplacements)
     {
-        if (Patcher.CurrentBoatIsMoored(Sleep.instance))
+        if (Patcher.BoatIsMoored(_boatDamage))
         {
             return;
         }
@@ -21,7 +22,9 @@ internal sealed class KrakenGuard(Rigidbody rigidBody)
         {
             if (!_wasSleeping)
             {
-                Sleep.instance.StartCoroutine(OnSleep(rigidBody, queryPoints, queryDisplacements));
+                Sleep.instance.StartCoroutine(
+                    OnSleep(rigidBody, queryPoints, queryDisplacements, _boatDamage)
+                );
                 _wasSleeping = true;
             }
             return;
@@ -30,14 +33,17 @@ internal sealed class KrakenGuard(Rigidbody rigidBody)
         {
             return;
         }
-        Sleep.instance.StartCoroutine(OnWakeup(rigidBody, queryPoints, queryDisplacements));
+        Sleep.instance.StartCoroutine(
+            OnWakeup(rigidBody, queryPoints, queryDisplacements, _boatDamage)
+        );
         _wasSleeping = false;
     }
 
     private static IEnumerator OnSleep(
         Rigidbody rigidBody,
         Vector3[] queryPoints,
-        Vector3[] queryDisplacements
+        Vector3[] queryDisplacements,
+        BoatDamage boatDamage
     )
     {
         yield return new WaitForSeconds(3f);
@@ -46,7 +52,7 @@ internal sealed class KrakenGuard(Rigidbody rigidBody)
             () =>
             {
                 FreezeItems(rigidBody);
-                MoveShipToWaterSurface(rigidBody, queryPoints, queryDisplacements);
+                MoveShipToWaterSurface(rigidBody, queryPoints, queryDisplacements, boatDamage);
             }
         );
     }
@@ -54,7 +60,8 @@ internal sealed class KrakenGuard(Rigidbody rigidBody)
     private static IEnumerator OnWakeup(
         Rigidbody rigidBody,
         Vector3[] queryPoints,
-        Vector3[] queryDisplacements
+        Vector3[] queryDisplacements,
+        BoatDamage boatDamage
     )
     {
         for (int idx = 0; idx < 3; ++idx)
@@ -66,7 +73,7 @@ internal sealed class KrakenGuard(Rigidbody rigidBody)
             () =>
             {
                 UnfreezeItems(rigidBody);
-                MoveShipToWaterSurface(rigidBody, queryPoints, queryDisplacements);
+                MoveShipToWaterSurface(rigidBody, queryPoints, queryDisplacements, boatDamage);
             }
         );
     }
@@ -86,10 +93,11 @@ internal sealed class KrakenGuard(Rigidbody rigidBody)
     private static void MoveShipToWaterSurface(
         Rigidbody rigidBody,
         Vector3[] queryPoints,
-        Vector3[] queryDisplacements
+        Vector3[] queryDisplacements,
+        BoatDamage boatDamage
     )
     {
-        if (Patcher.CurrentBoatIsMoored(Sleep.instance))
+        if (Patcher.BoatIsMoored(boatDamage))
         {
             return;
         }

@@ -112,8 +112,8 @@ internal static class Patcher
     }
 
     [HarmonyReversePatch]
-    [HarmonyPatch(typeof(Sleep), "CurrentBoatIsMoored")]
-    internal static bool CurrentBoatIsMoored(object instance) =>
+    [HarmonyPatch(typeof(BoatDamage), "BoatIsMoored")]
+    internal static bool BoatIsMoored(BoatDamage instance) =>
         throw new NotImplementedException("It's a stub");
 
 #if DEBUG

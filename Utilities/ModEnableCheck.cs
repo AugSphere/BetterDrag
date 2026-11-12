@@ -7,6 +7,7 @@ internal sealed class ModEnableCheck(GameObject shipGameObject)
 {
     private static readonly string[] DisableForShipList = ["BOAT CUTTER (212)", "DNG Cutter"];
     private readonly bool _isEnabledForShip = IsEnabledForShip(shipGameObject);
+    private readonly BoatDamage _boatDamage = shipGameObject.GetComponent<BoatDamage>();
 
     internal bool IsModEnabled()
     {
@@ -35,8 +36,8 @@ internal sealed class ModEnableCheck(GameObject shipGameObject)
         return true;
     }
 
-    private static bool IsEnabledWhileSleeping()
+    private bool IsEnabledWhileSleeping()
     {
-        return Plugin.EnableDuringSleep!.Value && !Patcher.CurrentBoatIsMoored(Sleep.instance);
+        return Plugin.EnableDuringSleep!.Value && !Patcher.BoatIsMoored(_boatDamage);
     }
 }
